@@ -87,14 +87,14 @@ export default function Home() {
             </Link>
           </div>
         </div>
-        <div className="hidden md:block relative bg-off">
+        <div className="relative bg-off aspect-[4/3] md:aspect-auto">
           <Image
             src="/brand/hero-piano-doorway.jpg"
             alt="A pianist glimpsed through a doorway"
             fill
             priority
             className="object-cover photo-mono"
-            sizes="45vw"
+            sizes="(max-width: 768px) 100vw, 45vw"
           />
         </div>
       </section>
@@ -127,13 +127,13 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className="relative aspect-[4/5] hidden md:block">
+        <div className="relative aspect-[4/5]">
           <Image
             src="/brand/about-violin-bridge.jpg"
             alt="Close detail of a violin bow and bridge"
             fill
             className="object-cover photo-mono"
-            sizes="40vw"
+            sizes="(max-width: 768px) 100vw, 40vw"
           />
         </div>
       </section>

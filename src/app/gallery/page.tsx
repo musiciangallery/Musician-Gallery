@@ -1,0 +1,22 @@
+import type { Metadata } from "next";
+import GalleryBrowser from "@/components/GalleryBrowser";
+
+export const metadata: Metadata = {
+  title: "The Gallery | Musician Gallery",
+};
+
+export default function GalleryPage() {
+  return (
+    <section className="max-w-6xl mx-auto px-6 md:px-[52px] py-16">
+      <span className="eyebrow">The Gallery</span>
+      <h1 className="font-serif text-4xl md:text-5xl mt-3 mb-4">
+        Every musician, <em>considered.</em>
+      </h1>
+      <p className="text-sm text-mid max-w-xl mb-12">
+        Browse vetted event musicians and teachers across Aotearoa New Zealand.
+        Filter by instrument, region, or occasion to find exactly who you need.
+      </p>
+      <GalleryBrowser />
+    </section>
+  );
+}

@@ -18,29 +18,47 @@ environment that occasionally left a partial install behind.
 
 ## What's built (working, click through it)
 
-- `/` — homepage, ported from the static concept site
+- `/` — homepage, ported from the static concept site, with real photography
 - `/gallery` — browse all musicians, filterable by instrument, region, occasion
 - `/musicians/[slug]` — individual musician profile
 - `/book/[slug]` — 3-step booking request flow (occasion/date → contact
   details → review & submit)
 - `/join` — musician application form (name, instrument, region, bio)
+- `/admin` — password-protected internal page listing booking requests and
+  musician applications as they come in (see Database setup below)
+- `/terms`, `/privacy` — full Terms & Conditions and Privacy Policy content
 - `/api/bookings` and `/api/musician-applications` — API routes backing
-  the two forms above
+  the two forms above, now writing to a real Postgres database
+
+## Database setup (required for booking/join forms to work)
+
+Booking requests and musician applications are saved to a Postgres
+database via Neon. This needs to be connected once per environment:
+
+1. In the Vercel dashboard, open this project → **Storage** tab →
+   **Create Database** → choose **Postgres** (powered by Neon) → follow
+   the prompts → **Connect** it to this project. Vercel automatically
+   sets the `DATABASE_URL` environment variable — no manual copying of
+   connection strings needed.
+2. Still in Vercel, go to **Settings → Environment Variables** and add:
+   - `ADMIN_PASSWORD` — a password of your choosing, protects `/admin`
+   - `ADMIN_USER` — optional, defaults to `admin` if not set
+3. Redeploy (Vercel usually does this automatically after an env var
+   change; if not, trigger a redeploy from the Deployments tab).
+4. Visit `yoursite.com/admin` — your browser will prompt for the
+   username/password you just set. Tables are created automatically on
+   first booking/application submission (or first admin page load).
+
+For local development, create a `.env.local` file with `DATABASE_URL`
+pointing at a Neon (or any Postgres) connection string, plus
+`ADMIN_PASSWORD`.
 
 ## What's mocked / prototype-only
 
 - **Musician data** lives in `src/lib/musicians.ts` as a hardcoded array
-  (9 example profiles). Swap this for real database queries once you
-  have a backend — the shape (`Musician` type) is designed to map
-  cleanly onto a database table.
-- **Booking requests and musician applications** are written to flat
-  JSON files (`data/bookings.json`, `data/musician-applications.json`)
-  by the API routes. This works for local development only — it will
-  not persist correctly on a serverless host (Vercel, etc.) and must be
-  replaced with a real database (e.g. Postgres via Supabase) before
-  launch. The API route code is written so that swap is a matter of
-  replacing the `readBookings`/`writeBookings` functions, not
-  rewriting the forms.
+  (9 example profiles, some using placeholder photography). Swap this
+  for real database queries once real musicians sign up — the shape
+  (`Musician` type) is designed to map cleanly onto a database table.
 
 ## Not yet built (the parts that need real accounts/credentials)
 
@@ -52,10 +70,8 @@ for real — see the funding deck's Risks & Mitigations section:
 - **Police vetting** — needs an approved vetting provider/API before
   there's anything to integrate against
 - **Withholding tax** — IRD integration for automatic tax handling
-- **Authentication** — musician/client login, a musician dashboard to
-  view and respond to booking requests
-- **Real photos** — the gallery currently has no images; add a `photo`
-  field to `Musician` and swap `MusicianCard`/profile pages to render it
+- **Musician-facing login** — currently only the internal `/admin` view
+  exists; musicians can't yet log in to see their own bookings
 
 ## Notes on fonts
 

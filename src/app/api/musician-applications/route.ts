@@ -1,28 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
 import { randomUUID } from "crypto";
+import { getSql, ensureTables } from "@/lib/db";
 
-// Prototype-only storage, same caveat as /api/bookings: swap for a real
-// database before launch.
-const DATA_FILE = path.join(process.cwd(), "data", "musician-applications.json");
-
-async function readApplications() {
-  try {
-    const raw = await fs.readFile(DATA_FILE, "utf-8");
-    return JSON.parse(raw);
-  } catch {
-    return [];
-  }
-}
-
-async function writeApplications(apps: unknown[]) {
-  await fs.mkdir(path.dirname(DATA_FILE), { recursive: true });
-  await fs.writeFile(DATA_FILE, JSON.stringify(apps, null, 2));
-}
+export const dynamic = "force-dynamic";
 
 export async function GET() {
-  return NextResponse.json(await readApplications());
+  try {
+    await ensureTables();
+    const sql = getSql();
+    const rows = await sql`SELECT * FROM musician_applications ORDER BY created_at DESC`;
+    return NextResponse.json(rows);
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Database error." },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -36,21 +29,21 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const application = {
-    id: randomUUID(),
-    name,
-    email,
-    instrument,
-    region,
-    type: type ?? "Event Musician",
-    bio: bio ?? "",
-    status: "pending_review",
-    createdAt: new Date().toISOString(),
-  };
-
-  const apps = await readApplications();
-  apps.push(application);
-  await writeApplications(apps);
-
-  return NextResponse.json({ ok: true, application }, { status: 201 });
+  try {
+    await ensureTables();
+    const sql = getSql();
+    const id = randomUUID();
+    await sql`
+      INSERT INTO musician_applications
+        (id, name, email, instrument, region, type, bio, status)
+      VALUES
+        (${id}, ${name}, ${email}, ${instrument}, ${region}, ${type ?? "Event Musician"}, ${bio ?? ""}, 'pending_review')
+    `;
+    return NextResponse.json({ ok: true, id }, { status: 201 });
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Database error." },
+      { status: 500 }
+    );
+  }
 }

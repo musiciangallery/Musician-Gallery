@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getMusicianBySlug, musicians } from "@/lib/musicians";
+import MusicianPhoto from "@/components/MusicianPhoto";
 
 export function generateStaticParams() {
   return musicians.map((m) => ({ slug: m.slug }));
@@ -45,6 +46,10 @@ export default async function MusicianProfile({
             Police Vetted
           </span>
         )}
+      </div>
+
+      <div className="mt-10 max-w-xs">
+        <MusicianPhoto m={m} aspect="aspect-square" />
       </div>
 
       <div className="grid md:grid-cols-3 gap-10 mt-10">

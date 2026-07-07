@@ -13,6 +13,9 @@ export type Musician = {
   bio: string;
   longBio: string;
   yearsExperience: number;
+  /** Path under /public, e.g. "/musicians/sarah-chen.jpg". Falls back to a
+   * muted placeholder block when not set. */
+  photo?: string;
 };
 
 export const musicians: Musician[] = [
@@ -30,6 +33,7 @@ export const musicians: Musician[] = [
     longBio:
       "Sarah trained at the University of Auckland and has spent a decade performing solo and ensemble sets at weddings, corporate functions, and private events across the North Island. Her repertoire spans classical standards to contemporary arrangements, tailored to each occasion.",
     yearsExperience: 10,
+    photo: "/musicians/sarah-chen.jpg",
   },
   {
     slug: "james-tuhoe",
@@ -45,6 +49,7 @@ export const musicians: Musician[] = [
     longBio:
       "James teaches piano from his Wellington studio to students of all ages and levels, and performs as an event pianist on weekends. Police vetted and DBS-checked, with a patient, structured teaching style suited to beginners through to advanced players preparing for exams.",
     yearsExperience: 14,
+    photo: "/musicians/james-tuhoe.jpg",
   },
   {
     slug: "aroha-williams",
@@ -60,6 +65,7 @@ export const musicians: Musician[] = [
     longBio:
       "Aroha specialises in acoustic and fingerstyle guitar, teaching students from age 7 through to adult beginners. Lessons are available in-home across Christchurch or online, with a focus on building strong fundamentals and a love of playing.",
     yearsExperience: 8,
+    photo: "/musicians/aroha-williams.jpg",
   },
   {
     slug: "michael-osei",
@@ -75,6 +81,7 @@ export const musicians: Musician[] = [
     longBio:
       "Michael has performed at over 200 weddings and corporate functions across Auckland, blending jazz standards with contemporary soul. Comfortable performing solo or with a backing trio for larger events.",
     yearsExperience: 12,
+    photo: "/musicians/michael-osei.jpg",
   },
   {
     slug: "grace-liu",
@@ -90,6 +97,7 @@ export const musicians: Musician[] = [
     longBio:
       "Grace performs at ceremonies and cocktail hours across the Wellington region, available solo or paired with a violinist for a full string duo arrangement. Repertoire ranges from classical to modern film and pop arrangements.",
     yearsExperience: 9,
+    photo: "/musicians/grace-liu.jpg",
   },
   {
     slug: "tama-ngata",
@@ -105,6 +113,7 @@ export const musicians: Musician[] = [
     longBio:
       "Tama teaches contemporary and musical theatre vocal technique to students preparing for exams, auditions, or simply learning to sing with confidence, and performs as an event vocalist on weekends across Canterbury.",
     yearsExperience: 11,
+    photo: "/musicians/tama-ngata.jpg",
   },
   {
     slug: "olivia-marsh",
@@ -120,6 +129,7 @@ export const musicians: Musician[] = [
     longBio:
       "Olivia trained at the New Zealand School of Music and performs at weddings and private functions across Auckland, offering a curated repertoire from classical arrangements to modern pop covers on harp.",
     yearsExperience: 7,
+    photo: "/musicians/olivia-marsh.jpg",
   },
   {
     slug: "daniel-kim",
@@ -135,6 +145,7 @@ export const musicians: Musician[] = [
     longBio:
       "Daniel teaches drums to students from age 8 through to adult beginners in his Wellington studio, with a focus on rhythm fundamentals, reading, and building the confidence to eventually play in a band setting.",
     yearsExperience: 6,
+    photo: "/musicians/daniel-kim.jpg",
   },
   {
     slug: "priya-nair",
@@ -150,6 +161,7 @@ export const musicians: Musician[] = [
     longBio:
       "Priya teaches flute to students of all ages across Dunedin and performs at wedding ceremonies on weekends, with a repertoire spanning classical, folk, and contemporary arrangements.",
     yearsExperience: 10,
+    photo: "/musicians/priya-nair.jpg",
   },
 ];
 

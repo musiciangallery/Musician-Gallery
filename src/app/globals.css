@@ -44,3 +44,23 @@ body {
 .serif {
   font-family: 'Cormorant Garamond', serif;
 }
+
+/* Ticker marquee */
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: ticker-scroll 32s linear infinite;
+}
+
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.photo-mono {
+  filter: grayscale(1) contrast(1.05);
+}

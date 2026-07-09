@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { occasionsList, type Musician, type Occasion } from "@/lib/musicians";
+import { ALL_INSTRUMENTS, ALL_REGIONS, occasionsList, type Musician, type Occasion } from "@/lib/musicians";
 import MusicianCard from "@/components/MusicianCard";
 
 export default function GalleryBrowser({ allMusicians }: { allMusicians: Musician[] }) {
@@ -9,14 +9,18 @@ export default function GalleryBrowser({ allMusicians }: { allMusicians: Musicia
   const [region, setRegion] = useState("All");
   const [occasion, setOccasion] = useState<Occasion | "All">("All");
 
-  const instruments = useMemo(
-    () => Array.from(new Set(allMusicians.map((m) => m.instrument))).sort(),
-    [allMusicians]
-  );
-  const regions = useMemo(
-    () => Array.from(new Set(allMusicians.map((m) => m.region))).sort(),
-    [allMusicians]
-  );
+  // The full lists (matching the Join form) so people can filter by an
+  // instrument or region even before a musician in that category exists —
+  // plus anything already in use that isn't on the canonical list (older
+  // placeholder data), so nothing becomes unreachable via filters.
+  const instruments = useMemo(() => {
+    const inUse = allMusicians.map((m) => m.instrument);
+    return Array.from(new Set([...ALL_INSTRUMENTS, ...inUse])).sort();
+  }, [allMusicians]);
+  const regions = useMemo(() => {
+    const inUse = allMusicians.map((m) => m.region);
+    return Array.from(new Set([...ALL_REGIONS, ...inUse])).sort();
+  }, [allMusicians]);
 
   const filtered = useMemo(() => {
     return allMusicians.filter((m) => {

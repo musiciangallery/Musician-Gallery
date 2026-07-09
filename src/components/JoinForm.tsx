@@ -1,56 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { ALL_INSTRUMENTS as INSTRUMENTS, ALL_REGIONS as REGIONS } from "@/lib/musicians";
 
 const inputClass =
   "w-full border border-rule bg-w px-4 py-3 text-sm focus:outline-none focus:border-accent";
 const labelClass = "text-xs tracking-[0.08em] uppercase text-mid block mb-2";
 const hintClass = "text-[11px] text-mid mt-2";
-
-const REGIONS = [
-  "Auckland",
-  "Bay of Plenty",
-  "Canterbury",
-  "Gisborne",
-  "Hawke's Bay",
-  "Manawatū-Whanganui",
-  "Marlborough",
-  "Nelson",
-  "Northland",
-  "Otago",
-  "Southland",
-  "Taranaki",
-  "Tasman",
-  "Waikato",
-  "Wellington",
-  "West Coast",
-];
-
-const INSTRUMENTS = [
-  "Accordion",
-  "Bagpipes",
-  "Bass Guitar",
-  "Cello",
-  "Clarinet",
-  "Double Bass",
-  "Drums",
-  "Flute",
-  "French Horn",
-  "Guitar",
-  "Harp",
-  "Keyboard",
-  "Music Theory",
-  "Piano",
-  "Saxophone",
-  "Trombone",
-  "Trumpet",
-  "Tuba",
-  "Ukulele",
-  "Viola",
-  "Violin",
-  "Vocals",
-  "Other",
-];
 
 const YEARS_EXPERIENCE = [
   "Less than 1 year",

@@ -174,6 +174,54 @@ export const instruments = Array.from(new Set(musicians.map((m) => m.instrument)
 export const regions = Array.from(new Set(musicians.map((m) => m.region))).sort();
 export const occasionsList: Occasion[] = ["Weddings", "Corporate Events", "Private Functions", "Lessons"];
 
+// The full canonical lists (matching the Join application form) — used for
+// browse/search filters so people can filter by an instrument or region
+// even before a musician in that category has joined yet.
+export const ALL_INSTRUMENTS = [
+  "Accordion",
+  "Bagpipes",
+  "Bass Guitar",
+  "Cello",
+  "Clarinet",
+  "Double Bass",
+  "Drums",
+  "Flute",
+  "French Horn",
+  "Guitar",
+  "Harp",
+  "Keyboard",
+  "Music Theory",
+  "Piano",
+  "Saxophone",
+  "Trombone",
+  "Trumpet",
+  "Tuba",
+  "Ukulele",
+  "Viola",
+  "Violin",
+  "Vocals",
+  "Other",
+];
+
+export const ALL_REGIONS = [
+  "Auckland",
+  "Bay of Plenty",
+  "Canterbury",
+  "Gisborne",
+  "Hawke's Bay",
+  "Manawatū-Whanganui",
+  "Marlborough",
+  "Nelson",
+  "Northland",
+  "Otago",
+  "Southland",
+  "Taranaki",
+  "Tasman",
+  "Waikato",
+  "Wellington",
+  "West Coast",
+];
+
 export function getMusicianBySlug(slug: string) {
   return musicians.find((m) => m.slug === slug);
 }

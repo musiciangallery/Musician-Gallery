@@ -196,16 +196,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="px-6 md:px-[52px] py-24 border-y border-rule text-center">
-        <p className="font-serif text-3xl md:text-4xl italic max-w-2xl mx-auto leading-snug">
-          &ldquo;Art is how we decorate space. Music is how we decorate
-          time.&rdquo;
-        </p>
-        <p className="text-xs text-mid mt-4 tracking-[0.1em] uppercase">
-          Jean-Michel Basquiat
-        </p>
-      </section>
-
       <section className="px-6 md:px-[52px] py-20 grid md:grid-cols-[35%_65%] gap-12">
         <div>
           <span className="eyebrow">How it works</span>
@@ -250,13 +240,32 @@ export default function Home() {
             Six years in the too hard <em>basket.</em>
           </h2>
           <p className="text-sm mb-4">
-            I am Emily, a cellist, a contractor, and someone who grew up
-            watching two self-employed creatives build their work from the
-            ground up.
+            I&rsquo;m Emily, a cellist, a contractor, and someone who grew up
+            watching two self-employed creatives make their work happen.
           </p>
           <p className="text-sm mb-4">
-            Musician Gallery gives talented musicians a foot in the door. A
-            place built with structure, to ease the load on others.
+            I&rsquo;ve spent years performing at weddings and events,
+            teaching, and most prominently, working alongside property
+            sector clients to bring structure to the behind the scenes of
+            their businesses. Two worlds that don&rsquo;t obviously go
+            together, until now.
+          </p>
+          <p className="text-sm mb-4">
+            On too many occasions have I been amongst a cohort of musicians
+            who are phenomenally talented and committed, riding the wave of
+            word of mouth and undercut gigs. Contrastingly, my world has
+            brought me individuals searching for exactly that. Musician
+            Gallery gives them a foot in the door. A place built with
+            structure, to ease the load on others.
+          </p>
+          <p className="text-sm mb-4">
+            Whether you&rsquo;re a musician ready to grow, or someone
+            looking for the perfect fit &mdash; this was made with you in
+            mind.
+          </p>
+          <p className="text-sm mb-4">
+            Six or so years of this in the &ldquo;too hard basket&rdquo;.
+            Some things are worth the wait.
           </p>
           <p className="font-serif italic text-lg mt-6">With warmth, Emily</p>
         </div>

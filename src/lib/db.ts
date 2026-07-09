@@ -1,20 +1,33 @@
-import { neon } from "@neondatabase/serverless";
+import postgres from "postgres";
 
-// Vercel's Postgres/Neon storage integration automatically sets DATABASE_URL
-// (or one of these related vars) once connected to the project in the
-// Vercel dashboard. No manual configuration needed beyond that.
-const connectionString =
-  process.env.DATABASE_URL ||
-  process.env.POSTGRES_URL ||
-  process.env.DATABASE_URL_UNPOOLED;
+// The Vercel storage integration (Prisma Postgres, Neon, Supabase, etc.)
+// sets one of these automatically once connected in the Vercel dashboard.
+// POSTGRES_URL is the plain, direct Postgres connection string (works with
+// any standard Postgres client). DATABASE_URL is included as a fallback for
+// providers that only set that name with a standard connection string —
+// note this is NOT the same as a Prisma Accelerate URL, which this plain
+// client cannot use.
+const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+
+let client: ReturnType<typeof postgres> | null = null;
 
 export function getSql() {
   if (!connectionString) {
     throw new Error(
-      "No database connection string found. Add the Postgres/Neon storage integration to this project in the Vercel dashboard (Storage tab), which sets DATABASE_URL automatically."
+      "No database connection string found. Add a Postgres storage integration to this project in the Vercel dashboard (Storage tab), which sets POSTGRES_URL automatically."
     );
   }
-  return neon(connectionString);
+  if (!client) {
+    // max: 1 keeps this friendly to serverless functions, which spin up
+    // many short-lived instances rather than one long-running server.
+    // prepare: false is required against pooled/proxy Postgres connections
+    // (like Prisma Postgres's pooler) — they don't support the named
+    // prepared statements postgres.js uses by default, which otherwise
+    // causes confusing connection-level errors instead of normal Postgres
+    // error messages.
+    client = postgres(connectionString, { max: 1, ssl: "require", prepare: false });
+  }
+  return client;
 }
 
 export async function ensureTables() {

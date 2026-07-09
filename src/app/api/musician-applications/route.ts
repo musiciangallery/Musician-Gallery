@@ -20,9 +20,27 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { name, email, instrument, region, type, bio } = body;
+  const {
+    name,
+    email,
+    region,
+    instruments,
+    bio,
+    previousWork,
+    yearsExperience,
+    type,
+    travel,
+    lessonFormat,
+    lessonLength,
+    studentLevel,
+    availableAs,
+    genre,
+    soundSystem,
+  } = body;
 
-  if (!name || !email || !instrument || !region) {
+  const instrumentList: string[] = Array.isArray(instruments) ? instruments : [];
+
+  if (!name || !email || !region || instrumentList.length === 0) {
     return NextResponse.json(
       { error: "Missing required fields." },
       { status: 400 }
@@ -35,9 +53,17 @@ export async function POST(req: NextRequest) {
     const id = randomUUID();
     await sql`
       INSERT INTO musician_applications
-        (id, name, email, instrument, region, type, bio, status)
+        (id, name, email, instrument, instruments, region, type, bio, status,
+         previous_work, years_experience, travel, lesson_format, lesson_length,
+         student_level, available_as, genre, sound_system)
       VALUES
-        (${id}, ${name}, ${email}, ${instrument}, ${region}, ${type ?? "Event Musician"}, ${bio ?? ""}, 'pending_review')
+        (${id}, ${name}, ${email}, ${instrumentList.join(", ")}, ${instrumentList},
+         ${region}, ${type ?? "Event Musician"}, ${bio ?? ""}, 'pending_review',
+         ${previousWork ?? ""}, ${yearsExperience ?? ""}, ${travel ?? ""},
+         ${lessonFormat ?? ""}, ${Array.isArray(lessonLength) ? lessonLength : []},
+         ${Array.isArray(studentLevel) ? studentLevel : []},
+         ${Array.isArray(availableAs) ? availableAs : []},
+         ${Array.isArray(genre) ? genre : []}, ${soundSystem ?? ""})
     `;
     return NextResponse.json({ ok: true, id }, { status: 201 });
   } catch (err) {

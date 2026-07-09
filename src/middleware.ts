@@ -40,5 +40,8 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  // /api/admin/:path* covers the approve/decline endpoints the admin page
+  // calls — without this, those endpoints would be reachable by anyone who
+  // knew the URL, even without the admin password.
+  matcher: ["/admin/:path*", "/api/admin/:path*"],
 };

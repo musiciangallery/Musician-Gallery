@@ -1,8 +1,15 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getMusicianBySlug, musicians } from "@/lib/musicians";
+import { musicians } from "@/lib/musicians";
+import { getMusicianBySlugAsync } from "@/lib/musicians-live";
 import MusicianPhoto from "@/components/MusicianPhoto";
+
+// Real, approved musicians are added after the site is built and deployed,
+// so their profile pages can't be pre-generated at build time — this page
+// is rendered dynamically on request instead.
+export const dynamic = "force-dynamic";
+export const dynamicParams = true;
 
 export function generateStaticParams() {
   return musicians.map((m) => ({ slug: m.slug }));
@@ -14,7 +21,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const m = getMusicianBySlug(slug);
+  const m = await getMusicianBySlugAsync(slug);
   return { title: m ? `${m.name} | Musician Gallery` : "Musician Gallery" };
 }
 
@@ -24,7 +31,7 @@ export default async function MusicianProfile({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const m = getMusicianBySlug(slug);
+  const m = await getMusicianBySlugAsync(slug);
   if (!m) notFound();
 
   return (

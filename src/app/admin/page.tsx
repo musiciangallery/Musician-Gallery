@@ -1,7 +1,19 @@
 import { getSql, ensureTables } from "@/lib/db";
+import ApplicationReviewCard from "@/components/ApplicationReviewCard";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin | Musician Gallery" };
+
+type LiveMusician = {
+  slug: string;
+  name: string;
+  instrument: string;
+  region: string;
+  type: string;
+  vetted: boolean;
+  photo: string | null;
+  created_at: string;
+};
 
 type Booking = {
   id: string;
@@ -21,11 +33,21 @@ type Application = {
   name: string;
   email: string;
   instrument: string;
+  instruments: string[] | null;
   region: string;
   type: string;
   bio: string;
   status: string;
   created_at: string;
+  previous_work: string | null;
+  years_experience: string | null;
+  travel: string | null;
+  lesson_format: string | null;
+  lesson_length: string[] | null;
+  student_level: string[] | null;
+  available_as: string[] | null;
+  genre: string[] | null;
+  sound_system: string | null;
 };
 
 async function getData() {
@@ -34,11 +56,13 @@ async function getData() {
     const sql = getSql();
     const bookings = (await sql`SELECT * FROM bookings ORDER BY created_at DESC`) as unknown as Booking[];
     const applications = (await sql`SELECT * FROM musician_applications ORDER BY created_at DESC`) as unknown as Application[];
-    return { bookings, applications, error: null };
+    const liveMusicians = (await sql`SELECT slug, name, instrument, region, type, vetted, photo, created_at FROM musicians ORDER BY created_at DESC`) as unknown as LiveMusician[];
+    return { bookings, applications, liveMusicians, error: null };
   } catch (err) {
     return {
       bookings: [] as Booking[],
       applications: [] as Application[],
+      liveMusicians: [] as LiveMusician[],
       error: err instanceof Error ? err.message : "Could not connect to the database.",
     };
   }
@@ -48,7 +72,9 @@ const th = "text-left p-3 border-b border-rule text-[10px] tracking-[0.08em] upp
 const td = "p-3 border-b border-rule text-sm align-top";
 
 export default async function AdminPage() {
-  const { bookings, applications, error } = await getData();
+  const { bookings, applications, liveMusicians, error } = await getData();
+  const pending = applications.filter((a) => a.status === "pending_review");
+  const decided = applications.filter((a) => a.status !== "pending_review");
 
   return (
     <div className="max-w-6xl mx-auto px-6 md:px-[52px] py-16">
@@ -111,46 +137,156 @@ export default async function AdminPage() {
       </div>
 
       <h2 className="font-serif text-2xl mb-4">
-        Musician applications ({applications.length})
+        Pending applications ({pending.length})
       </h2>
-      <div className="overflow-x-auto">
-        <table className="w-full border border-rule">
-          <thead>
-            <tr className="bg-off/60">
-              <th className={th}>Date</th>
-              <th className={th}>Name</th>
-              <th className={th}>Email</th>
-              <th className={th}>Instrument</th>
-              <th className={th}>Region</th>
-              <th className={th}>Type</th>
-              <th className={th}>Status</th>
-              <th className={th}>Bio</th>
-            </tr>
-          </thead>
-          <tbody>
-            {applications.length === 0 ? (
-              <tr>
-                <td className={td} colSpan={8}>
-                  No applications yet.
-                </td>
+      {pending.length === 0 ? (
+        <p className="text-sm text-mid border border-rule p-4 mb-16">
+          No applications waiting for review.
+        </p>
+      ) : (
+        <div className="space-y-4 mb-16">
+          {pending.map((a) => (
+            <ApplicationReviewCard key={a.id} a={a} />
+          ))}
+        </div>
+      )}
+
+      <h2 className="font-serif text-2xl mb-4">
+        Live musicians ({liveMusicians.length})
+      </h2>
+      {liveMusicians.length === 0 ? (
+        <p className="text-sm text-mid border border-rule p-4 mb-16">
+          No approved musicians published yet.
+        </p>
+      ) : (
+        <div className="overflow-x-auto mb-16">
+          <table className="w-full border border-rule">
+            <thead>
+              <tr className="bg-off/60">
+                <th className={th}>Name</th>
+                <th className={th}>Instrument</th>
+                <th className={th}>Region</th>
+                <th className={th}>Type</th>
+                <th className={th}>Vetted</th>
+                <th className={th}>Profile</th>
               </tr>
-            ) : (
-              applications.map((a) => (
-                <tr key={a.id}>
-                  <td className={td}>{new Date(a.created_at).toLocaleString()}</td>
-                  <td className={td}>{a.name}</td>
-                  <td className={td}>{a.email}</td>
-                  <td className={td}>{a.instrument}</td>
-                  <td className={td}>{a.region}</td>
-                  <td className={td}>{a.type}</td>
-                  <td className={td}>{a.status}</td>
-                  <td className={td}>{a.bio || "—"}</td>
+            </thead>
+            <tbody>
+              {liveMusicians.map((m) => (
+                <tr key={m.slug}>
+                  <td className={td}>{m.name}</td>
+                  <td className={td}>{m.instrument}</td>
+                  <td className={td}>{m.region}</td>
+                  <td className={td}>{m.type}</td>
+                  <td className={td}>{m.vetted ? "Yes" : "No"}</td>
+                  <td className={td}>
+                    <a
+                      href={`/musicians/${m.slug}`}
+                      target="_blank"
+                      className="text-accent hover:underline"
+                    >
+                      View &rarr;
+                    </a>
+                  </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <h2 className="font-serif text-2xl mb-4">
+        Decided applications ({decided.length})
+      </h2>
+      {decided.length === 0 ? (
+        <p className="text-sm text-mid border border-rule p-4">No decided applications yet.</p>
+      ) : (
+        <div className="space-y-4">
+          {decided.map((a) => {
+            const instruments = a.instruments?.length ? a.instruments.join(", ") : a.instrument;
+            return (
+              <div key={a.id} className="border border-rule p-5 text-sm">
+                <div className="flex flex-wrap items-baseline justify-between gap-2 mb-3">
+                  <h3 className="font-serif text-xl">{a.name}</h3>
+                  <span className="text-[10px] tracking-[0.08em] uppercase text-mid">
+                    {new Date(a.created_at).toLocaleString()} · {a.status}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2 text-mid mb-3">
+                  <div>
+                    <span className="block text-[10px] uppercase tracking-[0.08em]">Email</span>
+                    {a.email}
+                  </div>
+                  <div>
+                    <span className="block text-[10px] uppercase tracking-[0.08em]">Region</span>
+                    {a.region}
+                  </div>
+                  <div>
+                    <span className="block text-[10px] uppercase tracking-[0.08em]">Type</span>
+                    {a.type}
+                  </div>
+                  <div>
+                    <span className="block text-[10px] uppercase tracking-[0.08em]">Experience</span>
+                    {a.years_experience || "—"}
+                  </div>
+                  <div className="col-span-2 md:col-span-4">
+                    <span className="block text-[10px] uppercase tracking-[0.08em]">Instrument(s)</span>
+                    {instruments || "—"}
+                  </div>
+                  <div>
+                    <span className="block text-[10px] uppercase tracking-[0.08em]">Travel</span>
+                    {a.travel || "—"}
+                  </div>
+                  {(a.lesson_format || a.lesson_length?.length || a.student_level?.length) && (
+                    <>
+                      <div>
+                        <span className="block text-[10px] uppercase tracking-[0.08em]">Lesson format</span>
+                        {a.lesson_format || "—"}
+                      </div>
+                      <div>
+                        <span className="block text-[10px] uppercase tracking-[0.08em]">Lesson length</span>
+                        {a.lesson_length?.join(", ") || "—"}
+                      </div>
+                      <div>
+                        <span className="block text-[10px] uppercase tracking-[0.08em]">Student level</span>
+                        {a.student_level?.join(", ") || "—"}
+                      </div>
+                    </>
+                  )}
+                  {(a.available_as?.length || a.genre?.length || a.sound_system) && (
+                    <>
+                      <div>
+                        <span className="block text-[10px] uppercase tracking-[0.08em]">Available as</span>
+                        {a.available_as?.join(", ") || "—"}
+                      </div>
+                      <div>
+                        <span className="block text-[10px] uppercase tracking-[0.08em]">Genre</span>
+                        {a.genre?.join(", ") || "—"}
+                      </div>
+                      <div>
+                        <span className="block text-[10px] uppercase tracking-[0.08em]">Sound system</span>
+                        {a.sound_system || "—"}
+                      </div>
+                    </>
+                  )}
+                </div>
+                {a.bio && (
+                  <div className="mb-2">
+                    <span className="block text-[10px] uppercase tracking-[0.08em] text-mid">Bio</span>
+                    {a.bio}
+                  </div>
+                )}
+                {a.previous_work && (
+                  <div>
+                    <span className="block text-[10px] uppercase tracking-[0.08em] text-mid">Previous work</span>
+                    {a.previous_work}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

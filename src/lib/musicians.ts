@@ -12,10 +12,15 @@ export type Musician = {
   rateUnit: "per event" | "per lesson";
   bio: string;
   longBio: string;
-  yearsExperience: number;
-  /** Path under /public, e.g. "/musicians/sarah-chen.jpg". Falls back to a
-   * muted placeholder block when not set. */
+  /** A number of years (the original mock profiles) or a range like
+   * "5-10 years" (real approved profiles, from the application form). */
+  yearsExperience: number | string;
+  /** Path under /public, e.g. "/musicians/sarah-chen.jpg", or a full URL to
+   * an uploaded photo in Blob storage. Falls back to a muted placeholder
+   * block when not set. */
   photo?: string;
+  /** True for real, database-backed profiles approved via /admin. */
+  isLive?: boolean;
 };
 
 export const musicians: Musician[] = [

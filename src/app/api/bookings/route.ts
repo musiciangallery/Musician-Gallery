@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { getSql, ensureTables } from "@/lib/db";
-import { getMusicianBySlug } from "@/lib/musicians";
+import { getMusicianBySlugAsync } from "@/lib/musicians-live";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     clientPhone,
   } = body;
 
-  if (!musicianSlug || !getMusicianBySlug(musicianSlug)) {
+  if (!musicianSlug || !(await getMusicianBySlugAsync(musicianSlug))) {
     return NextResponse.json({ error: "Unknown musician." }, { status: 400 });
   }
   if (!occasion || !eventDate || !clientName || !clientEmail) {

@@ -59,4 +59,44 @@ export async function ensureTables() {
       created_at timestamptz NOT NULL DEFAULT now()
     )
   `;
+
+  // Additional listing fields, added after the initial launch. Using
+  // ADD COLUMN IF NOT EXISTS (rather than altering the existing
+  // "instrument" column's type) keeps this safe to run on every request
+  // against a table that may already have rows in it.
+  await sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS instruments text[]`;
+  await sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS previous_work text`;
+  await sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS years_experience text`;
+  await sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS travel text`;
+  await sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS lesson_format text`;
+  await sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS lesson_length text[]`;
+  await sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS student_level text[]`;
+  await sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS available_as text[]`;
+  await sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS genre text[]`;
+  await sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS sound_system text`;
+
+  // Live, approved musician profiles — separate from applications so that
+  // publishing an application (editing the bio, uploading a treated photo)
+  // doesn't overwrite what the applicant originally submitted.
+  await sql`
+    CREATE TABLE IF NOT EXISTS musicians (
+      id uuid PRIMARY KEY,
+      slug text UNIQUE NOT NULL,
+      name text NOT NULL,
+      instrument text NOT NULL,
+      instruments text[],
+      region text NOT NULL,
+      type text NOT NULL,
+      occasions text[] NOT NULL DEFAULT '{}',
+      vetted boolean NOT NULL DEFAULT false,
+      rate_from integer,
+      rate_unit text,
+      bio text,
+      long_bio text,
+      years_experience text,
+      photo text,
+      application_id uuid,
+      created_at timestamptz NOT NULL DEFAULT now()
+    )
+  `;
 }

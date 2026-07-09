@@ -23,12 +23,31 @@ environment that occasionally left a partial install behind.
 - `/musicians/[slug]` — individual musician profile
 - `/book/[slug]` — 3-step booking request flow (occasion/date → contact
   details → review & submit)
-- `/join` — musician application form (name, instrument, region, bio)
-- `/admin` — password-protected internal page listing booking requests and
-  musician applications as they come in (see Database setup below)
+- `/join` — musician application form, with the full field set (instruments,
+  region, years experience, teacher-specific and event-specific fields,
+  previous work links)
+- `/admin` — password-protected internal page: booking requests, pending
+  applications with a Review & Approve flow (edit the bio, upload a treated
+  photo, publish), a list of live published musicians, and decided
+  applications (see Database setup and Photo storage setup below)
 - `/terms`, `/privacy` — full Terms & Conditions and Privacy Policy content
 - `/api/bookings` and `/api/musician-applications` — API routes backing
-  the two forms above, now writing to a real Postgres database
+  the two forms above, writing to a real Postgres database
+- `/api/admin/approve` and `/api/admin/decline` — used by the admin Review
+  & Approve flow; protected by the same password as `/admin`
+
+## Photo storage setup (required for approving applications with a photo)
+
+Approving an application uploads the photo you pick to Vercel Blob storage:
+
+1. In the Vercel dashboard, open this project → **Storage** tab →
+   **Create Database** → choose **Blob** → follow the prompts → **Connect**
+   it to this project. Vercel automatically sets the
+   `BLOB_READ_WRITE_TOKEN` environment variable.
+2. Redeploy if it doesn't happen automatically.
+
+Without this connected, the "Approve & publish" button in `/admin` will
+fail with an upload error — the rest of the site works fine either way.
 
 ## Database setup (required for booking/join forms to work)
 
@@ -55,10 +74,14 @@ pointing at a Neon (or any Postgres) connection string, plus
 
 ## What's mocked / prototype-only
 
-- **Musician data** lives in `src/lib/musicians.ts` as a hardcoded array
-  (9 example profiles, some using placeholder photography). Swap this
-  for real database queries once real musicians sign up — the shape
-  (`Musician` type) is designed to map cleanly onto a database table.
+- **9 placeholder musician profiles** in `src/lib/musicians.ts` are kept
+  deliberately, mixed in alongside real approved musicians, so the gallery
+  looks populated during soft launch. Delete entries from that file
+  whenever you're ready to retire a placeholder.
+- Real, approved musicians are stored in the `musicians` Postgres table
+  and published via `/admin`'s Review & Approve flow — the gallery, search
+  filters, individual profile pages, and booking flow all include them
+  automatically alongside the placeholders.
 
 ## Not yet built (the parts that need real accounts/credentials)
 

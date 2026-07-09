@@ -1,22 +1,31 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { musicians, instruments, regions, occasionsList, type Occasion } from "@/lib/musicians";
+import { occasionsList, type Musician, type Occasion } from "@/lib/musicians";
 import MusicianCard from "@/components/MusicianCard";
 
-export default function GalleryBrowser() {
+export default function GalleryBrowser({ allMusicians }: { allMusicians: Musician[] }) {
   const [instrument, setInstrument] = useState("All");
   const [region, setRegion] = useState("All");
   const [occasion, setOccasion] = useState<Occasion | "All">("All");
 
+  const instruments = useMemo(
+    () => Array.from(new Set(allMusicians.map((m) => m.instrument))).sort(),
+    [allMusicians]
+  );
+  const regions = useMemo(
+    () => Array.from(new Set(allMusicians.map((m) => m.region))).sort(),
+    [allMusicians]
+  );
+
   const filtered = useMemo(() => {
-    return musicians.filter((m) => {
+    return allMusicians.filter((m) => {
       if (instrument !== "All" && m.instrument !== instrument) return false;
       if (region !== "All" && m.region !== region) return false;
       if (occasion !== "All" && !m.occasions.includes(occasion)) return false;
       return true;
     });
-  }, [instrument, region, occasion]);
+  }, [allMusicians, instrument, region, occasion]);
 
   const selectClass =
     "border border-rule bg-w px-4 py-2 text-xs tracking-[0.08em] uppercase text-dark focus:outline-none focus:border-accent";

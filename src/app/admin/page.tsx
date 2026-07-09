@@ -1,10 +1,12 @@
 import { getSql, ensureTables } from "@/lib/db";
 import ApplicationReviewCard from "@/components/ApplicationReviewCard";
+import RemoveMusicianButton from "@/components/RemoveMusicianButton";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin | Musician Gallery" };
 
 type LiveMusician = {
+  id: string;
   slug: string;
   name: string;
   instrument: string;
@@ -56,7 +58,7 @@ async function getData() {
     const sql = getSql();
     const bookings = (await sql`SELECT * FROM bookings ORDER BY created_at DESC`) as unknown as Booking[];
     const applications = (await sql`SELECT * FROM musician_applications ORDER BY created_at DESC`) as unknown as Application[];
-    const liveMusicians = (await sql`SELECT slug, name, instrument, region, type, vetted, photo, created_at FROM musicians ORDER BY created_at DESC`) as unknown as LiveMusician[];
+    const liveMusicians = (await sql`SELECT id, slug, name, instrument, region, type, vetted, photo, created_at FROM musicians ORDER BY created_at DESC`) as unknown as LiveMusician[];
     return { bookings, applications, liveMusicians, error: null };
   } catch (err) {
     return {
@@ -169,6 +171,7 @@ export default async function AdminPage() {
                 <th className={th}>Type</th>
                 <th className={th}>Vetted</th>
                 <th className={th}>Profile</th>
+                <th className={th}></th>
               </tr>
             </thead>
             <tbody>
@@ -187,6 +190,9 @@ export default async function AdminPage() {
                     >
                       View &rarr;
                     </a>
+                  </td>
+                  <td className={td}>
+                    <RemoveMusicianButton id={m.id} name={m.name} />
                   </td>
                 </tr>
               ))}

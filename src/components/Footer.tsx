@@ -7,7 +7,7 @@ export default function Footer() {
         <div>
           <p className="font-serif text-lg">Musician Gallery</p>
           <p className="text-xs text-mid mt-2">
-            A home for Aotearoa New Zealand musicians
+            A home for Aotearoa, New Zealand musicians
           </p>
         </div>
         <div>
@@ -59,7 +59,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="flex flex-col md:flex-row justify-between gap-2 border-t border-rule pt-6 text-xs text-mid">
-        <p>&copy; 2026 Musician Gallery &middot; Aotearoa New Zealand</p>
+        <p>&copy; 2026 Musician Gallery &middot; Aotearoa, New Zealand</p>
         <a href="mailto:contact@musiciangallery.co.nz" className="hover:text-accent">
           contact@musiciangallery.co.nz
         </a>

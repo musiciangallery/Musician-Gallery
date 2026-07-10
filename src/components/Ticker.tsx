@@ -1,6 +1,6 @@
 const ITEMS = [
   "Trusted & Vetted",
-  "Aotearoa New Zealand",
+  "Aotearoa, New Zealand",
   "Event Musicians",
   "Music Teachers",
   "Police Vetted",

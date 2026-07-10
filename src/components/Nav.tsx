@@ -28,7 +28,7 @@ export default function Nav() {
         {[
           ["Browse", "/gallery"],
           ["About", "/#about"],
-          ["Our Story", "/#story"],
+          ["Our Story", "/our-story"],
           ["Join", "/join"],
         ].map(([label, href]) => (
           <li key={href}>

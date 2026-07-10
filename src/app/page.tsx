@@ -31,12 +31,12 @@ const howSteps = [
   {
     n: "I",
     t: "Browse the gallery",
-    b: "Search by instrument, location, or occasion. Every profile is complete and considered. No chasing, no guessing.",
+    b: "Search by instrument, location, or occasion. Every profile is complete and considered.",
   },
   {
     n: "II",
     t: "Send a booking request",
-    b: "Reach out directly through the platform. Your musician receives the details and responds within 48 hours.",
+    b: "Reach out directly through the platform. Your musician receives the details and gets back to you directly.",
   },
   {
     n: "III",
@@ -46,7 +46,7 @@ const howSteps = [
   {
     n: "IV",
     t: "Enjoy the music",
-    b: "Your musician shows up, plays beautifully, and gets paid. We take care of everything in between.",
+    b: "Whether it's a performance or a lesson, your musician or teacher delivers — and gets paid. We take care of everything in between.",
   },
 ];
 
@@ -68,9 +68,9 @@ export default function Home() {
             <em>musicians.</em>
           </h1>
           <p className="max-w-md text-sm mb-8">
-            A considered space where professional musicians are discoverable,
-            trusted, and supported. Clients and students can find exactly who
-            they need.
+            A gallery inspired by function and growth, built to be a
+            considered introduction between talented musicians and those
+            seeking them.
           </p>
           <div className="flex flex-wrap gap-6">
             <Link
@@ -108,9 +108,9 @@ export default function Home() {
             A functional, considered <em>space.</em>
           </h2>
           <p className="text-sm max-w-lg mb-3">
-            Musician Gallery exists to create capacity. A place where
-            professional musicians are discoverable and trusted, and where
-            clients and students can find exactly who they need.
+            A place built with structure, not guesswork. Every profile is
+            complete and considered, so nobody&rsquo;s left chasing word of
+            mouth or undercut gigs to find good work.
           </p>
           <div className="grid grid-cols-3 gap-6 max-w-lg mt-10">
             <div>
@@ -165,7 +165,7 @@ export default function Home() {
             Every musician, <em>considered.</em>
           </h3>
           <p className="text-sm text-mid mt-4 max-w-xs">
-            Browse event musicians and teachers across Aotearoa New Zealand,
+            Browse event musicians and teachers across Aotearoa, New Zealand,
             all in one place.
           </p>
         </div>
@@ -204,7 +204,7 @@ export default function Home() {
             <br />
             both sides of
             <br />
-            <em>the screen.</em>
+            <em>the platform.</em>
           </h2>
           <p className="text-sm text-mid mt-6 max-w-xs">
             Every booking is handled through the platform, from first enquiry
@@ -221,53 +221,6 @@ export default function Home() {
               </div>
             </div>
           ))}
-        </div>
-      </section>
-
-      <section className="px-6 md:px-[52px] py-20 border-t border-rule grid md:grid-cols-[45%_55%] gap-12 items-center" id="story">
-        <div className="relative aspect-[4/5] order-2 md:order-1">
-          <Image
-            src="/brand/story-emily-cello.jpg"
-            alt="Emily, founder of Musician Gallery, playing cello"
-            fill
-            className="object-cover photo-mono"
-            sizes="(max-width: 768px) 100vw, 45vw"
-          />
-        </div>
-        <div className="order-1 md:order-2 max-w-lg">
-          <span className="eyebrow">Our Story</span>
-          <h2 className="font-serif text-3xl md:text-4xl mt-3 mb-6">
-            Six years in the too hard <em>basket.</em>
-          </h2>
-          <p className="text-sm mb-4">
-            I&rsquo;m Emily, a cellist, a contractor, and someone who grew up
-            watching two self-employed creatives make their work happen.
-          </p>
-          <p className="text-sm mb-4">
-            I&rsquo;ve spent years performing at weddings and events,
-            teaching, and most prominently, working alongside property
-            sector clients to bring structure to the behind the scenes of
-            their businesses. Two worlds that don&rsquo;t obviously go
-            together, until now.
-          </p>
-          <p className="text-sm mb-4">
-            On too many occasions have I been amongst a cohort of musicians
-            who are phenomenally talented and committed, riding the wave of
-            word of mouth and undercut gigs. Contrastingly, my world has
-            brought me individuals searching for exactly that. Musician
-            Gallery gives them a foot in the door. A place built with
-            structure, to ease the load on others.
-          </p>
-          <p className="text-sm mb-4">
-            Whether you&rsquo;re a musician ready to grow, or someone
-            looking for the perfect fit &mdash; this was made with you in
-            mind.
-          </p>
-          <p className="text-sm mb-4">
-            Six or so years of this in the &ldquo;too hard basket&rdquo;.
-            Some things are worth the wait.
-          </p>
-          <p className="font-serif italic text-lg mt-6">With warmth, Emily</p>
         </div>
       </section>
 
@@ -309,8 +262,8 @@ export default function Home() {
             Find the right musician. Book with confidence.
           </h2>
           <p className="text-sm text-mid mb-6">
-            Browse a considered gallery of vetted professional musicians and
-            teachers. A 10% platform fee applies to bookings, no hidden costs.
+            Browse a considered gallery of professional musicians and
+            teachers, with vetting shown on each profile. A 10% platform fee applies to bookings, no hidden costs.
           </p>
           <Link href="/gallery" className="text-xs tracking-[0.1em] uppercase border-b border-blk pb-1 hover:text-accent hover:border-accent">
             Find a musician

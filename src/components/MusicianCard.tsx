@@ -12,7 +12,7 @@ export default function MusicianCard({ m }: { m: Musician }) {
       <div className="p-6">
         <div className="flex items-start justify-between mb-4">
           <span className="eyebrow">{m.region}</span>
-          {m.vetted && (
+          {m.vetted && m.type !== "Event Musician" && (
             <span className="text-[9px] tracking-[0.14em] uppercase text-accent border border-accent/40 rounded-full px-2 py-1">
               Vetted
             </span>

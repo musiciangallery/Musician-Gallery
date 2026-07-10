@@ -27,7 +27,7 @@ export default function Nav() {
       <ul className="hidden md:flex gap-10 list-none">
         {[
           ["Browse", "/gallery"],
-          ["About", "/#about"],
+          ["About", "/about"],
           ["Our Story", "/our-story"],
           ["Join", "/join"],
         ].map(([label, href]) => (

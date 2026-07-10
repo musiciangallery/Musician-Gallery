@@ -50,7 +50,7 @@ export default async function MusicianProfile({
           <p className="text-sm text-mid mt-2">{m.type}</p>
         </div>
         <div className="flex items-center gap-3">
-          {m.vetted && (
+          {m.vetted && m.type !== "Event Musician" && (
             <span className="text-[10px] tracking-[0.14em] uppercase text-accent border border-accent/40 rounded-full px-3 py-1.5 h-fit">
               Police Vetted
             </span>

@@ -9,6 +9,8 @@ const inputClass =
   "w-full border border-rule bg-w px-4 py-3 text-sm focus:outline-none focus:border-accent";
 const labelClass = "text-xs tracking-[0.08em] uppercase text-mid block mb-2";
 
+const FREQUENCY_OPTIONS = ["Weekly", "Fortnightly", "One-off"];
+
 export default function BookingForm({ musician }: { musician: Musician }) {
   const [step, setStep] = useState<Step>(1);
   const [submitting, setSubmitting] = useState(false);
@@ -27,6 +29,7 @@ export default function BookingForm({ musician }: { musician: Musician }) {
   const update = (field: keyof typeof form, value: string) =>
     setForm((f) => ({ ...f, [field]: value }));
 
+  const isLessons = form.occasion === "Lessons";
   const canContinueStep1 = form.occasion && form.eventDate;
   const canContinueStep2 = form.clientName && form.clientEmail;
 
@@ -88,13 +91,28 @@ export default function BookingForm({ musician }: { musician: Musician }) {
             </select>
           </div>
           <div>
-            <label className={labelClass}>Date</label>
-            <input
-              type="date"
-              className={inputClass}
-              value={form.eventDate}
-              onChange={(e) => update("eventDate", e.target.value)}
-            />
+            <label className={labelClass}>{isLessons ? "Frequency" : "Date"}</label>
+            {isLessons ? (
+              <select
+                className={inputClass}
+                value={form.eventDate}
+                onChange={(e) => update("eventDate", e.target.value)}
+              >
+                <option value="" disabled>
+                  Select one
+                </option>
+                {FREQUENCY_OPTIONS.map((f) => (
+                  <option key={f}>{f}</option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="date"
+                className={inputClass}
+                value={form.eventDate}
+                onChange={(e) => update("eventDate", e.target.value)}
+              />
+            )}
           </div>
           <div>
             <label className={labelClass}>Location</label>
@@ -180,7 +198,7 @@ export default function BookingForm({ musician }: { musician: Musician }) {
             {[
               ["Musician", musician.name],
               ["Occasion", form.occasion],
-              ["Date", form.eventDate],
+              [isLessons ? "Frequency" : "Date", form.eventDate],
               ["Location", form.location || "—"],
               ["Notes", form.details || "—"],
               ["Name", form.clientName],

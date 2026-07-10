@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { musicians } from "@/lib/musicians";
 import { getMusicianBySlugAsync } from "@/lib/musicians-live";
 import MusicianPhoto from "@/components/MusicianPhoto";
+import ShareButton from "@/components/ShareButton";
 
 // Real, approved musicians are added after the site is built and deployed,
 // so their profile pages can't be pre-generated at build time — this page
@@ -48,11 +49,17 @@ export default async function MusicianProfile({
           <h1 className="font-serif text-4xl md:text-5xl mt-3">{m.name}</h1>
           <p className="text-sm text-mid mt-2">{m.type}</p>
         </div>
-        {m.vetted && (
-          <span className="text-[10px] tracking-[0.14em] uppercase text-accent border border-accent/40 rounded-full px-3 py-1.5 h-fit">
-            Police Vetted
-          </span>
-        )}
+        <div className="flex items-center gap-3">
+          {m.vetted && (
+            <span className="text-[10px] tracking-[0.14em] uppercase text-accent border border-accent/40 rounded-full px-3 py-1.5 h-fit">
+              Police Vetted
+            </span>
+          )}
+          <ShareButton
+            title={`${m.name} | Musician Gallery`}
+            path={`/musicians/${m.slug}`}
+          />
+        </div>
       </div>
 
       <div className="mt-10 max-w-xs">

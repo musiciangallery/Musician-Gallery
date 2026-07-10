@@ -18,8 +18,9 @@ export default async function GalleryPage() {
         Every musician, <em>considered.</em>
       </h1>
       <p className="text-sm text-mid max-w-xl mb-12">
-        Browse vetted event musicians and teachers across Aotearoa, New Zealand.
-        Filter by instrument, region, or occasion to find exactly who you need.
+        Browse event musicians and teachers across Aotearoa, New Zealand, with
+        vetting shown on each profile. Filter by instrument, region, or
+        occasion to find exactly who you need.
       </p>
       <GalleryBrowser allMusicians={allMusicians} />
     </section>

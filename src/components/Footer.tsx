@@ -26,7 +26,7 @@ export default function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/#about" className="hover:text-accent">
+              <Link href="/about" className="hover:text-accent">
                 About
               </Link>
             </li>
@@ -38,7 +38,7 @@ export default function Footer() {
           </h4>
           <ul className="space-y-2 text-sm">
             <li>
-              <a
+              
                 href="mailto:contact@musiciangallery.co.nz"
                 className="hover:text-accent"
               >

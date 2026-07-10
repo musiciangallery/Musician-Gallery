@@ -244,15 +244,17 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
             </div>
           </div>
 
-          <label className="flex items-center gap-2 text-sm cursor-pointer">
-            <input
-              type="checkbox"
-              checked={vetted}
-              onChange={(e) => setVetted(e.target.checked)}
-              className="accent-accent"
-            />
-            Police vetting confirmed
-          </label>
+          {isTeacher && (
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={vetted}
+                onChange={(e) => setVetted(e.target.checked)}
+                className="accent-accent"
+              />
+              Police vetting confirmed
+            </label>
+          )}
 
           <div>
             <label className={labelClass}>Profile photo (upload a treated, muted photo)</label>

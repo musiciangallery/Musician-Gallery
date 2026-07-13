@@ -1,15 +1,39 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "About | Musician Gallery",
 };
 
-const pillars = [
+const clientSteps = [
   {
     n: "I",
-    t: "Discoverable",
-    b: "Your profile is searchable by instrument, region, and occasion. Clients find you directly, without marketing spend or cold outreach.",
+    t: "Browse the gallery",
+    b: "Search by instrument, location, or occasion. Every profile shows rates, experience, and vetting status upfront, so you know exactly who you're booking.",
+  },
+  {
+    n: "II",
+    t: "Send a booking request",
+    b: "Reach out directly through the platform. Your musician gets the details and responds directly to you — no agency, no middleman.",
+  },
+  {
+    n: "III",
+    t: "Payment held securely",
+    b: "Funds are collected at checkout and held until your lesson or event is confirmed complete. You're never paying blind.",
+  },
+  {
+    n: "IV",
+    t: "Enjoy the music",
+    b: "Your musician gets paid automatically once the booking is confirmed. We handle the rest.",
+  },
+];
+
+const musicianPillars = [
+  {
+    n: "I",
+    t: "A portfolio, built in",
+    b: "Your profile is a professional portfolio — bio, experience, rates, and photos in one place, discoverable by instrument, region, and occasion.",
   },
   {
     n: "II",
@@ -18,8 +42,8 @@ const pillars = [
   },
   {
     n: "III",
-    t: "Supported",
-    b: "No invoicing, no chasing payment. Withholding tax is calculated and deducted automatically, and you're never charged commission.",
+    t: "Backend, handled",
+    b: "Invoicing, withholding tax, and payment collection are handled automatically. No paperwork, no chasing clients for payment.",
   },
   {
     n: "IV",
@@ -28,27 +52,10 @@ const pillars = [
   },
 ];
 
-const howSteps = [
-  {
-    n: "I",
-    t: "Browse the gallery",
-    b: "Search by instrument, location, or occasion. Every profile shows rates, experience, and vetting status upfront.",
-  },
-  {
-    n: "II",
-    t: "Send a booking request",
-    b: "Reach out directly through the platform. Your musician gets the details and responds directly to you.",
-  },
-  {
-    n: "III",
-    t: "Payment held securely",
-    b: "Funds are collected at checkout and held until your lesson or event is confirmed complete.",
-  },
-  {
-    n: "IV",
-    t: "Enjoy the music",
-    b: "Your musician gets paid automatically once the booking is confirmed. We handle the rest.",
-  },
+const galleryImages = [
+  { src: "/brand/about-violin-bridge.jpg", alt: "Close detail of a violin bow and bridge" },
+  { src: "/brand/hero-piano-doorway.jpg", alt: "A pianist glimpsed through a doorway" },
+  { src: "/brand/story-emily-cello.jpg", alt: "Emily, founder of Musician Gallery, playing cello" },
 ];
 
 export default function AboutPage() {
@@ -61,11 +68,14 @@ export default function AboutPage() {
         </h1>
         <p className="text-sm max-w-2xl mb-10">
           Musician Gallery is a directory and booking tool for musicians and
-          teachers across Aotearoa, New Zealand. Clients search by
-          instrument, region, and occasion. Musicians list a complete
+          teachers across Aotearoa, New Zealand. Musicians list a complete
           profile, set their own rates, and get booked directly through the
-          platform. A functional gallery, giving talented people the
-          platform they&rsquo;ve earned.
+          platform, free of charge. Clients search by instrument, region,
+          and occasion, and contribute a small platform fee at checkout
+          &mdash; 10%, on top of the musician&rsquo;s rate &mdash; that
+          keeps the gallery running: the vetting, the admin, the support,
+          so musicians can simply focus on the work. A functional gallery,
+          giving talented people the platform they&rsquo;ve earned.
         </p>
         <div className="grid grid-cols-3 gap-6 max-w-xl">
           <div>
@@ -83,27 +93,18 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="px-6 md:px-[52px] py-20 border-b border-rule">
-        <div className="flex flex-wrap items-end justify-between gap-6 mb-14">
-          <div>
-            <span className="eyebrow">For musicians</span>
-            <h2 className="font-serif text-3xl md:text-4xl mt-3 max-w-md">
-              Free to list. Built to <em>support you.</em>
-            </h2>
+      <section className="grid grid-cols-3 border-b border-rule">
+        {galleryImages.map((img) => (
+          <div key={img.src} className="relative aspect-[3/4]">
+            <Image
+              src={img.src}
+              alt={img.alt}
+              fill
+              className="object-cover photo-mono"
+              sizes="(max-width: 768px) 33vw, 33vw"
+            />
           </div>
-          <Link href="/join" className="text-xs tracking-[0.1em] uppercase hover:text-accent">
-            Join the gallery &rarr;
-          </Link>
-        </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {pillars.map((p) => (
-            <div key={p.n}>
-              <span className="font-serif text-2xl text-mid">{p.n}</span>
-              <h3 className="font-serif text-xl mt-3 mb-2">{p.t}</h3>
-              <p className="text-sm text-mid leading-relaxed">{p.b}</p>
-            </div>
-          ))}
-        </div>
+        ))}
       </section>
 
       <section className="px-6 md:px-[52px] py-20 border-b border-rule grid md:grid-cols-[35%_65%] gap-12">
@@ -117,8 +118,10 @@ export default function AboutPage() {
             <em>the platform.</em>
           </h2>
           <p className="text-sm text-mid mt-6 max-w-xs">
-            Every booking runs through the platform, from first enquiry to
-            final payment.
+            Every profile is vetted, priced, and ready to book &mdash; no
+            cold calls, no chasing musicians down, no guessing what
+            you&rsquo;ll pay. Your payment is protected until the job is
+            done.
           </p>
           <Link
             href="/gallery"
@@ -128,13 +131,36 @@ export default function AboutPage() {
           </Link>
         </div>
         <div className="space-y-8">
-          {howSteps.map((s) => (
+          {clientSteps.map((s) => (
             <div key={s.n} className="flex gap-6 border-t border-rule pt-6">
               <span className="font-serif text-2xl text-mid">{s.n}</span>
               <div>
                 <h3 className="font-serif text-xl mb-1">{s.t}</h3>
                 <p className="text-sm text-mid leading-relaxed">{s.b}</p>
               </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="px-6 md:px-[52px] py-20 border-b border-rule">
+        <div className="flex flex-wrap items-end justify-between gap-6 mb-14">
+          <div>
+            <span className="eyebrow">For musicians</span>
+            <h2 className="font-serif text-3xl md:text-4xl mt-3 max-w-md">
+              A portfolio, built to <em>support you.</em>
+            </h2>
+          </div>
+          <Link href="/join" className="text-xs tracking-[0.1em] uppercase hover:text-accent">
+            Join the gallery &rarr;
+          </Link>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {musicianPillars.map((p) => (
+            <div key={p.n}>
+              <span className="font-serif text-2xl text-mid">{p.n}</span>
+              <h3 className="font-serif text-xl mt-3 mb-2">{p.t}</h3>
+              <p className="text-sm text-mid leading-relaxed">{p.b}</p>
             </div>
           ))}
         </div>

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-rule px-6 md:px-[52px] py-12 mt-24">
+    <footer className="border-t border-rule px-6 md:px-[52px] py-12">
       <div className="grid md:grid-cols-3 gap-10 pb-10">
         <div>
           <p className="font-serif text-lg">Musician Gallery</p>
@@ -38,7 +38,7 @@ export default function Footer() {
           </h4>
           <ul className="space-y-2 text-sm">
             <li>
-              <a
+              
                 href="mailto:contact@musiciangallery.co.nz"
                 className="hover:text-accent"
               >

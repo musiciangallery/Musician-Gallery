@@ -1,11 +1,16 @@
 import Link from "next/link";
 import Image from "next/image";
 import { musicians } from "@/lib/musicians";
+import { getFeaturedReviews } from "@/lib/reviews-live";
 import MusicianCard from "@/components/MusicianCard";
 import Ticker from "@/components/Ticker";
+import FeaturedReviews from "@/components/FeaturedReviews";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
   const featured = musicians.slice(0, 3);
+  const featuredReviews = await getFeaturedReviews();
 
   return (
     <>
@@ -136,6 +141,8 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      <FeaturedReviews reviews={featuredReviews} />
 
       <section className="px-6 md:px-[52px] py-20 bg-off/40 border-t border-rule grid md:grid-cols-2 gap-10">
         <div>

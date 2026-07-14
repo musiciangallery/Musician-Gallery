@@ -26,7 +26,7 @@ export default async function Home() {
             <br />
             <em>musicians.</em>
           </h1>
-          <p className="max-w-md text-sm mb-8">
+          <p className="max-w-lg text-sm mb-8">
             A considered introduction between talented musicians and the
             people looking for them.
           </p>

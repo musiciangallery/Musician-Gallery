@@ -76,7 +76,7 @@ export default function BookingForm({ musician }: { musician: Musician }) {
       {step === 1 && (
         <div className="space-y-6">
           <h2 className="font-serif text-2xl mb-2">
-            Tell {musician.name.split(" ")[0]} what you&rsquo;re looking for
+            {`Tell ${musician.name.split(" ")[0]} what you’re looking for`}
           </h2>
           <div>
             <label className={labelClass}>Occasion</label>

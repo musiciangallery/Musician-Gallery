@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { musicians } from "@/lib/musicians";
 import { getMusicianBySlugAsync } from "@/lib/musicians-live";
 import { getApprovedReviewsForMusician } from "@/lib/reviews-live";
-import MusicianPhoto from "@/components/MusicianPhoto";
+import MusicianGallery from "@/components/MusicianGallery";
 import ShareButton from "@/components/ShareButton";
 import ProfileTabs from "@/components/ProfileTabs";
 import ReviewForm from "@/components/ReviewForm";
@@ -68,7 +68,7 @@ export default async function MusicianProfile({
       </div>
 
       <div className="mt-10 max-w-xs">
-        <MusicianPhoto m={m} aspect="aspect-square" />
+        <MusicianGallery m={m} />
       </div>
 
       <div className="grid md:grid-cols-3 gap-10 mt-10">

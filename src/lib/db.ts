@@ -100,6 +100,12 @@ export async function ensureTables() {
     )
   `;
 
+  // Additional gallery photos and an optional profile video, added after
+  // the initial launch. ADD COLUMN IF NOT EXISTS keeps this safe to run
+  // against a table that already has rows.
+  await sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS photos text[]`;
+  await sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS video text`;
+
   // Reviews are submitted publicly (no login) via each musician's profile,
   // then held as 'pending' until approved in /admin. Approved reviews show
   // on the musician's profile; approved AND featured reviews are the ones

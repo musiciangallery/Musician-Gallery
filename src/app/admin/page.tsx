@@ -199,11 +199,7 @@ export default async function AdminPage() {
                   <td className={td}>{m.type}</td>
                   <td className={td}>{m.vetted ? "Yes" : "No"}</td>
                   <td className={td}>
-                    
-                      href={`/musicians/${m.slug}`}
-                      target="_blank"
-                      className="text-accent hover:underline"
-                    >
+                    <a href={`/musicians/${m.slug}`} target="_blank" className="text-accent hover:underline">
                       View &rarr;
                     </a>
                   </td>

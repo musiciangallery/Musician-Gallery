@@ -3,8 +3,11 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { musicians } from "@/lib/musicians";
 import { getMusicianBySlugAsync } from "@/lib/musicians-live";
+import { getApprovedReviewsForMusician } from "@/lib/reviews-live";
 import MusicianPhoto from "@/components/MusicianPhoto";
 import ShareButton from "@/components/ShareButton";
+import ProfileTabs from "@/components/ProfileTabs";
+import ReviewForm from "@/components/ReviewForm";
 
 // Real, approved musicians are added after the site is built and deployed,
 // so their profile pages can't be pre-generated at build time — this page
@@ -34,6 +37,8 @@ export default async function MusicianProfile({
   const { slug } = await params;
   const m = await getMusicianBySlugAsync(slug);
   if (!m) notFound();
+  const reviews = await getApprovedReviewsForMusician(slug);
+  const firstName = m.name.split(" ")[0];
 
   return (
     <section className="max-w-4xl mx-auto px-6 md:px-[52px] py-16">
@@ -68,20 +73,48 @@ export default async function MusicianProfile({
 
       <div className="grid md:grid-cols-3 gap-10 mt-10">
         <div className="md:col-span-2">
-          <h2 className="font-serif text-2xl mb-3">About</h2>
-          <p className="text-sm leading-relaxed">{m.longBio}</p>
+          <ProfileTabs
+            reviewCount={reviews.length}
+            about={
+              <>
+                <p className="text-sm leading-relaxed">{m.longBio}</p>
 
-          <h2 className="font-serif text-2xl mt-10 mb-3">Available for</h2>
-          <ul className="flex flex-wrap gap-2">
-            {m.occasions.map((o) => (
-              <li
-                key={o}
-                className="text-xs border border-rule px-3 py-1.5 text-mid"
-              >
-                {o}
-              </li>
-            ))}
-          </ul>
+                <h2 className="font-serif text-2xl mt-10 mb-3">Available for</h2>
+                <ul className="flex flex-wrap gap-2">
+                  {m.occasions.map((o) => (
+                    <li
+                      key={o}
+                      className="text-xs border border-rule px-3 py-1.5 text-mid"
+                    >
+                      {o}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            }
+            reviews={
+              <div className="space-y-8">
+                {reviews.length === 0 ? (
+                  <p className="text-sm text-mid">
+                    No reviews yet &mdash; be the first to leave one for {firstName}.
+                  </p>
+                ) : (
+                  <ul className="space-y-6">
+                    {reviews.map((r) => (
+                      <li key={r.id} className="border-b border-rule pb-6">
+                        <p className="text-sm leading-relaxed">&ldquo;{r.body}&rdquo;</p>
+                        <p className="text-xs text-mid mt-3">
+                          {r.reviewerName}
+                          {r.context && <> &middot; {r.context}</>}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <ReviewForm musicianSlug={m.slug} musicianFirstName={firstName} />
+              </div>
+            }
+          />
         </div>
 
         <div className="border border-rule bg-off/40 p-6 h-fit">

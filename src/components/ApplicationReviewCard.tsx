@@ -63,6 +63,8 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
       : ["Weddings", "Corporate Events", "Private Functions"]
   );
   const [photo, setPhoto] = useState<File | null>(null);
+  const [galleryPhotos, setGalleryPhotos] = useState<File[]>([]);
+  const [video, setVideo] = useState<File | null>(null);
 
   const toggleOccasion = (o: string) =>
     setOccasions((cur) => (cur.includes(o) ? cur.filter((x) => x !== o) : [...cur, o]));
@@ -92,6 +94,8 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
       form.set("longBio", longBio);
       form.set("yearsExperience", yearsExperience);
       form.set("photo", photo);
+      galleryPhotos.forEach((file) => form.append("photos", file));
+      if (video) form.set("video", video);
 
       const res = await fetch("/api/admin/approve", { method: "POST", body: form });
       if (!res.ok) {
@@ -264,6 +268,31 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
               onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
               className="text-sm"
             />
+          </div>
+
+          <div>
+            <label className={labelClass}>Gallery photos (optional, select multiple)</label>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(e) => setGalleryPhotos(Array.from(e.target.files ?? []))}
+              className="text-sm"
+            />
+            {galleryPhotos.length > 0 && (
+              <p className="text-xs text-mid mt-1">{galleryPhotos.length} photo(s) selected</p>
+            )}
+          </div>
+
+          <div>
+            <label className={labelClass}>Profile video (optional)</label>
+            <input
+              type="file"
+              accept="video/*"
+              onChange={(e) => setVideo(e.target.files?.[0] ?? null)}
+              className="text-sm"
+            />
+            {video && <p className="text-xs text-mid mt-1">{video.name}</p>}
           </div>
 
           {error && <p className="text-xs text-accent">{error}</p>}

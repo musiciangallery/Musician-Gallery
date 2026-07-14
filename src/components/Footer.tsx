@@ -22,12 +22,17 @@ export default function Footer() {
             </li>
             <li>
               <Link href="/join" className="hover:text-accent">
-                Join as a Musician
+                Join
               </Link>
             </li>
             <li>
               <Link href="/about" className="hover:text-accent">
-                About
+                The Gallery Function
+              </Link>
+            </li>
+            <li>
+              <Link href="/our-story" className="hover:text-accent">
+                Our Story
               </Link>
             </li>
           </ul>

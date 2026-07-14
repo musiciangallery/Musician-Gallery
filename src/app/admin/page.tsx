@@ -1,6 +1,7 @@
 import { getSql, ensureTables } from "@/lib/db";
 import ApplicationReviewCard from "@/components/ApplicationReviewCard";
 import RemoveMusicianButton from "@/components/RemoveMusicianButton";
+import { PendingReviewActions, ApprovedReviewActions } from "@/components/ReviewActionButtons";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin | Musician Gallery" };
@@ -27,6 +28,17 @@ type Booking = {
   client_name: string;
   client_email: string;
   client_phone: string;
+  created_at: string;
+};
+
+type Review = {
+  id: string;
+  musician_slug: string;
+  reviewer_name: string;
+  context: string | null;
+  body: string;
+  status: string;
+  featured: boolean;
   created_at: string;
 };
 
@@ -59,12 +71,14 @@ async function getData() {
     const bookings = (await sql`SELECT * FROM bookings ORDER BY created_at DESC`) as unknown as Booking[];
     const applications = (await sql`SELECT * FROM musician_applications ORDER BY created_at DESC`) as unknown as Application[];
     const liveMusicians = (await sql`SELECT id, slug, name, instrument, region, type, vetted, photo, created_at FROM musicians ORDER BY created_at DESC`) as unknown as LiveMusician[];
-    return { bookings, applications, liveMusicians, error: null };
+    const reviews = (await sql`SELECT * FROM reviews ORDER BY created_at DESC`) as unknown as Review[];
+    return { bookings, applications, liveMusicians, reviews, error: null };
   } catch (err) {
     return {
       bookings: [] as Booking[],
       applications: [] as Application[],
       liveMusicians: [] as LiveMusician[],
+      reviews: [] as Review[],
       error: err instanceof Error ? err.message : "Could not connect to the database.",
     };
   }
@@ -74,9 +88,11 @@ const th = "text-left p-3 border-b border-rule text-[10px] tracking-[0.08em] upp
 const td = "p-3 border-b border-rule text-sm align-top";
 
 export default async function AdminPage() {
-  const { bookings, applications, liveMusicians, error } = await getData();
+  const { bookings, applications, liveMusicians, reviews, error } = await getData();
   const pending = applications.filter((a) => a.status === "pending_review");
   const decided = applications.filter((a) => a.status !== "pending_review");
+  const pendingReviews = reviews.filter((r) => r.status === "pending");
+  const approvedReviews = reviews.filter((r) => r.status === "approved");
 
   return (
     <div className="max-w-6xl mx-auto px-6 md:px-[52px] py-16">
@@ -183,7 +199,7 @@ export default async function AdminPage() {
                   <td className={td}>{m.type}</td>
                   <td className={td}>{m.vetted ? "Yes" : "No"}</td>
                   <td className={td}>
-                    <a
+                    
                       href={`/musicians/${m.slug}`}
                       target="_blank"
                       className="text-accent hover:underline"
@@ -193,6 +209,84 @@ export default async function AdminPage() {
                   </td>
                   <td className={td}>
                     <RemoveMusicianButton id={m.id} name={m.name} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <h2 className="font-serif text-2xl mb-4">
+        Pending reviews ({pendingReviews.length})
+      </h2>
+      {pendingReviews.length === 0 ? (
+        <p className="text-sm text-mid border border-rule p-4 mb-16">
+          No reviews waiting for approval.
+        </p>
+      ) : (
+        <div className="overflow-x-auto mb-16">
+          <table className="w-full border border-rule">
+            <thead>
+              <tr className="bg-off/60">
+                <th className={th}>Date</th>
+                <th className={th}>Musician</th>
+                <th className={th}>Reviewer</th>
+                <th className={th}>Context</th>
+                <th className={th}>Review</th>
+                <th className={th}></th>
+              </tr>
+            </thead>
+            <tbody>
+              {pendingReviews.map((r) => (
+                <tr key={r.id}>
+                  <td className={td}>{new Date(r.created_at).toLocaleString()}</td>
+                  <td className={td}>{r.musician_slug}</td>
+                  <td className={td}>{r.reviewer_name}</td>
+                  <td className={td}>{r.context || "—"}</td>
+                  <td className={td}>{r.body}</td>
+                  <td className={td}>
+                    <PendingReviewActions id={r.id} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <h2 className="font-serif text-2xl mb-4">
+        Approved reviews ({approvedReviews.length})
+      </h2>
+      {approvedReviews.length === 0 ? (
+        <p className="text-sm text-mid border border-rule p-4 mb-16">
+          No approved reviews yet.
+        </p>
+      ) : (
+        <div className="overflow-x-auto mb-16">
+          <table className="w-full border border-rule">
+            <thead>
+              <tr className="bg-off/60">
+                <th className={th}>Date</th>
+                <th className={th}>Musician</th>
+                <th className={th}>Reviewer</th>
+                <th className={th}>Context</th>
+                <th className={th}>Review</th>
+                <th className={th}>Featured</th>
+                <th className={th}></th>
+              </tr>
+            </thead>
+            <tbody>
+              {approvedReviews.map((r) => (
+                <tr key={r.id}>
+                  <td className={td}>{new Date(r.created_at).toLocaleString()}</td>
+                  <td className={td}>{r.musician_slug}</td>
+                  <td className={td}>{r.reviewer_name}</td>
+                  <td className={td}>{r.context || "—"}</td>
+                  <td className={td}>{r.body}</td>
+                  <td className={td}>{r.featured ? "Yes" : "No"}</td>
+                  <td className={td}>
+                    <ApprovedReviewActions id={r.id} featured={r.featured} />
                   </td>
                 </tr>
               ))}

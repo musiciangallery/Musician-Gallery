@@ -40,6 +40,10 @@ export async function POST(req: NextRequest) {
     const instruments = parseJsonArray(form.get("instruments"));
     const occasions = parseJsonArray(form.get("occasions"));
     const photo = form.get("photo");
+    const galleryPhotos = form.getAll("photos").filter(
+      (f): f is File => f instanceof File && f.size > 0
+    );
+    const video = form.get("video");
     let slug = form.get("slug");
 
     if (
@@ -69,6 +73,31 @@ export async function POST(req: NextRequest) {
       photoUrl = blob.url;
     }
 
+    // Additional gallery photos — uploaded the same way as the primary
+    // photo, one Blob object each.
+    const galleryUrls: string[] = [];
+    for (const file of galleryPhotos) {
+      const blob = await put(`musicians/${slug}-gallery-${Date.now()}`, file, {
+        access: "public",
+        addRandomSuffix: true,
+      });
+      galleryUrls.push(blob.url);
+    }
+
+    // Optional profile video — same Blob upload pattern. Video files are
+    // much larger than photos, so this can take a while on a slow
+    // connection; the client-side upload has no special handling for that
+    // yet beyond the normal fetch, which is fine for the file sizes a
+    // single musician profile realistically needs.
+    let videoUrl: string | null = null;
+    if (video instanceof File && video.size > 0) {
+      const blob = await put(`musicians/${slug}-video-${Date.now()}`, video, {
+        access: "public",
+        addRandomSuffix: true,
+      });
+      videoUrl = blob.url;
+    }
+
     await ensureTables();
     const sql = getSql();
     const id = randomUUID();
@@ -77,12 +106,12 @@ export async function POST(req: NextRequest) {
       INSERT INTO musicians
         (id, slug, name, instrument, instruments, region, type, occasions,
          vetted, rate_from, rate_unit, bio, long_bio, years_experience, photo,
-         application_id)
+         photos, video, application_id)
       VALUES
         (${id}, ${slug}, ${name}, ${instruments[0]}, ${instruments}, ${region},
          ${type}, ${occasions}, ${vetted}, ${rateFrom}, ${String(rateUnit ?? "")},
          ${String(bio ?? "")}, ${String(longBio ?? "")}, ${String(yearsExperience ?? "")},
-         ${photoUrl}, ${applicationId})
+         ${photoUrl}, ${galleryUrls}, ${videoUrl}, ${applicationId})
     `;
 
     await sql`UPDATE musician_applications SET status = 'approved' WHERE id = ${applicationId}`;

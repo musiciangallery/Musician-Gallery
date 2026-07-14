@@ -83,8 +83,8 @@ export default async function Home() {
           <div>
             <div className="relative aspect-[16/10] mb-6">
               <Image
-                src="/brand/join-plane.jpg"
-                alt="A person looking up at a plane overhead"
+                src="/brand/clients-studio-session.jpg"
+                alt="A musician at work in a recording studio"
                 fill
                 className="object-cover photo-mono"
                 sizes="(max-width: 768px) 100vw, 45vw"
@@ -106,8 +106,8 @@ export default async function Home() {
           <div>
             <div className="relative aspect-[16/10] mb-6">
               <Image
-                src="/brand/join-cello-case.jpg"
-                alt="A cello case in a hallway"
+                src="/brand/about-violin-bridge.jpg"
+                alt="Close detail of a violin bow and bridge"
                 fill
                 className="object-cover photo-mono"
                 sizes="(max-width: 768px) 100vw, 45vw"

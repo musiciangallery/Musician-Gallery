@@ -27,14 +27,13 @@ export default async function Home() {
             <em>musicians.</em>
           </h1>
           <p className="max-w-md text-sm mb-8">
-            A gallery inspired by function and growth, built to be a
-            considered introduction between talented musicians and those
-            seeking them.
+            A considered introduction between talented musicians and the
+            people looking for them.
           </p>
           <div className="flex flex-wrap gap-6">
             <Link
               href="/gallery"
-              className="bg-blk text-w text-xs tracking-[0.1em] uppercase py-3 px-7 hover:bg-accent transition-colors"
+              className="bg-blk text-w text-[10px] tracking-[0.2em] uppercase py-[11px] px-[26px] hover:bg-accent transition-colors"
             >
               Browse Musicians
             </Link>
@@ -67,9 +66,10 @@ export default async function Home() {
             Built for <em>both sides.</em>
           </h2>
           <p className="text-sm text-mid">
-            A place built with structure, not guesswork &mdash; vetted
-            teachers, complete profiles, and a curated space for musicians
-            to be found in.{" "}
+            A platform built on structure. Browse musician portfolios for
+            your next event, or find a vetted teacher for lessons. A
+            complete, curated gallery where musicians are found and their
+            talent recognised.{" "}
             <Link
               href="/about"
               className="text-dark underline underline-offset-4 hover:text-accent"
@@ -94,8 +94,9 @@ export default async function Home() {
               Find the right musician. Book with confidence.
             </h2>
             <p className="text-sm text-mid mb-6">
-              Browse a considered gallery of professional musicians and
-              teachers, with vetting shown on each profile.
+              From wedding ceremonies and corporate events to weekly lessons
+              for you or your child, browse a gallery of professional,
+              vetted musicians and book with confidence.
             </p>
             <Link href="/gallery" className="text-xs tracking-[0.1em] uppercase border-b border-blk pb-1 hover:text-accent hover:border-accent">
               Find a musician
@@ -116,8 +117,9 @@ export default async function Home() {
               List your profile. Set your rates.
             </h2>
             <p className="text-sm text-mid mb-6">
-              Free to list, no commission. Professional marketing, admin
-              handled, no invoicing.
+              Free to list, no commission. Be discovered by clients
+              searching for your instrument and region, with invoicing and
+              withholding tax handled automatically.
             </p>
             <Link href="/join" className="text-xs tracking-[0.1em] uppercase border-b border-blk pb-1 hover:text-accent hover:border-accent">
               Join the gallery
@@ -151,8 +153,8 @@ export default async function Home() {
             Every musician, <em>considered.</em>
           </h3>
           <p className="text-sm text-mid mt-4 max-w-xs">
-            Browse event musicians and teachers across Aotearoa, New Zealand,
-            all in one place.
+            Event musicians and vetted teachers across Aotearoa, New
+            Zealand, all in one place.
           </p>
         </div>
         <div className="flex flex-col justify-center">

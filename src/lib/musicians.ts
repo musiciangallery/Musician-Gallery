@@ -19,6 +19,12 @@ export type Musician = {
    * an uploaded photo in Blob storage. Falls back to a muted placeholder
    * block when not set. */
   photo?: string;
+  /** Additional gallery photos, shown as a strip below the primary photo
+   * on the profile page. Full URLs to Blob storage. */
+  photos?: string[];
+  /** Full URL to an uploaded video file in Blob storage, shown on the
+   * profile page below the photo gallery. */
+  video?: string;
   /** True for real, database-backed profiles approved via /admin. */
   isLive?: boolean;
 };

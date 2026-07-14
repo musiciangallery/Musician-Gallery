@@ -194,3 +194,61 @@ export default function BookingForm({ musician }: { musician: Musician }) {
       )}
 
       {step === 3 && (
+        <div className="space-y-6">
+          <h2 className="font-serif text-2xl mb-2">Review &amp; submit</h2>
+          <dl className="border border-rule divide-y divide-rule text-sm">
+            {[
+              ["Musician", musician.name],
+              ["Occasion", form.occasion],
+              [isLessons ? "Frequency" : "Date", form.eventDate],
+              ["Location", form.location || "—"],
+              ["Notes", form.details || "—"],
+              ["Name", form.clientName],
+              ["Email", form.clientEmail],
+              ["Phone", form.clientPhone || "—"],
+            ].map(([k, v]) => (
+              <div key={k} className="flex justify-between px-4 py-3">
+                <dt className="text-mid">{k}</dt>
+                <dd className="text-right max-w-[60%]">{v}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="text-xs text-mid">
+            This sends a booking request to {musician.name} &mdash; it does
+            not charge you yet. A 10% platform fee applies once the booking
+            is confirmed and payment is processed.
+          </p>
+          {error && <p className="text-xs text-accent">{error}</p>}
+          <div className="flex gap-4">
+            <button
+              onClick={() => setStep(2)}
+              className="text-xs tracking-[0.1em] uppercase text-mid hover:text-accent py-3 px-4"
+            >
+              Back
+            </button>
+            <button
+              onClick={submit}
+              disabled={submitting}
+              className="bg-blk text-w text-xs tracking-[0.1em] uppercase py-3 px-8 hover:bg-accent transition-colors disabled:opacity-50"
+            >
+              {submitting ? "Sending..." : "Send booking request"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {step === 4 && (
+        <div className="text-center py-16 border border-rule">
+          <p className="eyebrow mb-4">Request sent</p>
+          <h2 className="font-serif text-3xl mb-4">
+            {musician.name.split(" ")[0]} will be in touch shortly.
+          </h2>
+          <p className="text-sm text-mid max-w-sm mx-auto">
+            We&rsquo;ve sent your request through. Most musicians respond
+            within 48 hours &mdash; you&rsquo;ll hear back at {form.clientEmail}.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}

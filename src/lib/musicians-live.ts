@@ -20,6 +20,8 @@ type DbMusicianRow = {
   long_bio: string | null;
   years_experience: string | null;
   photo: string | null;
+  photos: string[] | null;
+  video: string | null;
 };
 
 function fromDbRow(row: DbMusicianRow): Musician {
@@ -37,6 +39,8 @@ function fromDbRow(row: DbMusicianRow): Musician {
     longBio: row.long_bio ?? row.bio ?? "",
     yearsExperience: row.years_experience ?? "",
     photo: row.photo ?? undefined,
+    photos: row.photos ?? undefined,
+    video: row.video ?? undefined,
     isLive: true,
   };
 }

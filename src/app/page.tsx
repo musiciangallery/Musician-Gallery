@@ -17,16 +17,10 @@ export default async function Home() {
       <section className="min-h-[85vh] grid md:grid-cols-[55%_45%] border-b border-rule">
         <div className="flex flex-col justify-center px-6 md:pl-[52px] md:pr-10 py-16 md:border-r border-rule">
           <span className="eyebrow mb-7">Est. 2026 &middot; Aotearoa, New Zealand</span>
-          <h1 className="font-serif font-light text-[clamp(48px,7.5vw,100px)] leading-[0.95] tracking-tight text-blk mb-7">
-            A home
-            <br />
-            for New
-            <br />
-            Zealand
-            <br />
-            <em>musicians.</em>
+          <h1 className="font-serif font-light text-[clamp(40px,6vw,84px)] leading-[1.05] tracking-tight text-blk mb-7">
+            A home for New Zealand <em>musicians.</em>
           </h1>
-          <p className="max-w-lg text-sm mb-8">
+          <p className="max-w-lg font-serif text-lg md:text-xl italic leading-snug text-dark mb-8">
             A considered introduction between talented musicians and the
             people looking for them.
           </p>

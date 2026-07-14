@@ -99,4 +99,21 @@ export async function ensureTables() {
       created_at timestamptz NOT NULL DEFAULT now()
     )
   `;
+
+  // Reviews are submitted publicly (no login) via each musician's profile,
+  // then held as 'pending' until approved in /admin. Approved reviews show
+  // on the musician's profile; approved AND featured reviews are the ones
+  // eligible to rotate on the homepage.
+  await sql`
+    CREATE TABLE IF NOT EXISTS reviews (
+      id uuid PRIMARY KEY,
+      musician_slug text NOT NULL,
+      reviewer_name text NOT NULL,
+      context text,
+      body text NOT NULL,
+      status text NOT NULL DEFAULT 'pending',
+      featured boolean NOT NULL DEFAULT false,
+      created_at timestamptz NOT NULL DEFAULT now()
+    )
+  `;
 }

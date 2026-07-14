@@ -34,12 +34,12 @@ export default function Nav() {
         >
           Musician Gallery
         </Link>
-        <ul className="hidden md:flex gap-10 list-none">
+        <ul className="hidden md:flex gap-6 list-none">
           {LINKS.map(([label, href]) => (
             <li key={href}>
               <Link
                 href={href}
-                className="text-[10px] tracking-[0.18em] uppercase text-mid hover:text-blk transition-colors"
+                className="text-[9px] tracking-[0.13em] uppercase text-mid hover:text-blk transition-colors"
               >
                 {label}
               </Link>

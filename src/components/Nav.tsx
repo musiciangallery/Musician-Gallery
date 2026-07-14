@@ -4,10 +4,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const LINKS: [string, string][] = [
-  ["Browse", "/gallery"],
-  ["About", "/about"],
-  ["Our Story", "/our-story"],
+  ["Browse Musicians", "/gallery"],
   ["Join", "/join"],
+  ["The Gallery Function", "/about"],
+  ["Our Story", "/our-story"],
 ];
 
 export default function Nav() {

@@ -26,6 +26,11 @@ export default function Footer() {
               </Link>
             </li>
             <li>
+              <Link href="/toolkit" className="hover:text-accent">
+                Musician Toolkit
+              </Link>
+            </li>
+            <li>
               <Link href="/about" className="hover:text-accent">
                 The Gallery Function
               </Link>
@@ -33,11 +38,6 @@ export default function Footer() {
             <li>
               <Link href="/our-story" className="hover:text-accent">
                 Our Story
-              </Link>
-            </li>
-            <li>
-              <Link href="/toolkit" className="hover:text-accent">
-                Musician Toolkit
               </Link>
             </li>
           </ul>

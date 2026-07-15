@@ -83,6 +83,7 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
       form.set("applicationId", a.id);
       form.set("slug", slug);
       form.set("name", a.name);
+      form.set("email", a.email);
       form.set("instruments", JSON.stringify(instruments));
       form.set("region", a.region);
       form.set("type", a.type);

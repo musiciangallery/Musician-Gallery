@@ -6,9 +6,7 @@ import { Resend } from "resend";
 // successfully even before the email service is configured in Vercel.
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
-// FROM must be an address on a domain verified in Resend. Once
-// musiciangallery.co.nz is verified there, set BOOKING_FROM_EMAIL in Vercel
-// to something like "Musician Gallery <bookings@musiciangallery.co.nz>".
+// FROM must be an address on a domain verified in Resend.
 const FROM = process.env.BOOKING_FROM_EMAIL || "Musician Gallery <onboarding@resend.dev>";
 const OWNER_EMAIL = process.env.OWNER_EMAIL || "contact@emilygracestudios.com";
 
@@ -24,6 +22,15 @@ type BookingEmailInput = {
   clientPhone?: string;
 };
 
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function summaryLines(b: BookingEmailInput) {
   return [
     `Musician: ${b.musicianName}`,
@@ -37,16 +44,111 @@ function summaryLines(b: BookingEmailInput) {
   ].join("\n");
 }
 
+/** A bordered key/value table matching the site's ".rule"-bordered detail
+ * lists (e.g. the booking review step). Every value is user-submitted, so
+ * everything is HTML-escaped before being inlined. */
+function detailRowsHtml(b: BookingEmailInput) {
+  const rows: [string, string][] = [
+    ["Musician", b.musicianName],
+    ["Occasion", b.occasion],
+    ["Date / frequency", b.eventDate],
+    ["Location", b.location || "—"],
+    ["Notes", b.details || "—"],
+    ["Client", b.clientName],
+    ["Client email", b.clientEmail],
+    ["Client phone", b.clientPhone || "—"],
+  ];
+  return rows
+    .map(([label, value], i) => {
+      const border = i < rows.length - 1 ? "border-bottom:1px solid #DDDAD4;" : "";
+      return `
+        <tr>
+          <td style="padding:12px 16px; ${border} font-family:Arial,Helvetica,sans-serif; font-size:11px; letter-spacing:0.5px; text-transform:uppercase; color:#8A8680; width:38%; vertical-align:top;">${escapeHtml(
+            label
+          )}</td>
+          <td style="padding:12px 16px; ${border} font-family:Arial,Helvetica,sans-serif; font-size:13px; color:#181510; vertical-align:top;">${escapeHtml(
+            value
+          )}</td>
+        </tr>`;
+    })
+    .join("");
+}
+
+/** Shared card layout — cream page background, off-white card, thin rule
+ * borders, serif heading — matching the site's design system. Table-based
+ * markup with inline styles throughout for broad email client support
+ * (Gmail, Outlook, Apple Mail all strip or mangle <style> blocks and modern
+ * CSS to varying degrees, so this deliberately avoids relying on either). */
+function layout({
+  eyebrow,
+  heading,
+  intro,
+  rowsHtml,
+  footerNote,
+}: {
+  eyebrow: string;
+  heading: string;
+  intro: string;
+  rowsHtml: string;
+  footerNote: string;
+}) {
+  return `<!doctype html>
+<html>
+  <body style="margin:0; padding:0; background-color:#F0EEEA;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F0EEEA;">
+      <tr>
+        <td align="center" style="padding:32px 16px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px; background-color:#F8F7F5; border:1px solid #DDDAD4;">
+            <tr>
+              <td style="padding:28px 40px; border-bottom:1px solid #DDDAD4;">
+                <span style="font-family:Georgia,'Times New Roman',serif; font-size:17px; letter-spacing:3px; text-transform:uppercase; color:#181510;">Musician Gallery</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:36px 40px 8px 40px;">
+                <p style="margin:0 0 10px 0; font-family:Arial,Helvetica,sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#B4472A;">${escapeHtml(
+                  eyebrow
+                )}</p>
+                <h1 style="margin:0 0 16px 0; font-family:Georgia,'Times New Roman',serif; font-weight:400; font-size:26px; line-height:1.3; color:#181510;">${escapeHtml(
+                  heading
+                )}</h1>
+                <p style="margin:0 0 28px 0; font-family:Arial,Helvetica,sans-serif; font-size:14px; line-height:1.6; color:#45403A;">${intro}</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:0 40px 36px 40px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #DDDAD4;">
+                  ${rowsHtml}
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:20px 40px 32px 40px; border-top:1px solid #DDDAD4;">
+                <p style="margin:0; font-family:Arial,Helvetica,sans-serif; font-size:11px; line-height:1.6; color:#8A8680;">${escapeHtml(
+                  footerNote
+                )}</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+}
+
 /** Sends the three booking-request emails (owner notification, musician
- * notification, client confirmation). Never throws — a failed or
- * unconfigured email send should never stop a booking that already saved
- * successfully from returning a success response. Failures are logged. */
+ * notification, client confirmation), each as a plain-text + branded-HTML
+ * pair. Never throws — a failed or unconfigured email send should never
+ * stop a booking that already saved successfully from returning a success
+ * response. Failures are logged, not thrown. */
 export async function sendBookingEmails(b: BookingEmailInput) {
   if (!resend) {
     console.warn("RESEND_API_KEY not set — skipping booking emails.");
     return;
   }
 
+  const rowsHtml = detailRowsHtml(b);
   const sends: Promise<unknown>[] = [];
 
   sends.push(
@@ -56,6 +158,13 @@ export async function sendBookingEmails(b: BookingEmailInput) {
       replyTo: b.clientEmail,
       subject: `New booking request: ${b.musicianName}`,
       text: `A new booking request came in.\n\n${summaryLines(b)}`,
+      html: layout({
+        eyebrow: "New booking request",
+        heading: b.musicianName,
+        intro: "A new booking request just came in through the site. Reply directly to this email to reach the client.",
+        rowsHtml,
+        footerNote: "You're receiving this because you're the site owner at Musician Gallery.",
+      }),
     })
   );
 
@@ -69,6 +178,15 @@ export async function sendBookingEmails(b: BookingEmailInput) {
         text: `You've received a new booking request through Musician Gallery.\n\n${summaryLines(
           b
         )}\n\nReply directly to this email to get in touch with ${b.clientName}.`,
+        html: layout({
+          eyebrow: "New booking request",
+          heading: "You've got a new request",
+          intro: `You've received a new booking request through Musician Gallery. Reply directly to this email to get in touch with ${escapeHtml(
+            b.clientName
+          )}.`,
+          rowsHtml,
+          footerNote: "You're receiving this because you have a live profile on Musician Gallery.",
+        }),
       })
     );
   }
@@ -81,6 +199,16 @@ export async function sendBookingEmails(b: BookingEmailInput) {
       text: `Hi ${b.clientName},\n\nYour booking request has been sent to ${b.musicianName}. Most musicians respond within 48 hours.\n\nYour request:\n${summaryLines(
         b
       )}\n\n— Musician Gallery`,
+      html: layout({
+        eyebrow: "Request sent",
+        heading: `${b.musicianName} will be in touch shortly`,
+        intro: `Hi ${escapeHtml(b.clientName)}, your booking request has been sent to ${escapeHtml(
+          b.musicianName
+        )}. Most musicians respond within 48 hours.`,
+        rowsHtml,
+        footerNote:
+          "This is a confirmation only — no payment has been taken. A booking is only confirmed once the musician responds.",
+      }),
     })
   );
 

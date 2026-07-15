@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { put } from "@vercel/blob";
 import { getSql, ensureTables } from "@/lib/db";
+import { sendWelcomeEmail } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -116,6 +117,18 @@ export async function POST(req: NextRequest) {
     `;
 
     await sql`UPDATE musician_applications SET status = 'approved' WHERE id = ${applicationId}`;
+
+    // Best-effort — a failed or unconfigured email send should never stop
+    // the approval, which already succeeded, from returning 201.
+    try {
+      await sendWelcomeEmail({
+        musicianName: name,
+        musicianEmail: typeof email === "string" ? email : undefined,
+        slug,
+      });
+    } catch (emailErr) {
+      console.error("Welcome email failed:", emailErr);
+    }
 
     return NextResponse.json({ ok: true, slug }, { status: 201 });
   } catch (err) {

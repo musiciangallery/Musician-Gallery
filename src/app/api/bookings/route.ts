@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { getSql, ensureTables } from "@/lib/db";
 import { getMusicianBySlugAsync } from "@/lib/musicians-live";
+import { sendBookingEmails } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +33,8 @@ export async function POST(req: NextRequest) {
     clientPhone,
   } = body;
 
-  if (!musicianSlug || !(await getMusicianBySlugAsync(musicianSlug))) {
+  const musician = musicianSlug ? await getMusicianBySlugAsync(musicianSlug) : undefined;
+  if (!musicianSlug || !musician) {
     return NextResponse.json({ error: "Unknown musician." }, { status: 400 });
   }
   if (!occasion || !eventDate || !clientName || !clientEmail) {
@@ -52,6 +54,25 @@ export async function POST(req: NextRequest) {
       VALUES
         (${id}, ${musicianSlug}, ${occasion}, ${eventDate}, ${location ?? ""}, ${details ?? ""}, ${clientName}, ${clientEmail}, ${clientPhone ?? ""})
     `;
+
+    // Best-effort — a failed or unconfigured email send should never stop
+    // a booking that already saved successfully from returning 201.
+    try {
+      await sendBookingEmails({
+        musicianName: musician.name,
+        musicianEmail: musician.email,
+        occasion,
+        eventDate,
+        location,
+        details,
+        clientName,
+        clientEmail,
+        clientPhone,
+      });
+    } catch (emailErr) {
+      console.error("Booking email failed:", emailErr);
+    }
+
     return NextResponse.json({ ok: true, id }, { status: 201 });
   } catch (err) {
     return NextResponse.json(

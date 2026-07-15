@@ -27,6 +27,10 @@ export type Musician = {
   video?: string;
   /** True for real, database-backed profiles approved via /admin. */
   isLive?: boolean;
+  /** Contact email, carried over from the musician's application at
+   * approval time. Used to send them booking-request notifications. Not
+   * shown publicly anywhere. */
+  email?: string;
 };
 
 export const musicians: Musician[] = [

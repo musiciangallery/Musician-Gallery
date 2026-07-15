@@ -75,9 +75,7 @@ export default function BookingForm({ musician }: { musician: Musician }) {
 
       {step === 1 && (
         <div className="space-y-6">
-          <h2 className="font-serif text-2xl mb-2">
-            {`Tell ${musician.name.split(" ")[0]} what you’re looking for`}
-          </h2>
+          <h2 className="font-serif text-2xl mb-2">{`Tell ${musician.name.split(" ")[0]} what you’re looking for`}</h2>
           <div>
             <label className={labelClass}>Occasion</label>
             <select
@@ -213,11 +211,7 @@ export default function BookingForm({ musician }: { musician: Musician }) {
               </div>
             ))}
           </dl>
-          <p className="text-xs text-mid">
-            This sends a booking request to {musician.name} &mdash; it does
-            not charge you yet. A 10% platform fee applies once the booking
-            is confirmed and payment is processed.
-          </p>
+          <p className="text-xs text-mid">{`Sending this puts your request straight in front of ${musician.name}. Nothing is charged today. A 10% platform fee only applies once the booking is confirmed and payment goes through.`}</p>
           {error && <p className="text-xs text-accent">{error}</p>}
           <div className="flex gap-4">
             <button
@@ -243,10 +237,7 @@ export default function BookingForm({ musician }: { musician: Musician }) {
           <h2 className="font-serif text-3xl mb-4">
             {musician.name.split(" ")[0]} will be in touch shortly.
           </h2>
-          <p className="text-sm text-mid max-w-sm mx-auto">
-            We&rsquo;ve sent your request through. Most musicians respond
-            within 48 hours &mdash; you&rsquo;ll hear back at {form.clientEmail}.
-          </p>
+          <p className="text-sm text-mid max-w-sm mx-auto">{`Your request is on its way to ${musician.name.split(" ")[0]}. Most musicians reply within 48 hours, so keep an eye on ${form.clientEmail}.`}</p>
         </div>
       )}
     </div>

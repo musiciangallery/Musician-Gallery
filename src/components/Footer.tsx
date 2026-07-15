@@ -35,6 +35,11 @@ export default function Footer() {
                 Our Story
               </Link>
             </li>
+            <li>
+              <Link href="/toolkit" className="hover:text-accent">
+                Musician Toolkit
+              </Link>
+            </li>
           </ul>
         </div>
         <div>

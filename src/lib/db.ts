@@ -106,6 +106,10 @@ export async function ensureTables() {
   await sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS photos text[]`;
   await sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS video text`;
 
+  // Carried over from the application at approval time, so booking
+  // notifications can be emailed straight to the musician.
+  await sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS email text`;
+
   // Reviews are submitted publicly (no login) via each musician's profile,
   // then held as 'pending' until approved in /admin. Approved reviews show
   // on the musician's profile; approved AND featured reviews are the ones

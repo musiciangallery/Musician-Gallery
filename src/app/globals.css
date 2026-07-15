@@ -22,10 +22,6 @@
   --font-sans: 'DM Sans', system-ui, sans-serif;
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
 body {
   background: var(--w);
   color: var(--dark);

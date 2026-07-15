@@ -9,6 +9,7 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 // FROM must be an address on a domain verified in Resend.
 const FROM = process.env.BOOKING_FROM_EMAIL || "Musician Gallery <onboarding@resend.dev>";
 const OWNER_EMAIL = process.env.OWNER_EMAIL || "contact@emilygracestudios.com";
+const SITE_URL = process.env.SITE_URL || "https://musiciangallery.co.nz";
 
 type BookingEmailInput = {
   musicianName: string;
@@ -84,14 +85,27 @@ function layout({
   heading,
   intro,
   rowsHtml,
+  ctaHtml,
   footerNote,
 }: {
   eyebrow: string;
   heading: string;
   intro: string;
-  rowsHtml: string;
+  rowsHtml?: string;
+  ctaHtml?: string;
   footerNote: string;
 }) {
+  const rowsSection = rowsHtml
+    ? `
+            <tr>
+              <td style="padding:0 40px 36px 40px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #DDDAD4;">
+                  ${rowsHtml}
+                </table>
+              </td>
+            </tr>`
+    : "";
+
   return `<!doctype html>
 <html>
   <body style="margin:0; padding:0; background-color:#F0EEEA;">
@@ -112,16 +126,10 @@ function layout({
                 <h1 style="margin:0 0 16px 0; font-family:Georgia,'Times New Roman',serif; font-weight:400; font-size:26px; line-height:1.3; color:#181510;">${escapeHtml(
                   heading
                 )}</h1>
-                <p style="margin:0 0 28px 0; font-family:Arial,Helvetica,sans-serif; font-size:14px; line-height:1.6; color:#45403A;">${intro}</p>
+                <p style="margin:0 0 24px 0; font-family:Arial,Helvetica,sans-serif; font-size:14px; line-height:1.6; color:#45403A;">${intro}</p>
+                ${ctaHtml ? `<p style="margin:0 0 8px 0;">${ctaHtml}</p>` : ""}
               </td>
-            </tr>
-            <tr>
-              <td style="padding:0 40px 36px 40px;">
-                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #DDDAD4;">
-                  ${rowsHtml}
-                </table>
-              </td>
-            </tr>
+            </tr>${rowsSection}
             <tr>
               <td style="padding:20px 40px 32px 40px; border-top:1px solid #DDDAD4;">
                 <p style="margin:0; font-family:Arial,Helvetica,sans-serif; font-size:11px; line-height:1.6; color:#8A8680;">${escapeHtml(
@@ -216,4 +224,46 @@ export async function sendBookingEmails(b: BookingEmailInput) {
   results.forEach((r) => {
     if (r.status === "rejected") console.error("Booking email failed to send:", r.reason);
   });
+}
+
+type WelcomeEmailInput = {
+  musicianName: string;
+  musicianEmail?: string;
+  slug: string;
+};
+
+/** Sent once, right after a musician's application is approved and their
+ * profile goes live, pointing them at the Musician Toolkit page. Silently
+ * does nothing if there's no email on file or Resend isn't configured yet,
+ * matching the fail-quiet pattern used for the booking emails. */
+export async function sendWelcomeEmail(w: WelcomeEmailInput) {
+  if (!w.musicianEmail) return;
+  if (!resend) {
+    console.warn("RESEND_API_KEY not set — skipping welcome email.");
+    return;
+  }
+
+  const firstName = w.musicianName.split(" ")[0];
+  const profileUrl = `${SITE_URL}/musicians/${w.slug}`;
+  const toolkitUrl = `${SITE_URL}/toolkit`;
+  const ctaHtml = `<a href="${toolkitUrl}" style="display:inline-block; background-color:#181510; color:#F8F7F5; font-family:Arial,Helvetica,sans-serif; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; padding:12px 24px;">View the toolkit</a>`;
+
+  try {
+    await resend.emails.send({
+      from: FROM,
+      to: w.musicianEmail,
+      subject: "Your Musician Gallery profile is live",
+      text: `Hi ${firstName},\n\nYour profile is now live on Musician Gallery: ${profileUrl}\n\nWe've put together a short toolkit of things worth having ready for your first booking or student, whenever you get a chance to look: ${toolkitUrl}\n\nWelcome to the Gallery.`,
+      html: layout({
+        eyebrow: "You're live",
+        heading: `Welcome, ${firstName}`,
+        intro:
+          "Your profile is now live on Musician Gallery. We've put together a short toolkit of things worth having ready for your first booking or student, whenever you get a chance to look.",
+        ctaHtml,
+        footerNote: "You're receiving this because your profile just went live on Musician Gallery.",
+      }),
+    });
+  } catch (err) {
+    console.error("Welcome email failed to send:", err);
+  }
 }

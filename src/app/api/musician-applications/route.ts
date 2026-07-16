@@ -29,6 +29,18 @@ function parseJsonArray(value: FormDataEntryValue | null): string[] {
   }
 }
 
+// Raw filenames from a phone or camera (spaces, brackets, apostrophes,
+// "copy" suffixes, etc.) can fail Blob storage's pathname validation.
+// Strip anything that isn't a safe character before using it in a path.
+function sanitizeFilename(name: string): string {
+  const safe = name
+    .toLowerCase()
+    .replace(/[^a-z0-9.]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/(^-|-$)/g, "");
+  return safe || "file";
+}
+
 export async function POST(req: NextRequest) {
   try {
     const form = await req.formData();
@@ -66,7 +78,7 @@ export async function POST(req: NextRequest) {
     // that gets uploaded during approval.
     const fileUrls: string[] = [];
     for (const file of previousWorkFiles) {
-      const blob = await put(`applications/${Date.now()}-${file.name}`, file, {
+      const blob = await put(`applications/${Date.now()}-${sanitizeFilename(file.name)}`, file, {
         access: "public",
         addRandomSuffix: true,
       });

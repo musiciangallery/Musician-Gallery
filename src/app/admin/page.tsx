@@ -1,6 +1,7 @@
 import { getSql, ensureTables } from "@/lib/db";
 import ApplicationReviewCard from "@/components/ApplicationReviewCard";
 import RemoveMusicianButton from "@/components/RemoveMusicianButton";
+import FeatureMusicianButton from "@/components/FeatureMusicianButton";
 import { PendingReviewActions, ApprovedReviewActions } from "@/components/ReviewActionButtons";
 
 export const dynamic = "force-dynamic";
@@ -15,6 +16,7 @@ type LiveMusician = {
   type: string;
   vetted: boolean;
   photo: string | null;
+  featured: boolean;
   created_at: string;
 };
 
@@ -71,7 +73,7 @@ async function getData() {
     const sql = getSql();
     const bookings = (await sql`SELECT * FROM bookings ORDER BY created_at DESC`) as unknown as Booking[];
     const applications = (await sql`SELECT * FROM musician_applications ORDER BY created_at DESC`) as unknown as Application[];
-    const liveMusicians = (await sql`SELECT id, slug, name, instrument, region, type, vetted, photo, created_at FROM musicians ORDER BY created_at DESC`) as unknown as LiveMusician[];
+    const liveMusicians = (await sql`SELECT id, slug, name, instrument, region, type, vetted, photo, featured, created_at FROM musicians ORDER BY created_at DESC`) as unknown as LiveMusician[];
     const reviews = (await sql`SELECT * FROM reviews ORDER BY created_at DESC`) as unknown as Review[];
     return { bookings, applications, liveMusicians, reviews, error: null };
   } catch (err) {
@@ -187,6 +189,7 @@ export default async function AdminPage() {
                 <th className={th}>Region</th>
                 <th className={th}>Type</th>
                 <th className={th}>Vetted</th>
+                <th className={th}>Featured</th>
                 <th className={th}>Profile</th>
                 <th className={th}></th>
               </tr>
@@ -199,6 +202,9 @@ export default async function AdminPage() {
                   <td className={td}>{m.region}</td>
                   <td className={td}>{m.type}</td>
                   <td className={td}>{m.vetted ? "Yes" : "No"}</td>
+                  <td className={td}>
+                    <FeatureMusicianButton id={m.id} featured={m.featured} />
+                  </td>
                   <td className={td}>
                     <a href={`/musicians/${m.slug}`} target="_blank" className="text-accent hover:underline">
                       View &rarr;

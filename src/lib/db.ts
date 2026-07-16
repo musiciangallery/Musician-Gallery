@@ -75,6 +75,11 @@ export async function ensureTables() {
   await sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS genre text[]`;
   await sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS sound_system text`;
 
+  // Raw photo/video files an applicant uploads to show previous work,
+  // stored in Blob and referenced here by URL. Separate from the "previous
+  // work" text field, which is for pasted links (YouTube, Instagram, etc).
+  await sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS previous_work_files text[]`;
+
   // Live, approved musician profiles — separate from applications so that
   // publishing an application (editing the bio, uploading a treated photo)
   // doesn't overwrite what the applicant originally submitted.

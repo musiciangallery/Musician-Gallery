@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { upload } from "@vercel/blob/client";
 import { ALL_INSTRUMENTS as INSTRUMENTS, ALL_REGIONS as REGIONS } from "@/lib/musicians";
 
 const inputClass =
@@ -138,6 +139,20 @@ export default function JoinForm() {
     setSubmitting(true);
     setError(null);
     try {
+      // Upload files straight from the browser to Blob storage first.
+      // Serverless functions reject request bodies over ~4.5MB, which a
+      // real phone photo or video easily exceeds — going direct to
+      // storage avoids that limit entirely, since only the resulting
+      // small URL gets sent through the form submission below.
+      const previousWorkFileUrls: string[] = [];
+      for (const file of previousWorkFiles) {
+        const blob = await upload(file.name, file, {
+          access: "public",
+          handleUploadUrl: "/api/upload",
+        });
+        previousWorkFileUrls.push(blob.url);
+      }
+
       const body = new FormData();
       body.set("name", form.name);
       body.set("email", form.email);
@@ -154,7 +169,7 @@ export default function JoinForm() {
       body.set("studentLevel", JSON.stringify(form.studentLevel));
       body.set("availableAs", JSON.stringify(form.availableAs));
       body.set("genre", JSON.stringify(form.genre));
-      previousWorkFiles.forEach((file) => body.append("previousWorkFiles", file));
+      body.set("previousWorkFileUrls", JSON.stringify(previousWorkFileUrls));
 
       const res = await fetch("/api/musician-applications", {
         method: "POST",

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { upload } from "@vercel/blob/client";
 
 const inputClass =
   "w-full border border-rule bg-w px-3 py-2 text-sm focus:outline-none focus:border-accent";
@@ -80,6 +81,35 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
     }
     setSubmitting("approve");
     try {
+      // Upload files straight from the browser to Blob storage first.
+      // Serverless functions reject request bodies over ~4.5MB, which
+      // real camera photos and video easily exceed — going direct to
+      // storage avoids that limit entirely, since only the resulting
+      // URLs get sent to the approve route below.
+      const photoBlob = await upload(`musicians/${slug}-${Date.now()}`, photo, {
+        access: "public",
+        handleUploadUrl: "/api/upload",
+      });
+      const photoUrl = photoBlob.url;
+
+      const galleryUrls: string[] = [];
+      for (const file of galleryPhotos) {
+        const blob = await upload(`musicians/${slug}-gallery-${Date.now()}`, file, {
+          access: "public",
+          handleUploadUrl: "/api/upload",
+        });
+        galleryUrls.push(blob.url);
+      }
+
+      let videoUrl: string | null = null;
+      if (video) {
+        const blob = await upload(`musicians/${slug}-video-${Date.now()}`, video, {
+          access: "public",
+          handleUploadUrl: "/api/upload",
+        });
+        videoUrl = blob.url;
+      }
+
       const form = new FormData();
       form.set("applicationId", a.id);
       form.set("slug", slug);
@@ -95,9 +125,9 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
       form.set("bio", bio);
       form.set("longBio", longBio);
       form.set("yearsExperience", yearsExperience);
-      form.set("photo", photo);
-      galleryPhotos.forEach((file) => form.append("photos", file));
-      if (video) form.set("video", video);
+      form.set("photoUrl", photoUrl);
+      form.set("galleryUrls", JSON.stringify(galleryUrls));
+      if (videoUrl) form.set("videoUrl", videoUrl);
 
       const res = await fetch("/api/admin/approve", { method: "POST", body: form });
       if (!res.ok) {

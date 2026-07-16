@@ -115,6 +115,10 @@ export async function ensureTables() {
   // notifications can be emailed straight to the musician.
   await sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS email text`;
 
+  // Manually curated in /admin — featured musicians are the ones shown in
+  // the homepage "From the gallery" section, instead of a hardcoded slice.
+  await sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS featured boolean NOT NULL DEFAULT false`;
+
   // Reviews are submitted publicly (no login) via each musician's profile,
   // then held as 'pending' until approved in /admin. Approved reviews show
   // on the musician's profile; approved AND featured reviews are the ones

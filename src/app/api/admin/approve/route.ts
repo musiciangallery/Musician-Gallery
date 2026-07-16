@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
-import { put } from "@vercel/blob";
 import { getSql, ensureTables } from "@/lib/db";
 import { sendWelcomeEmail } from "@/lib/email";
 
@@ -41,11 +40,14 @@ export async function POST(req: NextRequest) {
     const vetted = form.get("vetted") === "true";
     const instruments = parseJsonArray(form.get("instruments"));
     const occasions = parseJsonArray(form.get("occasions"));
-    const photo = form.get("photo");
-    const galleryPhotos = form.getAll("photos").filter(
-      (f): f is File => f instanceof File && f.size > 0
-    );
-    const video = form.get("video");
+    // Photos/video are uploaded directly from the browser to Blob storage
+    // before this form is submitted (see /api/upload), so this route only
+    // ever receives the resulting URLs — never the file bytes — keeping
+    // large files clear of the ~4.5MB request body limit serverless
+    // functions enforce.
+    const photoUrl = form.get("photoUrl");
+    const galleryUrls = parseJsonArray(form.get("galleryUrls"));
+    const videoUrl = form.get("videoUrl");
     let slug = form.get("slug");
 
     if (
@@ -66,40 +68,6 @@ export async function POST(req: NextRequest) {
 
     const rateFrom = rateFromRaw ? parseInt(String(rateFromRaw), 10) : null;
 
-    let photoUrl: string | null = null;
-    if (photo instanceof File && photo.size > 0) {
-      const blob = await put(`musicians/${slug}-${Date.now()}`, photo, {
-        access: "public",
-        addRandomSuffix: true,
-      });
-      photoUrl = blob.url;
-    }
-
-    // Additional gallery photos — uploaded the same way as the primary
-    // photo, one Blob object each.
-    const galleryUrls: string[] = [];
-    for (const file of galleryPhotos) {
-      const blob = await put(`musicians/${slug}-gallery-${Date.now()}`, file, {
-        access: "public",
-        addRandomSuffix: true,
-      });
-      galleryUrls.push(blob.url);
-    }
-
-    // Optional profile video — same Blob upload pattern. Video files are
-    // much larger than photos, so this can take a while on a slow
-    // connection; the client-side upload has no special handling for that
-    // yet beyond the normal fetch, which is fine for the file sizes a
-    // single musician profile realistically needs.
-    let videoUrl: string | null = null;
-    if (video instanceof File && video.size > 0) {
-      const blob = await put(`musicians/${slug}-video-${Date.now()}`, video, {
-        access: "public",
-        addRandomSuffix: true,
-      });
-      videoUrl = blob.url;
-    }
-
     await ensureTables();
     const sql = getSql();
     const id = randomUUID();
@@ -113,7 +81,8 @@ export async function POST(req: NextRequest) {
         (${id}, ${slug}, ${name}, ${instruments[0]}, ${instruments}, ${region},
          ${type}, ${occasions}, ${vetted}, ${rateFrom}, ${String(rateUnit ?? "")},
          ${String(bio ?? "")}, ${String(longBio ?? "")}, ${String(yearsExperience ?? "")},
-         ${photoUrl}, ${galleryUrls}, ${videoUrl}, ${typeof email === "string" ? email : null}, ${applicationId})
+         ${typeof photoUrl === "string" ? photoUrl : null}, ${galleryUrls},
+         ${typeof videoUrl === "string" ? videoUrl : null}, ${typeof email === "string" ? email : null}, ${applicationId})
     `;
 
     await sql`UPDATE musician_applications SET status = 'approved' WHERE id = ${applicationId}`;

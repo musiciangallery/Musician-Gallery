@@ -32,7 +32,8 @@ export default async function Home() {
             <br />
             <em>musicians.</em>
           </h1>
-          <p className="max-w-lg text-sm text-mid mb-8">A considered introduction between talented musicians and the people looking for them. <em className="font-serif">Softly launching, September 2026.</em></p>
+          <p className="max-w-lg text-sm text-mid mb-8">A considered introduction between talented musicians and the people looking for them.</p>
+          <p className="max-w-lg font-serif text-xl md:text-2xl italic text-accent mb-8">Softly launching, September 2026.</p>
           <div className="flex flex-wrap gap-6">
             <Link
               href="/gallery"

@@ -54,6 +54,7 @@ type Application = {
   status: string;
   created_at: string;
   previous_work: string | null;
+  previous_work_files: string[] | null;
   years_experience: string | null;
   travel: string | null;
   lesson_format: string | null;
@@ -376,6 +377,18 @@ export default async function AdminPage() {
                   <div>
                     <span className="block text-[10px] uppercase tracking-[0.08em] text-mid">Previous work</span>
                     {a.previous_work}
+                  </div>
+                )}
+                {a.previous_work_files && a.previous_work_files.length > 0 && (
+                  <div className="mt-2">
+                    <span className="block text-[10px] uppercase tracking-[0.08em] text-mid mb-1">Uploaded files</span>
+                    <div className="flex flex-wrap gap-3">
+                      {a.previous_work_files.map((url, i) => (
+                        <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline text-xs">
+                          File {i + 1} &rarr;
+                        </a>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { upload } from "@vercel/blob/client";
 import { ALL_INSTRUMENTS as INSTRUMENTS, ALL_REGIONS as REGIONS } from "@/lib/musicians";
 
@@ -145,6 +145,16 @@ export default function JoinForm() {
 
   const isTeacher = form.type === "Teacher" || form.type === "Teacher & Events";
   const isEvent = form.type === "Event Musician" || form.type === "Teacher & Events";
+
+  // The confirmation message is much shorter than the full form. Without
+  // this, submitting from partway down the long form leaves the page at
+  // its old scroll position, so the confirmation can land looking cut off
+  // or oddly placed against the nav instead of settling into view.
+  useEffect(() => {
+    if (submitted) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [submitted]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();

@@ -23,6 +23,7 @@ type DbMusicianRow = {
   photos: string[] | null;
   video: string | null;
   email: string | null;
+  featured: boolean;
 };
 
 function fromDbRow(row: DbMusicianRow): Musician {
@@ -43,6 +44,7 @@ function fromDbRow(row: DbMusicianRow): Musician {
     photos: row.photos ?? undefined,
     video: row.video ?? undefined,
     email: row.email ?? undefined,
+    featured: row.featured,
     isLive: true,
   };
 }

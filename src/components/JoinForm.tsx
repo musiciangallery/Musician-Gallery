@@ -43,6 +43,18 @@ const GENRES = [
 
 const SOUND_SYSTEM = ["Yes", "No"];
 
+// Raw filenames from a phone or camera (spaces, brackets, apostrophes,
+// "copy" suffixes, etc.) can fail Blob storage's pathname validation.
+// Strip anything that isn't a safe character before using it as a path.
+function sanitizeFilename(name: string): string {
+  const safe = name
+    .toLowerCase()
+    .replace(/[^a-z0-9.]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/(^-|-$)/g, "");
+  return safe || "file";
+}
+
 type FormState = {
   name: string;
   email: string;
@@ -146,7 +158,7 @@ export default function JoinForm() {
       // small URL gets sent through the form submission below.
       const previousWorkFileUrls: string[] = [];
       for (const file of previousWorkFiles) {
-        const blob = await upload(file.name, file, {
+        const blob = await upload(`${Date.now()}-${sanitizeFilename(file.name)}`, file, {
           access: "public",
           handleUploadUrl: "/api/upload",
         });

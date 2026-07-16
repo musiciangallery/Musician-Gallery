@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
-import { put } from "@vercel/blob";
 import { getSql, ensureTables } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -29,18 +28,6 @@ function parseJsonArray(value: FormDataEntryValue | null): string[] {
   }
 }
 
-// Raw filenames from a phone or camera (spaces, brackets, apostrophes,
-// "copy" suffixes, etc.) can fail Blob storage's pathname validation.
-// Strip anything that isn't a safe character before using it in a path.
-function sanitizeFilename(name: string): string {
-  const safe = name
-    .toLowerCase()
-    .replace(/[^a-z0-9.]+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/(^-|-$)/g, "");
-  return safe || "file";
-}
-
 export async function POST(req: NextRequest) {
   try {
     const form = await req.formData();
@@ -60,9 +47,14 @@ export async function POST(req: NextRequest) {
     const studentLevel = parseJsonArray(form.get("studentLevel"));
     const availableAs = parseJsonArray(form.get("availableAs"));
     const genre = parseJsonArray(form.get("genre"));
-    const previousWorkFiles = form.getAll("previousWorkFiles").filter(
-      (f): f is File => f instanceof File && f.size > 0
-    );
+    // Applicant-uploaded photos/videos showing previous work — reference
+    // material for review, separate from the curated profile photo/gallery
+    // that gets uploaded during approval. The browser uploads these
+    // directly to Blob storage (see /api/upload) before this form is
+    // submitted, so this route only ever receives the resulting URLs,
+    // never the file bytes — that keeps large files well clear of the
+    // ~4.5MB request body limit serverless functions enforce.
+    const fileUrls = parseJsonArray(form.get("previousWorkFileUrls"));
 
     if (
       typeof name !== "string" ||
@@ -71,18 +63,6 @@ export async function POST(req: NextRequest) {
       instrumentList.length === 0
     ) {
       return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
-    }
-
-    // Applicant-uploaded photos/videos showing previous work — reference
-    // material for review, separate from the curated profile photo/gallery
-    // that gets uploaded during approval.
-    const fileUrls: string[] = [];
-    for (const file of previousWorkFiles) {
-      const blob = await put(`applications/${Date.now()}-${sanitizeFilename(file.name)}`, file, {
-        access: "public",
-        addRandomSuffix: true,
-      });
-      fileUrls.push(blob.url);
     }
 
     await ensureTables();

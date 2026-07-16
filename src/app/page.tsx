@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { musicians } from "@/lib/musicians";
+import { getAllMusicians } from "@/lib/musicians-live";
 import { getFeaturedReviews } from "@/lib/reviews-live";
 import MusicianCard from "@/components/MusicianCard";
 import Ticker from "@/components/Ticker";
@@ -9,7 +10,12 @@ import FeaturedReviews from "@/components/FeaturedReviews";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const featured = musicians.slice(0, 3);
+  // Admin-curated musicians (see /admin) take priority for this section.
+  // Falls back to the first three placeholder profiles until someone has
+  // been featured, so the homepage never looks empty.
+  const allMusicians = await getAllMusicians();
+  const featuredMusicians = allMusicians.filter((m) => m.featured);
+  const featured = featuredMusicians.length > 0 ? featuredMusicians.slice(0, 3) : musicians.slice(0, 3);
   const featuredReviews = await getFeaturedReviews();
 
   return (

@@ -115,6 +115,7 @@ export default function JoinForm() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(initialForm);
+  const [previousWorkFiles, setPreviousWorkFiles] = useState<File[]>([]);
 
   const update = <K extends keyof FormState>(field: K, value: FormState[K]) =>
     setForm((f) => ({ ...f, [field]: value }));
@@ -137,10 +138,27 @@ export default function JoinForm() {
     setSubmitting(true);
     setError(null);
     try {
+      const body = new FormData();
+      body.set("name", form.name);
+      body.set("email", form.email);
+      body.set("region", form.region);
+      body.set("type", form.type);
+      body.set("bio", form.bio);
+      body.set("previousWork", form.previousWork);
+      body.set("yearsExperience", form.yearsExperience);
+      body.set("travel", form.travel);
+      body.set("lessonFormat", form.lessonFormat);
+      body.set("soundSystem", form.soundSystem);
+      body.set("instruments", JSON.stringify(form.instruments));
+      body.set("lessonLength", JSON.stringify(form.lessonLength));
+      body.set("studentLevel", JSON.stringify(form.studentLevel));
+      body.set("availableAs", JSON.stringify(form.availableAs));
+      body.set("genre", JSON.stringify(form.genre));
+      previousWorkFiles.forEach((file) => body.append("previousWorkFiles", file));
+
       const res = await fetch("/api/musician-applications", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body,
       });
       if (!res.ok) {
         const data = await res.json();
@@ -361,9 +379,19 @@ export default function JoinForm() {
           onChange={(e) => update("previousWork", e.target.value)}
         />
         <p className={hintClass}>
-          File uploads aren&rsquo;t supported yet — for now, paste links to
-          anything that shows off your playing.
+          Paste links to anything that shows off your playing, and/or upload
+          files directly below.
         </p>
+        <input
+          type="file"
+          accept="image/*,video/*"
+          multiple
+          onChange={(e) => setPreviousWorkFiles(Array.from(e.target.files ?? []))}
+          className="text-sm mt-3"
+        />
+        {previousWorkFiles.length > 0 && (
+          <p className={hintClass}>{previousWorkFiles.length} file(s) selected</p>
+        )}
       </div>
 
       {error && <p className="text-xs text-accent">{error}</p>}

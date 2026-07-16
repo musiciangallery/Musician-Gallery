@@ -31,6 +31,9 @@ export type Musician = {
    * approval time. Used to send them booking-request notifications. Not
    * shown publicly anywhere. */
   email?: string;
+  /** Manually curated in /admin — featured musicians are the ones shown in
+   * the homepage "From the gallery" section. */
+  featured?: boolean;
 };
 
 export const musicians: Musician[] = [

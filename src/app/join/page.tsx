@@ -15,8 +15,8 @@ export default function JoinPage() {
       </h1>
       <p className="text-sm text-mid mb-4">
         Free to list, no commission. We handle marketing, admin, and
-        withholding tax so you can focus on the music. Submit your details
-        below to start the police vetting process.
+        payment collection so you can focus on the music. Submit your
+        details below to start the police vetting process.
       </p>
       <Link
         href="/toolkit"

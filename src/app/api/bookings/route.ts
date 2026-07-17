@@ -48,11 +48,12 @@ export async function POST(req: NextRequest) {
     await ensureTables();
     const sql = getSql();
     const id = randomUUID();
+    const confirmToken = randomUUID();
     await sql`
       INSERT INTO bookings
-        (id, musician_slug, occasion, event_date, location, details, client_name, client_email, client_phone)
+        (id, musician_slug, occasion, event_date, location, details, client_name, client_email, client_phone, confirm_token)
       VALUES
-        (${id}, ${musicianSlug}, ${occasion}, ${eventDate}, ${location ?? ""}, ${details ?? ""}, ${clientName}, ${clientEmail}, ${clientPhone ?? ""})
+        (${id}, ${musicianSlug}, ${occasion}, ${eventDate}, ${location ?? ""}, ${details ?? ""}, ${clientName}, ${clientEmail}, ${clientPhone ?? ""}, ${confirmToken})
     `;
 
     // Best-effort — a failed or unconfigured email send should never stop
@@ -68,6 +69,8 @@ export async function POST(req: NextRequest) {
         clientName,
         clientEmail,
         clientPhone,
+        bookingId: id,
+        confirmToken,
       });
     } catch (emailErr) {
       console.error("Booking email failed:", emailErr);

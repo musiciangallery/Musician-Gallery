@@ -21,6 +21,8 @@ type BookingEmailInput = {
   clientName: string;
   clientEmail: string;
   clientPhone?: string;
+  bookingId: string;
+  confirmToken: string;
 };
 
 function escapeHtml(value: string) {
@@ -177,6 +179,8 @@ export async function sendBookingEmails(b: BookingEmailInput) {
   );
 
   if (b.musicianEmail) {
+    const respondUrl = `${SITE_URL}/respond/${b.bookingId}?token=${b.confirmToken}`;
+    const respondCta = `<a href="${respondUrl}" style="display:inline-block; background-color:#181510; color:#F8F7F5; font-family:Arial,Helvetica,sans-serif; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; padding:12px 24px;">Confirm or decline</a>`;
     sends.push(
       resend.emails.send({
         from: FROM,
@@ -185,14 +189,15 @@ export async function sendBookingEmails(b: BookingEmailInput) {
         subject: "New booking request via Musician Gallery",
         text: `You've received a new booking request through Musician Gallery.\n\n${summaryLines(
           b
-        )}\n\nReply directly to this email to get in touch with ${b.clientName}.`,
+        )}\n\nConfirm or decline this request: ${respondUrl}\n\nReply directly to this email to get in touch with ${b.clientName}.`,
         html: layout({
           eyebrow: "New booking request",
           heading: "You've got a new request",
-          intro: `You've received a new booking request through Musician Gallery. Reply directly to this email to get in touch with ${escapeHtml(
+          intro: `You've received a new booking request through Musician Gallery. Confirm or decline it below, or reply directly to this email to get in touch with ${escapeHtml(
             b.clientName
-          )}.`,
+          )} first.`,
           rowsHtml,
+          ctaHtml: respondCta,
           footerNote: "You're receiving this because you have a live profile on Musician Gallery.",
         }),
       })
@@ -266,5 +271,93 @@ export async function sendWelcomeEmail(w: WelcomeEmailInput) {
     });
   } catch (err) {
     console.error("Welcome email failed to send:", err);
+  }
+}
+
+type BookingConfirmedEmailInput = {
+  musicianName: string;
+  clientName: string;
+  clientEmail: string;
+  occasion: string;
+  eventDate: string;
+  amount: number;
+  checkoutUrl: string;
+};
+
+/** Sent to the client once the musician confirms a booking and enters their
+ * rate — the payment link (a Stripe-hosted Checkout page) is the whole
+ * point of this email, so it's the primary CTA. Fail-quiet, matching the
+ * other booking emails. */
+export async function sendBookingConfirmedEmail(b: BookingConfirmedEmailInput) {
+  if (!resend) {
+    console.warn("RESEND_API_KEY not set — skipping booking confirmed email.");
+    return;
+  }
+
+  const ctaHtml = `<a href="${b.checkoutUrl}" style="display:inline-block; background-color:#181510; color:#F8F7F5; font-family:Arial,Helvetica,sans-serif; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; padding:12px 24px;">Pay $${b.amount.toFixed(
+    2
+  )} now</a>`;
+
+  try {
+    await resend.emails.send({
+      from: FROM,
+      to: b.clientEmail,
+      subject: `${b.musicianName} confirmed your booking — payment requested`,
+      text: `Hi ${b.clientName},\n\n${b.musicianName} has confirmed your booking for ${b.occasion} on ${b.eventDate}, for $${b.amount.toFixed(
+        2
+      )} plus a 10% platform fee.\n\nPay securely here: ${b.checkoutUrl}\n\n— Musician Gallery`,
+      html: layout({
+        eyebrow: "Booking confirmed",
+        heading: `${b.musicianName} is confirmed`,
+        intro: `Hi ${escapeHtml(b.clientName)}, ${escapeHtml(
+          b.musicianName
+        )} has confirmed your booking for ${escapeHtml(b.occasion)} on ${escapeHtml(
+          b.eventDate
+        )}, for $${b.amount.toFixed(2)} plus a 10% platform fee. Pay securely below to lock it in.`,
+        ctaHtml,
+        footerNote: "Payment is handled securely by Stripe — Musician Gallery never sees your card details.",
+      }),
+    });
+  } catch (err) {
+    console.error("Booking confirmed email failed to send:", err);
+  }
+}
+
+type BookingDeclinedEmailInput = {
+  musicianName: string;
+  clientName: string;
+  clientEmail: string;
+  occasion: string;
+  eventDate: string;
+};
+
+/** Sent to the client if the musician declines. Fail-quiet, matching the
+ * other booking emails. */
+export async function sendBookingDeclinedEmail(b: BookingDeclinedEmailInput) {
+  if (!resend) {
+    console.warn("RESEND_API_KEY not set — skipping booking declined email.");
+    return;
+  }
+
+  try {
+    await resend.emails.send({
+      from: FROM,
+      to: b.clientEmail,
+      subject: `${b.musicianName} isn't available for your booking`,
+      text: `Hi ${b.clientName},\n\nUnfortunately ${b.musicianName} isn't able to take your booking for ${b.occasion} on ${b.eventDate}. No payment has been taken.\n\nBrowse other musicians: ${SITE_URL}/gallery\n\n— Musician Gallery`,
+      html: layout({
+        eyebrow: "Booking declined",
+        heading: `${b.musicianName} isn't available`,
+        intro: `Hi ${escapeHtml(b.clientName)}, unfortunately ${escapeHtml(
+          b.musicianName
+        )} isn't able to take your booking for ${escapeHtml(b.occasion)} on ${escapeHtml(
+          b.eventDate
+        )}. No payment has been taken.`,
+        ctaHtml: `<a href="${SITE_URL}/gallery" style="display:inline-block; background-color:#181510; color:#F8F7F5; font-family:Arial,Helvetica,sans-serif; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; padding:12px 24px;">Browse other musicians</a>`,
+        footerNote: "You're receiving this because you made a booking request through Musician Gallery.",
+      }),
+    });
+  } catch (err) {
+    console.error("Booking declined email failed to send:", err);
   }
 }

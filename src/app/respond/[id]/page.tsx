@@ -103,12 +103,7 @@ export default async function RespondToBooking({
               <p className="text-sm text-mid mb-4">
                 Finish setting up automatic payouts before confirming bookings — it only takes a couple of minutes. You can still decline this one below without setting that up.
               </p>
-              
-                href={`/api/stripe/onboard/${booking.musician_slug}`}
-                className="inline-block bg-blk text-w text-xs tracking-[0.1em] uppercase py-3 px-8 hover:bg-accent transition-colors"
-              >
-                Set up payouts
-              </a>
+              <a href={`/api/stripe/onboard/${booking.musician_slug}`} className="inline-block bg-blk text-w text-xs tracking-[0.1em] uppercase py-3 px-8 hover:bg-accent transition-colors">Set up payouts</a>
             </div>
           )}
           <BookingResponseForm bookingId={booking.id} token={token as string} canConfirm={canConfirm} />

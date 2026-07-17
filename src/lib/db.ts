@@ -46,6 +46,24 @@ export async function ensureTables() {
       created_at timestamptz NOT NULL DEFAULT now()
     )
   `;
+  // Payment lifecycle, added when Stripe booking payments were introduced.
+  // A booking starts 'pending' (just a notification, as before). The
+  // musician confirms via an emailed no-login link (using confirm_token)
+  // and enters the agreed amount, which moves it to 'confirmed' and
+  // generates a Stripe Checkout link for the client. 'paid' is set by the
+  // Stripe webhook once the client actually pays. 'declined' ends the flow
+  // with no payment ever created.
+  await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'pending'`;
+  await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS confirm_token text`;
+  // Musician's quoted rate in cents (client pays this plus a 10% platform
+  // fee on top; the musician always receives their full quoted amount).
+  await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS amount integer`;
+  await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS stripe_checkout_session_id text`;
+  await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS stripe_payment_intent_id text`;
+  await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS confirmed_at timestamptz`;
+  await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS declined_at timestamptz`;
+  await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS paid_at timestamptz`;
+
   await sql`
     CREATE TABLE IF NOT EXISTS musician_applications (
       id uuid PRIMARY KEY,
@@ -118,6 +136,13 @@ export async function ensureTables() {
   // Manually curated in /admin — featured musicians are the ones shown in
   // the homepage "From the gallery" section, instead of a hardcoded slice.
   await sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS featured boolean NOT NULL DEFAULT false`;
+
+  // Stripe Connect Express account for automatic payouts. stripe_onboarded
+  // only flips true once Stripe confirms (via webhook) that charges and
+  // payouts are both enabled on the account — until then, bookings can
+  // still come in but can't be paid out to this musician yet.
+  await sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS stripe_account_id text`;
+  await sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS stripe_onboarded boolean NOT NULL DEFAULT false`;
 
   // Reviews are submitted publicly (no login) via each musician's profile,
   // then held as 'pending' until approved in /admin. Approved reviews show

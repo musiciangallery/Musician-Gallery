@@ -125,8 +125,8 @@ export default async function Home() {
             </h2>
             <p className="text-sm text-mid mb-6">
               Free to list, no commission. Be discovered by clients
-              searching for your instrument and region, with invoicing and
-              withholding tax handled automatically.
+              searching for your instrument and region, with payments and
+              payouts handled automatically.
             </p>
             <Link href="/join" className="text-xs tracking-[0.1em] uppercase border-b border-blk pb-1 hover:text-accent hover:border-accent">
               Join the gallery

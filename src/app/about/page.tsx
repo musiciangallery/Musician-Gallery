@@ -19,8 +19,8 @@ const clientSteps = [
   },
   {
     n: "III",
-    t: "Payment held securely",
-    b: "Funds are collected at checkout and held until your lesson or event is confirmed complete. You're never paying blind.",
+    t: "Pay securely, once confirmed",
+    b: "Once your musician confirms and quotes their rate, you'll get a secure payment link by email. Pay online in a few clicks — no cash, no chasing invoices.",
   },
   {
     n: "IV",
@@ -43,7 +43,7 @@ const musicianPillars = [
   {
     n: "III",
     t: "Backend, handled",
-    b: "Invoicing, withholding tax, and payment collection are handled automatically. No paperwork, no chasing clients for payment.",
+    b: "Payment collection and payout are handled automatically once you confirm a booking. No invoicing, no chasing clients for payment.",
   },
   {
     n: "IV",
@@ -119,9 +119,8 @@ export default function AboutPage() {
           </h2>
           <p className="text-sm text-mid mt-6 max-w-xs">
             Every profile is vetted, priced, and ready to book &mdash; no
-            cold calls, no chasing musicians down, no guessing what
-            you&rsquo;ll pay. Your payment is protected until the job is
-            done.
+            cold calls, no chasing musicians down. Once your musician
+            confirms, you&rsquo;ll pay securely online in a few clicks.
           </p>
           <Link
             href="/gallery"
@@ -178,20 +177,19 @@ export default function AboutPage() {
         <div className="space-y-6 max-w-2xl">
           <p className="text-sm leading-relaxed">
             All payments run through Stripe, the payment processor used by
-            millions of businesses worldwide. When a client confirms a
-            booking, payment is collected upfront and held securely until
-            the lesson or event is complete.
+            millions of businesses worldwide. Once your musician confirms a
+            booking and quotes their rate, you&rsquo;ll receive a secure
+            payment link by email &mdash; pay online in a few clicks.
           </p>
           <p className="text-sm leading-relaxed">
-            Once confirmed, funds are released directly to the
-            musician&rsquo;s bank account. Withholding tax is calculated and
-            deducted automatically, so there&rsquo;s no end-of-year
-            surprise.
+            Payment goes straight to the musician&rsquo;s bank account
+            automatically. Musicians always receive their full quoted rate
+            &mdash; nothing is withheld or deducted.
           </p>
           <p className="text-sm leading-relaxed">
             A 10% platform fee is added to the client&rsquo;s total at
             checkout. Musicians are never charged commission and always
-            receive their full listed rate.
+            receive their full quoted rate.
           </p>
         </div>
       </section>

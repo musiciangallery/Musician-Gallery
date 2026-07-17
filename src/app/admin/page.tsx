@@ -17,6 +17,7 @@ type LiveMusician = {
   vetted: boolean;
   photo: string | null;
   featured: boolean;
+  stripe_onboarded: boolean;
   created_at: string;
 };
 
@@ -31,6 +32,8 @@ type Booking = {
   client_email: string;
   client_phone: string;
   created_at: string;
+  status: string;
+  amount: number | null;
 };
 
 type Review = {
@@ -73,7 +76,7 @@ async function getData() {
     const sql = getSql();
     const bookings = (await sql`SELECT * FROM bookings ORDER BY created_at DESC`) as unknown as Booking[];
     const applications = (await sql`SELECT * FROM musician_applications ORDER BY created_at DESC`) as unknown as Application[];
-    const liveMusicians = (await sql`SELECT id, slug, name, instrument, region, type, vetted, photo, featured, created_at FROM musicians ORDER BY created_at DESC`) as unknown as LiveMusician[];
+    const liveMusicians = (await sql`SELECT id, slug, name, instrument, region, type, vetted, photo, featured, stripe_onboarded, created_at FROM musicians ORDER BY created_at DESC`) as unknown as LiveMusician[];
     const reviews = (await sql`SELECT * FROM reviews ORDER BY created_at DESC`) as unknown as Review[];
     return { bookings, applications, liveMusicians, reviews, error: null };
   } catch (err) {
@@ -89,6 +92,20 @@ async function getData() {
 
 const th = "text-left p-3 border-b border-rule text-[10px] tracking-[0.08em] uppercase text-mid font-normal";
 const td = "p-3 border-b border-rule text-sm align-top";
+
+function statusLabel(status: string, amountCents: number | null) {
+  const amount = amountCents ? ` — $${(amountCents / 100).toFixed(2)}` : "";
+  switch (status) {
+    case "paid":
+      return `Paid${amount}`;
+    case "confirmed":
+      return `Confirmed, awaiting payment${amount}`;
+    case "declined":
+      return "Declined";
+    default:
+      return "Pending";
+  }
+}
 
 export default async function AdminPage() {
   const { bookings, applications, liveMusicians, reviews, error } = await getData();
@@ -129,12 +146,13 @@ export default async function AdminPage() {
               <th className={th}>Email</th>
               <th className={th}>Phone</th>
               <th className={th}>Notes</th>
+              <th className={th}>Status</th>
             </tr>
           </thead>
           <tbody>
             {bookings.length === 0 ? (
               <tr>
-                <td className={td} colSpan={9}>
+                <td className={td} colSpan={10}>
                   No booking requests yet.
                 </td>
               </tr>
@@ -150,6 +168,7 @@ export default async function AdminPage() {
                   <td className={td}>{b.client_email}</td>
                   <td className={td}>{b.client_phone || "—"}</td>
                   <td className={td}>{b.details || "—"}</td>
+                  <td className={td}>{statusLabel(b.status, b.amount)}</td>
                 </tr>
               ))
             )}
@@ -190,6 +209,7 @@ export default async function AdminPage() {
                 <th className={th}>Type</th>
                 <th className={th}>Vetted</th>
                 <th className={th}>Featured</th>
+                <th className={th}>Payouts</th>
                 <th className={th}>Profile</th>
                 <th className={th}></th>
               </tr>
@@ -205,6 +225,7 @@ export default async function AdminPage() {
                   <td className={td}>
                     <FeatureMusicianButton id={m.id} featured={m.featured} />
                   </td>
+                  <td className={td}>{m.stripe_onboarded ? "Connected" : "Not connected"}</td>
                   <td className={td}>
                     <a href={`/musicians/${m.slug}`} target="_blank" className="text-accent hover:underline">
                       View &rarr;

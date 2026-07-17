@@ -66,10 +66,13 @@ export default function PrivacyPage() {
         <li>Profile photo (subject to our photo specifications)</li>
         <li>Instrument(s) and genre(s)</li>
         <li>Biography and portfolio information</li>
-        <li>IRD number, required for withholding tax (schedular payment) purposes</li>
-        <li>Bank account details for payment disbursement via Stripe Connect</li>
+        <li>
+          Stripe account connection details, used to pay out your share of
+          Bookings automatically. Musician Gallery does not see or store
+          your bank account details &mdash; these are collected and held
+          directly by Stripe.
+        </li>
         <li>Police vetting result (teachers only), provided via NZ Police</li>
-        <li>IR330C tax rate notification form</li>
       </ul>
       <h3 className={h3}>2.3 Additional Information Collected from Clients</h3>
       <ul className={ul}>
@@ -92,9 +95,9 @@ export default function PrivacyPage() {
           enabling communication between musicians and clients.
         </li>
         <li>
-          <strong>To process payments.</strong> Disbursing funds to
-          musicians via Stripe Connect, deducting platform fees, and
-          managing withholding tax obligations with IRD.
+          <strong>To process payments.</strong> Paying out musicians via
+          Stripe Connect and collecting the platform fee added to each
+          Booking.
         </li>
         <li>
           <strong>To verify musicians.</strong> Conducting or presenting
@@ -103,9 +106,8 @@ export default function PrivacyPage() {
         </li>
         <li>
           <strong>To comply with legal obligations</strong>, including
-          schedular payment reporting to Inland Revenue, record-keeping
-          under NZ tax law, and responding to lawful requests from
-          authorities.
+          record-keeping required by law and responding to lawful requests
+          from authorities.
         </li>
         <li>
           <strong>To communicate with you.</strong> Sending booking
@@ -147,14 +149,6 @@ export default function PrivacyPage() {
         Gallery presents vetting results as provided by NZ Police but does
         not independently verify ongoing character or conduct.
       </div>
-      <h3 className={h3}>4.2 IRD Numbers</h3>
-      <p className={p}>
-        IRD numbers are collected from musicians solely for the purpose of
-        meeting our schedular payment obligations under the Income Tax Act
-        2007. They are not used for any other purpose and are not shared
-        with third parties other than Inland Revenue.
-      </p>
-
       <h2 className={h2}>5. How We Store and Protect Your Information</h2>
       <ul className={ul}>
         <li>
@@ -171,8 +165,8 @@ export default function PrivacyPage() {
         </li>
         <li>
           We retain your personal information for as long as your account
-          is active, and for a period of seven years after account closure
-          in accordance with NZ tax record-keeping requirements.
+          is active, and for a reasonable period after account closure to
+          meet our legal and financial record-keeping obligations.
         </li>
       </ul>
 
@@ -199,13 +193,7 @@ export default function PrivacyPage() {
         These providers are contractually required to handle your data
         securely and only for the purposes we specify.
       </p>
-      <h3 className={h3}>6.3 Inland Revenue Department (IRD)</h3>
-      <p className={p}>
-        We are required by law to report schedular payment information to
-        IRD on behalf of musicians, including payment amounts and
-        withholding tax deducted.
-      </p>
-      <h3 className={h3}>6.4 Law Enforcement or Legal Requirements</h3>
+      <h3 className={h3}>6.3 Law Enforcement or Legal Requirements</h3>
       <p className={p}>
         We may disclose your information if required by law, court order,
         or to protect the rights, safety, or property of Musician Gallery,
@@ -239,8 +227,8 @@ export default function PrivacyPage() {
         <li>
           <strong>Delete your information.</strong> You may request
           deletion of your account and associated data, subject to our
-          legal retention obligations (e.g. tax records must be kept for
-          seven years).
+          legal retention obligations (e.g. financial records may need to
+          be kept for a period required by law).
         </li>
         <li>
           <strong>Complain.</strong> If you believe we have breached the

@@ -56,8 +56,8 @@ export default function PrivacyPage() {
         <li>Phone number</li>
         <li>Location (city or region)</li>
         <li>
-          Our platform provider (Sharetribe) and payment processor (Stripe)
-          may collect technical usage data as part of their services. Please
+          Our hosting provider (Vercel) and payment processor (Stripe) may
+          collect technical usage data as part of their services. Please
           refer to their respective privacy policies.
         </li>
       </ul>
@@ -153,7 +153,7 @@ export default function PrivacyPage() {
       <ul className={ul}>
         <li>
           All data is stored on secure servers. Where third-party services
-          are used (such as Stripe for payments and Sharetribe for platform
+          are used (such as Stripe for payments and Vercel for hosting and
           infrastructure), those providers maintain their own security
           standards.
         </li>
@@ -185,9 +185,9 @@ export default function PrivacyPage() {
       <h3 className={h3}>6.2 Third-Party Service Providers</h3>
       <ul className={ul}>
         <li>Stripe: payment processing and disbursement</li>
-        <li>Sharetribe: platform infrastructure</li>
+        <li>Vercel: website hosting and infrastructure</li>
+        <li>Resend: transactional email delivery (booking and account notifications)</li>
         <li>Google Workspace: internal communications and email</li>
-        <li>Xero: accounting and financial records</li>
       </ul>
       <p className={p}>
         These providers are contractually required to handle your data

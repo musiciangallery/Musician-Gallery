@@ -63,14 +63,10 @@ export default function TermsPage() {
           Client and a Musician made through the Platform.
         </li>
         <li>
-          <strong>Platform Fee</strong> means the fee charged by Musician
-          Gallery on each Booking, deducted from the total amount paid by the
-          Client.
-        </li>
-        <li>
-          <strong>Withholding Tax</strong> means the schedular payment tax
-          deducted from Musician payouts and remitted to Inland Revenue on
-          the Musician&rsquo;s behalf.
+          <strong>Platform Fee</strong> means the 10% fee added to the
+          Client&rsquo;s total at checkout, on top of the Musician&rsquo;s
+          stated rate. The Platform Fee is retained by Musician Gallery; the
+          Musician receives their full stated rate.
         </li>
       </ul>
 
@@ -186,22 +182,15 @@ export default function TermsPage() {
       <h3 className={h3}>4.3 Tax Obligations</h3>
       <ul className={ul}>
         <li>
-          You must provide a valid NZ IRD number and a completed IR330C form
-          before your first payout.
+          To receive payouts, you must connect a Stripe account through the
+          Platform. Musician Gallery does not collect your IRD number, does
+          not withhold any tax from your payouts, and does not remit
+          anything to Inland Revenue on your behalf.
         </li>
         <li>
-          Musician Gallery will deduct withholding tax from your payouts at
-          the rate specified in your IR330C and remit this to Inland Revenue
-          on your behalf.
-        </li>
-        <li>
-          If you do not provide a completed IR330C, the no-notification
-          withholding rate of 45% will apply.
-        </li>
-        <li>
-          You remain solely responsible for filing your own income tax
-          return and any additional tax obligations not covered by
-          withholding tax deductions.
+          As an independent contractor, you are solely responsible for your
+          own income tax, including any provisional tax payments and your
+          end-of-year return.
         </li>
         <li>
           If your annual income from the Platform exceeds NZD $60,000, you
@@ -253,9 +242,10 @@ export default function TermsPage() {
           stated rate plus the applicable Platform Fee.
         </li>
         <li>
-          Payment is collected by Musician Gallery via Stripe at the time of
-          Booking. Funds are held securely until the Booking is confirmed as
-          completed.
+          Once a Musician confirms your Booking and quotes their rate,
+          you will receive a secure payment link. Payment is processed
+          through Stripe and paid to the Musician automatically &mdash;
+          there is no holding period.
         </li>
       </ul>
       <h3 className={h3}>5.2 Cancellations and Refunds</h3>
@@ -295,18 +285,17 @@ export default function TermsPage() {
       <h3 className={h3}>5.4 Booking Confirmation</h3>
       <ul className={ul}>
         <li>
-          For lesson Bookings: the Teacher confirms the lesson has been
-          completed. Funds are automatically released to the Teacher after
-          24&ndash;48 hours if no dispute is raised.
+          A Booking is confirmed once the Musician accepts your request and
+          quotes a rate. You will then be sent a secure payment link.
         </li>
         <li>
-          For event/gig Bookings: the Client confirms the event has been
-          completed. Funds are automatically released to the Musician after
-          48&ndash;72 hours if no dispute is raised.
+          Payment is processed immediately once you pay via that link, and
+          is paid to the Musician automatically.
         </li>
         <li>
-          If you have a concern about a completed Booking, you must raise a
-          dispute through the Platform within the relevant timeframe above.
+          If you have a concern about a Booking, contact us at
+          contact@musiciangallery.co.nz as soon as possible &mdash; see
+          Section 7 for our dispute process.
         </li>
       </ul>
 
@@ -330,21 +319,9 @@ export default function TermsPage() {
         </thead>
         <tbody>
           <tr>
-            <td className="p-3 border-b border-rule">Teacher lessons</td>
-            <td className="p-3 border-b border-rule">10%</td>
-            <td className="p-3 border-b border-rule text-mid">Per lesson</td>
-          </tr>
-          <tr>
-            <td className="p-3 border-b border-rule">
-              Gig bookings (under $500)
-            </td>
-            <td className="p-3 border-b border-rule">10%</td>
-            <td className="p-3 border-b border-rule text-mid">Per booking</td>
-          </tr>
-          <tr>
-            <td className="p-3">Gig bookings (over $500)</td>
-            <td className="p-3">7%</td>
-            <td className="p-3 text-mid">Per booking</td>
+            <td className="p-3">All Bookings (lessons and gigs)</td>
+            <td className="p-3">10%</td>
+            <td className="p-3 text-mid">Per Booking, added to the Client&rsquo;s total</td>
           </tr>
         </tbody>
       </table>
@@ -374,7 +351,7 @@ export default function TermsPage() {
       <ul className={ul}>
         <li>Musician Gallery will acknowledge your dispute within 2 business days.</li>
         <li>We will review the evidence provided by both parties.</li>
-        <li>Musician Gallery&rsquo;s decision on payment release is final.</li>
+        <li>Musician Gallery&rsquo;s decision on any resulting refund is final.</li>
         <li>
           We aim to resolve all disputes within 10 business days of
           receiving complete information from both parties.

@@ -246,19 +246,20 @@ export async function sendWelcomeEmail(w: WelcomeEmailInput) {
   const firstName = w.musicianName.split(" ")[0];
   const profileUrl = `${SITE_URL}/musicians/${w.slug}`;
   const toolkitUrl = `${SITE_URL}/toolkit`;
-  const ctaHtml = `<a href="${toolkitUrl}" style="display:inline-block; background-color:#181510; color:#F8F7F5; font-family:Arial,Helvetica,sans-serif; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; padding:12px 24px;">View the toolkit</a>`;
+  const payoutsUrl = `${SITE_URL}/api/stripe/onboard/${w.slug}`;
+  const ctaHtml = `<a href="${payoutsUrl}" style="display:inline-block; background-color:#181510; color:#F8F7F5; font-family:Arial,Helvetica,sans-serif; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; padding:12px 24px; margin-right:12px; margin-bottom:12px;">Set up payouts</a><a href="${toolkitUrl}" style="display:inline-block; background-color:#F8F7F5; color:#181510; border:1px solid #181510; font-family:Arial,Helvetica,sans-serif; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; padding:11px 24px; margin-bottom:12px;">View the toolkit</a>`;
 
   try {
     await resend.emails.send({
       from: FROM,
       to: w.musicianEmail,
       subject: "Your Musician Gallery profile is live",
-      text: `Hi ${firstName},\n\nYour profile is now live on Musician Gallery: ${profileUrl}\n\nWe've put together a short toolkit of things worth having ready for your first booking or student, whenever you get a chance to look: ${toolkitUrl}\n\nWelcome to the Gallery.`,
+      text: `Hi ${firstName},\n\nYour profile is now live on Musician Gallery: ${profileUrl}\n\nBefore your first booking, set up automatic payouts so you get paid the moment a client pays: ${payoutsUrl}\n\nWe've also put together a short toolkit of things worth having ready for your first booking or student: ${toolkitUrl}\n\nWelcome to the Gallery.`,
       html: layout({
         eyebrow: "You're live",
         heading: `Welcome, ${firstName}`,
         intro:
-          "Your profile is now live on Musician Gallery. We've put together a short toolkit of things worth having ready for your first booking or student, whenever you get a chance to look.",
+          "Your profile is now live on Musician Gallery. Set up automatic payouts so you're ready to get paid the moment a client confirms a booking, and take a look at a short toolkit of things worth having ready for your first booking or student.",
         ctaHtml,
         footerNote: "You're receiving this because your profile just went live on Musician Gallery.",
       }),

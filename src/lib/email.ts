@@ -361,3 +361,75 @@ export async function sendBookingDeclinedEmail(b: BookingDeclinedEmailInput) {
     console.error("Booking declined email failed to send:", err);
   }
 }
+
+type BookingPaidEmailInput = {
+  musicianName: string;
+  musicianEmail?: string;
+  clientName: string;
+  occasion: string;
+  eventDate: string;
+  amount: number;
+};
+
+/** Sent once the Stripe webhook confirms a client's payment went through —
+ * a copy to the site owner for visibility, and one to the musician letting
+ * them know the money is already on its way to their bank account
+ * automatically. Fail-quiet, matching the other booking emails. */
+export async function sendBookingPaidEmail(b: BookingPaidEmailInput) {
+  if (!resend) {
+    console.warn("RESEND_API_KEY not set — skipping booking paid email.");
+    return;
+  }
+
+  const sends: Promise<unknown>[] = [];
+
+  sends.push(
+    resend.emails.send({
+      from: FROM,
+      to: OWNER_EMAIL,
+      subject: `Booking paid: ${b.musicianName}`,
+      text: `${b.clientName} paid for ${b.occasion} on ${b.eventDate} with ${b.musicianName}. Amount: $${b.amount.toFixed(
+        2
+      )} (musician's share, paid out automatically).`,
+      html: layout({
+        eyebrow: "Payment received",
+        heading: `${b.musicianName} — booking paid`,
+        intro: `${escapeHtml(b.clientName)} paid for ${escapeHtml(b.occasion)} on ${escapeHtml(
+          b.eventDate
+        )} with ${escapeHtml(b.musicianName)}. A payout of $${b.amount.toFixed(
+          2
+        )} is on its way to the musician automatically.`,
+        footerNote: "You're receiving this because you're the site owner at Musician Gallery.",
+      }),
+    })
+  );
+
+  if (b.musicianEmail) {
+    const firstName = b.musicianName.split(" ")[0];
+    sends.push(
+      resend.emails.send({
+        from: FROM,
+        to: b.musicianEmail,
+        subject: `You've been paid for ${b.occasion}`,
+        text: `Hi ${firstName},\n\n${b.clientName} just paid for your booking (${b.occasion} on ${b.eventDate}). $${b.amount.toFixed(
+          2
+        )} is on its way to your bank account automatically — no invoicing needed.\n\n— Musician Gallery`,
+        html: layout({
+          eyebrow: "Payment received",
+          heading: "You've been paid",
+          intro: `Hi ${escapeHtml(firstName)}, ${escapeHtml(b.clientName)} just paid for your booking (${escapeHtml(
+            b.occasion
+          )} on ${escapeHtml(b.eventDate)}). $${b.amount.toFixed(
+            2
+          )} is on its way to your bank account automatically — no invoicing needed.`,
+          footerNote: "You're receiving this because you have a live profile on Musician Gallery.",
+        }),
+      })
+    );
+  }
+
+  const results = await Promise.allSettled(sends);
+  results.forEach((r) => {
+    if (r.status === "rejected") console.error("Booking paid email failed to send:", r.reason);
+  });
+}

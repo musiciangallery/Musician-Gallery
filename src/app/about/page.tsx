@@ -10,7 +10,7 @@ const clientSteps = [
   {
     n: "I",
     t: "Browse the gallery",
-    b: "Search by instrument, location, or occasion. Every profile shows rates, experience, and vetting status upfront, so you know exactly who you're booking.",
+    b: "Search by instrument, location, or occasion. Every profile shows rates and experience upfront, with vetted teachers clearly marked, so you know exactly who you're booking.",
   },
   {
     n: "II",
@@ -25,14 +25,14 @@ const clientSteps = [
   {
     n: "IV",
     t: "Enjoy the music",
-    b: "Your musician gets paid automatically once the booking is confirmed. We handle the rest.",
+    b: "Your musician gets paid automatically once you complete payment. We handle the rest.",
   },
 ];
 
 const musicianPillars = [
   {
     n: "I",
-    t: "A portfolio, built in",
+    t: "A portfolio, ready to go",
     b: "Your profile is a professional portfolio — bio, experience, rates, and photos in one place, discoverable by instrument, region, and occasion.",
   },
   {
@@ -43,7 +43,7 @@ const musicianPillars = [
   {
     n: "III",
     t: "Backend, handled",
-    b: "Payment collection and payout are handled automatically once you confirm a booking. No invoicing, no chasing clients for payment.",
+    b: "Payment collection and payout are handled automatically once your client pays. No invoicing, no chasing clients for payment.",
   },
   {
     n: "IV",
@@ -108,11 +108,9 @@ export default function AboutPage() {
         <div>
           <span className="eyebrow">For clients &amp; students</span>
           <h2 className="font-serif text-3xl md:text-4xl mt-3">
-            Simple, from
+            Simple, start
             <br />
-            both sides of
-            <br />
-            <em>the platform.</em>
+            to <em>finish.</em>
           </h2>
           <p className="text-sm text-mid mt-6 max-w-xs">
             Every profile is priced and ready to book, with vetted teachers

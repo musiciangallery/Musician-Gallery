@@ -54,7 +54,7 @@ const musicianPillars = [
 
 const galleryImages = [
   { src: "/brand/about-violin-bridge.jpg", alt: "Close detail of a violin bow and bridge" },
-  { src: "/brand/hero-piano-doorway.jpg", alt: "A pianist glimpsed through a doorway" },
+  { src: "/brand/hero-piano-doorway.jpg", alt: "A pianist performing live at a grand piano" },
   { src: "/brand/story-emily-cello.jpg", alt: "Emily, founder of Musician Gallery, playing cello" },
 ];
 
@@ -68,14 +68,11 @@ export default function AboutPage() {
         </h1>
         <p className="text-sm max-w-2xl mb-10">
           Musician Gallery is a directory and booking tool for musicians and
-          teachers across Aotearoa, New Zealand. Musicians list a complete
-          profile, set their own rates, and get booked directly through the
-          platform, free of charge. Clients search by instrument, region,
-          and occasion, and contribute a small platform fee at checkout
-          &mdash; 10%, on top of the musician&rsquo;s rate &mdash; that
-          keeps the gallery running: the vetting, the admin, the support,
-          so musicians can simply focus on the work. A functional gallery,
-          giving talented people the platform they&rsquo;ve earned.
+          teachers across Aotearoa, New Zealand. Musicians list a free
+          profile, set their own rates, and keep every dollar of it.
+          Clients pay a 10% platform fee on top at checkout, covering
+          access to a varied gallery of musicians, including vetted
+          teachers.
         </p>
         <div className="grid grid-cols-3 gap-6 max-w-xl">
           <div>
@@ -84,11 +81,11 @@ export default function AboutPage() {
           </div>
           <div>
             <p className="font-serif text-2xl">0%</p>
-            <p className="text-xs text-mid">Commission on musician rates</p>
+            <p className="text-xs text-mid">Commission to musicians</p>
           </div>
           <div>
             <p className="font-serif text-2xl">Free</p>
-            <p className="text-xs text-mid">To browse, free to list</p>
+            <p className="text-xs text-mid">Browse &amp; list free</p>
           </div>
         </div>
       </section>
@@ -118,9 +115,9 @@ export default function AboutPage() {
             <em>the platform.</em>
           </h2>
           <p className="text-sm text-mid mt-6 max-w-xs">
-            Every profile is vetted, priced, and ready to book &mdash; no
-            cold calls, no chasing musicians down. Once your musician
-            confirms, you&rsquo;ll pay securely online in a few clicks.
+            Every profile is priced and ready to book, with vetted teachers
+            clearly marked. Once your musician confirms, you&rsquo;ll pay
+            securely online in a few clicks.
           </p>
           <Link
             href="/gallery"
@@ -176,20 +173,14 @@ export default function AboutPage() {
         </div>
         <div className="space-y-6 max-w-2xl">
           <p className="text-sm leading-relaxed">
-            All payments run through Stripe, the payment processor used by
-            millions of businesses worldwide. Once your musician confirms a
-            booking and quotes their rate, you&rsquo;ll receive a secure
-            payment link by email &mdash; pay online in a few clicks.
+            All payments run through Stripe, with a secure payment link
+            sent once your musician confirms and quotes their rate.
           </p>
           <p className="text-sm leading-relaxed">
             Payment goes straight to the musician&rsquo;s bank account
-            automatically. Musicians always receive their full quoted rate
-            &mdash; nothing is withheld or deducted.
-          </p>
-          <p className="text-sm leading-relaxed">
-            A 10% platform fee is added to the client&rsquo;s total at
-            checkout. Musicians are never charged commission and always
-            receive their full quoted rate.
+            automatically. Musicians receive their full quoted rate
+            &mdash; nothing is withheld, deducted, or charged as
+            commission.
           </p>
         </div>
       </section>

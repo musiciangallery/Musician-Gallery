@@ -54,7 +54,7 @@ export default async function Home() {
         <div className="relative bg-off aspect-[4/3] md:aspect-auto">
           <Image
             src="/brand/hero-piano-doorway.jpg"
-            alt="A pianist glimpsed through a doorway"
+            alt="A pianist performing live at a grand piano"
             fill
             priority
             className="object-cover photo-mono"

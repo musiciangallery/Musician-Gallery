@@ -69,10 +69,11 @@ export default function AboutPage() {
         <p className="text-sm max-w-2xl mb-10">
           Musician Gallery is a directory and booking tool for musicians and
           teachers across Aotearoa, New Zealand. Musicians list a free
-          profile, set their own rates, and keep every dollar of it.
-          Clients pay a 10% platform fee on top at checkout, covering
-          access to a varied gallery of musicians, including vetted
-          teachers.
+          profile, set their own rates, and retain the full amount.
+          Clients search a curated gallery of musicians and vetted
+          teachers, and pay a 10% platform fee at checkout. An amount that
+          goes directly toward supporting New Zealand musicians through
+          introduction, vetting, and streamlined support.
         </p>
         <div className="grid grid-cols-3 gap-6 max-w-xl">
           <div>
@@ -90,18 +91,20 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="grid grid-cols-3 border-b border-rule">
-        {galleryImages.map((img) => (
-          <div key={img.src} className="relative aspect-[3/4]">
-            <Image
-              src={img.src}
-              alt={img.alt}
-              fill
-              className="object-cover photo-mono"
-              sizes="(max-width: 768px) 33vw, 33vw"
-            />
-          </div>
-        ))}
+      <section className="px-6 md:px-[52px] py-16 border-b border-rule">
+        <div className="grid grid-cols-3 gap-6 md:gap-8">
+          {galleryImages.map((img) => (
+            <div key={img.src} className="relative aspect-[3/4]">
+              <Image
+                src={img.src}
+                alt={img.alt}
+                fill
+                className="object-cover photo-mono"
+                sizes="(max-width: 768px) 33vw, 33vw"
+              />
+            </div>
+          ))}
+        </div>
       </section>
 
       <section className="px-6 md:px-[52px] py-20 border-b border-rule grid md:grid-cols-[35%_65%] gap-12">

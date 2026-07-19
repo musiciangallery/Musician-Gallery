@@ -75,14 +75,14 @@ export default function AboutPage() {
           goes directly toward supporting New Zealand musicians through
           introduction, vetting, and streamlined support.
         </p>
-        <div className="grid grid-cols-3 gap-6 max-w-xl">
+        <div className="flex flex-wrap gap-x-12 gap-y-6">
           <div>
             <p className="font-serif text-2xl">100%</p>
             <p className="text-xs text-mid">Police vetted teachers</p>
           </div>
           <div>
             <p className="font-serif text-2xl">Accessible</p>
-            <p className="text-xs text-mid">Browse and list on the gallery for free</p>
+            <p className="text-xs text-mid max-w-[180px]">Browse and list on the gallery for free</p>
           </div>
           <div>
             <p className="font-serif text-2xl">0%</p>
@@ -92,7 +92,7 @@ export default function AboutPage() {
       </section>
 
       <section className="px-6 md:px-[52px] pt-8 pb-16">
-        <div className="grid grid-cols-3 gap-6 md:gap-8 h-[42vh] md:h-[55vh]">
+        <div className="grid grid-cols-3 gap-6 md:gap-8 h-[38vh] md:h-[45vh] max-h-[420px] md:max-h-[480px]">
           {galleryImages.map((img) => (
             <div key={img.src} className="relative h-full">
               <Image
@@ -155,36 +155,4 @@ export default function AboutPage() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {musicianPillars.map((p) => (
             <div key={p.n}>
-              <span className="font-serif text-2xl text-mid">{p.n}</span>
-              <h3 className="font-serif text-xl mt-3 mb-2">{p.t}</h3>
-              <p className="text-sm text-mid leading-relaxed">{p.b}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="px-6 md:px-[52px] py-20 grid md:grid-cols-[35%_65%] gap-12">
-        <div>
-          <span className="eyebrow">Payments</span>
-          <h2 className="font-serif text-3xl md:text-4xl mt-3">
-            How the money
-            <br />
-            <em>moves.</em>
-          </h2>
-        </div>
-        <div className="space-y-6 max-w-2xl">
-          <p className="text-sm leading-relaxed">
-            All payments run through Stripe, with a secure payment link
-            sent once your musician confirms and quotes their rate.
-          </p>
-          <p className="text-sm leading-relaxed">
-            Payment goes straight to the musician&rsquo;s bank account
-            automatically. Musicians receive their full quoted rate
-            &mdash; nothing is withheld, deducted, or charged as
-            commission.
-          </p>
-        </div>
-      </section>
-    </>
-  );
-}
+              <span className="font-serif text-2xl

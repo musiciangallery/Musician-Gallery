@@ -22,42 +22,46 @@ export default function OurStoryPage() {
         <h1 className="font-serif text-3xl md:text-4xl mt-3 mb-6">
           Six years in the too hard <em>basket.</em>
         </h1>
-        <p className="text-sm mb-4">
+        <p className="text-sm text-mid mb-4">
           A cellist by training and a contractor by trade. I&rsquo;m Emily,
           the person behind Musician Gallery.
         </p>
-        <p className="text-sm mb-4">
+        <p className="text-sm text-mid mb-4">
           I grew up watching two self-employed creatives figure out how to
           make their work sustainable, long before I understood why that
           mattered.
         </p>
-        <p className="text-sm mb-4">
+        <p className="text-sm text-mid mb-4">
           For years I&rsquo;ve lived in two worlds: performing at weddings
-          and events, teaching, and contrastingly working alongside property
-          sector clients to bring structure to the parts of their businesses
-          no one sees. Two worlds that don&rsquo;t obviously belong
-          together. Until you notice what&rsquo;s missing from one, and
-          abundant in the other.
+          and events and teaching, alongside working with property sector
+          clients to bring structure to the parts of their businesses no
+          one sees. Two worlds that don&rsquo;t obviously belong together.
+          Until you notice what&rsquo;s missing from one, and abundant in
+          the other.
         </p>
-        <p className="text-sm mb-4">
-          Knowing musicians I&rsquo;d want at my own events, with no obvious
-          place to find them, and standing alongside others who were
-          pouring everything into their music but had little time left for
-          the business side of it, became the driver behind this gallery: a
-          space that gives their talent the structure and accessibility it
-          deserves. Musician Gallery is what happens when those two worlds
-          finally meet.
+        <p className="text-sm text-mid mb-4">
+          Knowing musicians and teachers I&rsquo;d want to book, with no
+          obvious place to find them, and standing alongside others who
+          were pouring everything into their craft but had little time
+          left for the business side of it, became the driver behind this
+          gallery: a space that gives their talent the structure and
+          accessibility it deserves. Musician Gallery is what happens when
+          those two worlds finally meet.
         </p>
-        <p className="text-sm mb-4">
+        <p className="text-sm text-mid mb-4">
           Whether you&rsquo;re a musician ready to be found, or someone
           looking for the right person to teach or entertain, this was
           built with you in mind.
         </p>
-        <p className="text-sm mb-4">
+        <p className="text-sm text-mid mb-4">
           Six or so years in the too hard basket. Some things are worth the
           wait.
         </p>
-        <p className="font-serif italic text-lg mt-6">With warmth, Emily x</p>
+        <p className="font-serif italic text-lg mt-6">
+          With warmth,
+          <br />
+          Emily x
+        </p>
       </div>
     </section>
   );

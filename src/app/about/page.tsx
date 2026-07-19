@@ -60,7 +60,7 @@ const galleryImages = [
 
 export default function AboutPage() {
   return (
-    <>
+    <div className="max-w-6xl mx-auto">
       <section className="px-6 md:px-[52px] pt-12 pb-10">
         <span className="eyebrow">The Gallery Function</span>
         <h1 className="font-serif text-4xl md:text-5xl mt-3 mb-6 max-w-2xl">
@@ -195,6 +195,6 @@ export default function AboutPage() {
           </p>
         </div>
       </section>
-    </>
+    </div>
   );
 }

@@ -33,12 +33,12 @@ const musicianPillars = [
   {
     n: "I",
     t: "A portfolio, ready to go",
-    b: "Your profile is a professional portfolio — bio, experience, rates, and photos in one place, discoverable by instrument, region, and occasion.",
+    b: "Your curated profile acts as a professional portfolio: bio, experience, rates, and photos in one place. Share it directly with people you know, or be discovered by instrument, region, and occasion. Either way, you're accessible and ready to book.",
   },
   {
     n: "II",
     t: "Trusted",
-    b: "Teachers are police vetted before their profile goes live. Clients see a vetted badge, so they know exactly who they're booking.",
+    b: "All teachers are police vetted before their profile goes live, a standard the Gallery establishes on your behalf. Event musicians build that same trust independently, through client reviews and a portfolio of photos that speaks for itself.",
   },
   {
     n: "III",
@@ -48,7 +48,7 @@ const musicianPillars = [
   {
     n: "IV",
     t: "Independent",
-    b: "Set your own rates and keep your own clients. This is a booking tool, not an agency — you're never locked in.",
+    b: "Set your own rates and keep your own clients. This is a booking tool, not an agency. We're here to support your career, or simply help you build an accessible income stream doing what you love.",
   },
 ];
 
@@ -107,7 +107,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="px-6 md:px-[52px] py-20 border-b border-rule grid md:grid-cols-[35%_65%] gap-12">
+      <section className="px-6 md:px-[52px] py-20 grid md:grid-cols-[35%_65%] gap-12">
         <div>
           <span className="eyebrow">For clients &amp; students</span>
           <h2 className="font-serif text-3xl md:text-4xl mt-3">
@@ -117,8 +117,8 @@ export default function AboutPage() {
           </h2>
           <p className="text-sm text-mid mt-6 max-w-xs">
             Every profile is priced and ready to book, with vetted teachers
-            clearly marked. Once your musician confirms, you&rsquo;ll pay
-            securely online in a few clicks.
+            clearly marked. Once you and your musician confirm,
+            you&rsquo;ll pay securely online in a few clicks.
           </p>
           <Link
             href="/gallery"
@@ -140,17 +140,26 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="px-6 md:px-[52px] py-20 border-b border-rule">
+      <section className="px-6 md:px-[52px] py-20">
         <div className="flex flex-wrap items-end justify-between gap-6 mb-14">
           <div>
             <span className="eyebrow">For musicians</span>
             <h2 className="font-serif text-3xl md:text-4xl mt-3 max-w-md">
               A portfolio, built to <em>support you.</em>
             </h2>
+            <p className="text-sm text-mid mt-4 max-w-sm">
+              Not sure what to have ready? Our Musician Toolkit walks you
+              through profiles, rates, and getting booked.
+            </p>
           </div>
-          <Link href="/join" className="text-xs tracking-[0.1em] uppercase hover:text-accent">
-            Join the gallery &rarr;
-          </Link>
+          <div className="flex flex-col items-end gap-2">
+            <Link href="/join" className="text-xs tracking-[0.1em] uppercase hover:text-accent">
+              Join the gallery &rarr;
+            </Link>
+            <Link href="/toolkit" className="text-xs tracking-[0.1em] uppercase hover:text-accent">
+              See the Musician Toolkit &rarr;
+            </Link>
+          </div>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {musicianPillars.map((p) => (
@@ -174,14 +183,15 @@ export default function AboutPage() {
         </div>
         <div className="space-y-6 max-w-2xl">
           <p className="text-sm leading-relaxed">
-            All payments run through Stripe, with a secure payment link
-            sent once your musician confirms and quotes their rate.
+            All payments run through Stripe. Once your musician confirms
+            your booking, you&rsquo;ll receive a secure payment link by
+            email, no invoices needed.
           </p>
           <p className="text-sm leading-relaxed">
-            Payment goes straight to the musician&rsquo;s bank account
-            automatically. Musicians receive their full quoted rate
-            &mdash; nothing is withheld, deducted, or charged as
-            commission.
+            On the musician&rsquo;s side, setup is simple: a one-time
+            Stripe account linked directly to your bank account. From
+            there, every payment lands automatically, in full, with
+            nothing withheld, deducted, or charged as commission.
           </p>
         </div>
       </section>

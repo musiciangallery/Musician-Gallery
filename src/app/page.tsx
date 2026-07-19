@@ -98,11 +98,11 @@ export default async function Home() {
             </div>
             <span className="eyebrow">For Clients &amp; Students</span>
             <h2 className="font-serif text-2xl mt-3 mb-4">
-              Find the right musician. Book with confidence.
+              Find the right musician.
             </h2>
             <p className="text-sm text-mid mb-6">
               From wedding ceremonies and corporate events to weekly lessons
-              for you or your child, browse a gallery of professional,
+              for you or your child. Browse a gallery of professional,
               vetted musicians and book with confidence.
             </p>
             <Link href="/gallery" className="text-xs tracking-[0.1em] uppercase border-b border-blk pb-1 hover:text-accent hover:border-accent">
@@ -125,8 +125,8 @@ export default async function Home() {
             </h2>
             <p className="text-sm text-mid mb-6">
               Free to list, no commission. Be discovered by clients
-              searching for your instrument and region, with payments and
-              payouts handled automatically.
+              searching for your instrument and region, with a curated
+              portfolio, and payments handled for you.
             </p>
             <Link href="/join" className="text-xs tracking-[0.1em] uppercase border-b border-blk pb-1 hover:text-accent hover:border-accent">
               Join the gallery

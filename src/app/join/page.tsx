@@ -14,16 +14,18 @@ export default function JoinPage() {
         List your profile. <em>Set your terms.</em>
       </h1>
       <p className="text-sm text-mid mb-4">
-        Free to list, no commission. We handle marketing, admin, and
-        payment collection so you can focus on the music. Submit your
-        details below to start the police vetting process.
+        Free to list, no commission. Fill in your details below to create
+        your profile.
       </p>
-      <Link
-        href="/toolkit"
-        className="text-xs tracking-[0.1em] uppercase hover:text-accent mb-12 inline-block"
-      >
-        Not sure what to have ready? See the Musician Toolkit &rarr;
-      </Link>
+      <p className="text-sm text-mid mb-12">
+        Not sure what to have ready? See the{" "}
+        <Link
+          href="/toolkit"
+          className="underline underline-offset-4 hover:text-accent"
+        >
+          Musician Toolkit &rarr;
+        </Link>
+      </p>
       <JoinForm />
     </section>
   );

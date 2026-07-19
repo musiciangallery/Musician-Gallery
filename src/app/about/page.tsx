@@ -43,7 +43,7 @@ const musicianPillars = [
   {
     n: "III",
     t: "Backend, handled",
-    b: "Payment collection and payout are handled automatically once your client pays. No invoicing, no chasing clients for payment.",
+    b: "Payment collection and payout are handled automatically once your client pays. No invoicing, no chasing clients for payment, and every transaction is logged in your own Stripe dashboard, ready for tax time.",
   },
   {
     n: "IV",

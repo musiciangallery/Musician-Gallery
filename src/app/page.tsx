@@ -73,7 +73,7 @@ export default async function Home() {
           </h2>
           <p className="text-sm text-mid">
             A platform built on structure. Browse musician portfolios for
-            your next event, or find a vetted teacher for lessons. A
+            your next event, or find the right teacher for lessons. A
             complete, curated gallery where musicians are found and their
             talent recognised.
             <br />
@@ -102,8 +102,8 @@ export default async function Home() {
             </h2>
             <p className="text-sm text-mid mb-6">
               From wedding ceremonies and corporate events to weekly lessons
-              for you or your child. Browse a gallery of professional,
-              vetted musicians and book with confidence.
+              for you or your child. Browse a gallery of professional
+              musicians and book with confidence.
             </p>
             <Link href="/gallery" className="text-xs tracking-[0.1em] uppercase border-b border-blk pb-1 hover:text-accent hover:border-accent">
               Find a musician
@@ -160,7 +160,7 @@ export default async function Home() {
             Every musician, <em>considered.</em>
           </h3>
           <p className="text-sm text-mid mt-4 max-w-xs">
-            Event musicians and vetted teachers across Aotearoa, New
+            Event musicians and music teachers across Aotearoa, New
             Zealand, all in one place.
           </p>
         </div>

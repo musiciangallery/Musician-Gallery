@@ -7,17 +7,17 @@ export const metadata: Metadata = {
 
 export default function OurStoryPage() {
   return (
-    <section className="px-6 md:px-[52px] py-16 grid md:grid-cols-[50%_50%] gap-12 items-center">
+    <section className="max-w-5xl mx-auto px-6 md:px-[52px] py-16 grid md:grid-cols-[45%_55%] gap-12 items-center">
       <div className="relative aspect-[4/5] order-2 md:order-1">
         <Image
           src="/brand/story-emily-cello.jpg"
           alt="Emily, founder of Musician Gallery, playing cello"
           fill
           className="object-cover photo-mono"
-          sizes="(max-width: 768px) 100vw, 50vw"
+          sizes="(max-width: 768px) 100vw, 45vw"
         />
       </div>
-      <div className="order-1 md:order-2">
+      <div className="order-1 md:order-2 max-w-lg">
         <span className="eyebrow">Our Story</span>
         <h1 className="font-serif text-3xl md:text-4xl mt-3 mb-6">
           Six years in the too hard <em>basket.</em>

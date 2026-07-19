@@ -36,6 +36,14 @@ export type Musician = {
   featured?: boolean;
 };
 
+// NOTE (19 July 2026): The five mock "Teacher" profiles below (james-tuhoe,
+// aroha-williams, tama-ngata, daniel-kim, priya-nair) had `vetted: true` as
+// placeholder data. Set to `false` because Musician Gallery's NZ Police
+// Vetting Service authorised-agency application is still pending — none of
+// these placeholder teachers have actually been vetted. Once approved and a
+// real teacher has been through the vetting process, flip these back (or
+// remove the mock profiles in favour of real live ones) and restore the
+// "100% Police vetted teachers" stat on the About page.
 export const musicians: Musician[] = [
   {
     slug: "sarah-chen",
@@ -60,12 +68,12 @@ export const musicians: Musician[] = [
     region: "Wellington",
     type: "Teacher & Events",
     occasions: ["Weddings", "Lessons", "Private Functions"],
-    vetted: true,
+    vetted: false,
     rateFrom: 60,
     rateUnit: "per lesson",
-    bio: "Piano teacher and event pianist. Police vetted, available for lessons from beginner to advanced.",
+    bio: "Piano teacher and event pianist, available for lessons from beginner to advanced.",
     longBio:
-      "James teaches piano from his Wellington studio to students of all ages and levels, and performs as an event pianist on weekends. Police vetted, with a patient, structured teaching style suited to beginners through to advanced players preparing for exams.",
+      "James teaches piano from his Wellington studio to students of all ages and levels, and performs as an event pianist on weekends. He brings a patient, structured teaching style suited to beginners through to advanced players preparing for exams.",
     yearsExperience: 14,
     photo: "/musicians/james-tuhoe.jpg",
   },
@@ -76,7 +84,7 @@ export const musicians: Musician[] = [
     region: "Christchurch",
     type: "Teacher",
     occasions: ["Lessons"],
-    vetted: true,
+    vetted: false,
     rateFrom: 55,
     rateUnit: "per lesson",
     bio: "Acoustic and fingerstyle guitar teacher welcoming students of all ages. Lessons in-home or online.",
@@ -124,7 +132,7 @@ export const musicians: Musician[] = [
     region: "Christchurch",
     type: "Teacher & Events",
     occasions: ["Lessons", "Weddings", "Corporate Events"],
-    vetted: true,
+    vetted: false,
     rateFrom: 50,
     rateUnit: "per lesson",
     bio: "Vocal coach and event vocalist, teaching contemporary and musical theatre technique.",
@@ -156,7 +164,7 @@ export const musicians: Musician[] = [
     region: "Wellington",
     type: "Teacher",
     occasions: ["Lessons"],
-    vetted: true,
+    vetted: false,
     rateFrom: 55,
     rateUnit: "per lesson",
     bio: "Drum teacher for beginners through to intermediate players, in a relaxed, encouraging studio.",
@@ -172,7 +180,7 @@ export const musicians: Musician[] = [
     region: "Dunedin",
     type: "Teacher & Events",
     occasions: ["Lessons", "Weddings"],
-    vetted: true,
+    vetted: false,
     rateFrom: 45,
     rateUnit: "per lesson",
     bio: "Flute teacher and ceremony musician, welcoming students of all ages across Dunedin.",

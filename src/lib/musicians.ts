@@ -65,7 +65,7 @@ export const musicians: Musician[] = [
     rateUnit: "per lesson",
     bio: "Piano teacher and event pianist. Police vetted, available for lessons from beginner to advanced.",
     longBio:
-      "James teaches piano from his Wellington studio to students of all ages and levels, and performs as an event pianist on weekends. Police vetted and DBS-checked, with a patient, structured teaching style suited to beginners through to advanced players preparing for exams.",
+      "James teaches piano from his Wellington studio to students of all ages and levels, and performs as an event pianist on weekends. Police vetted, with a patient, structured teaching style suited to beginners through to advanced players preparing for exams.",
     yearsExperience: 14,
     photo: "/musicians/james-tuhoe.jpg",
   },

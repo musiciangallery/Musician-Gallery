@@ -15,17 +15,17 @@ const clientSteps = [
   {
     n: "II",
     t: "Send a booking request",
-    b: "Reach out directly through the platform. Your musician gets the details and responds directly to you — no agency, no middleman.",
+    b: "Reach out directly through the platform. Your musician gets the details and responds directly to you.",
   },
   {
     n: "III",
     t: "Pay securely, once confirmed",
-    b: "Once your musician confirms and quotes their rate, you'll get a secure payment link by email. Pay online in a few clicks — no cash, no chasing invoices.",
+    b: "You and your musician or teacher confirm the details that matter: set list or lesson plan, capability, availability, and rate. From there, your booking is secured with a payment link sent directly to your email.",
   },
   {
     n: "IV",
     t: "Enjoy the music",
-    b: "Your musician gets paid automatically once you complete payment. We handle the rest.",
+    b: "Your musician gets paid automatically once you complete payment. Whether it's a musician for your event or a teacher to expand your musical language, your booking supports them directly.",
   },
 ];
 

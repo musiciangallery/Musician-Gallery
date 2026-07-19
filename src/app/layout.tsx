@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "Musician Gallery",
-  description: "A home for New Zealand musicians. Trusted, vetted, and discoverable.",
+  description: "A home for New Zealand musicians. Trusted and discoverable.",
 };
 
 export default function RootLayout({

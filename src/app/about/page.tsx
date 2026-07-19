@@ -107,7 +107,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="px-6 md:px-[52px] py-20 grid md:grid-cols-[35%_65%] gap-12">
+      <section className="px-6 md:px-[52px] py-20 border-b border-rule grid md:grid-cols-[35%_65%] gap-12">
         <div>
           <span className="eyebrow">For clients &amp; students</span>
           <h2 className="font-serif text-3xl md:text-4xl mt-3">

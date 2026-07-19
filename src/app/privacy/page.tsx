@@ -40,8 +40,8 @@ export default function PrivacyPage() {
       <p className={p}>
         Musician Gallery operates as an online marketplace connecting
         clients with musicians in New Zealand. We facilitate two service
-        types: term-based music lessons (via police-vetted teachers) and
-        one-off event bookings (via gig musicians).
+        types: term-based music lessons (via teachers) and one-off event
+        bookings (via gig musicians).
       </p>
 
       <h2 className={h2}>2. Information We Collect</h2>

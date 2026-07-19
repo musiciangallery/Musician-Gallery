@@ -61,7 +61,7 @@ const galleryImages = [
 export default function AboutPage() {
   return (
     <>
-      <section className="px-6 md:px-[52px] py-16 border-b border-rule">
+      <section className="px-6 md:px-[52px] py-16">
         <span className="eyebrow">The Gallery Function</span>
         <h1 className="font-serif text-4xl md:text-5xl mt-3 mb-6 max-w-2xl">
           A functional, considered <em>space.</em>
@@ -82,16 +82,16 @@ export default function AboutPage() {
           </div>
           <div>
             <p className="font-serif text-2xl">0%</p>
-            <p className="text-xs text-mid">Commission to musicians</p>
+            <p className="text-xs text-mid">Commission from musicians</p>
           </div>
           <div>
-            <p className="font-serif text-2xl">Free</p>
+            <p className="font-serif text-2xl">Accessible</p>
             <p className="text-xs text-mid">Browse &amp; list free</p>
           </div>
         </div>
       </section>
 
-      <section className="px-6 md:px-[52px] py-16 border-b border-rule">
+      <section className="px-6 md:px-[52px] py-16">
         <div className="grid grid-cols-3 gap-6 md:gap-8">
           {galleryImages.map((img) => (
             <div key={img.src} className="relative aspect-[3/4]">

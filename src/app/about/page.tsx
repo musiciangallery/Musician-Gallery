@@ -20,12 +20,12 @@ const clientSteps = [
   {
     n: "III",
     t: "Pay securely, once confirmed",
-    b: "You and your musician or teacher confirm the details that matter: set list or lesson plan, capability, availability, and rate. From there, your booking is secured with a payment link sent directly to your email.",
+    b: "You and your musician or teacher confirm the details that matter: set list or lesson structure, capability, availability, and rate. From there, your booking is secured with a payment link sent directly to your email.",
   },
   {
     n: "IV",
     t: "Enjoy the music",
-    b: "Your musician gets paid automatically once you complete payment. Whether it's a musician for your event or a teacher to expand your musical language, your booking supports them directly.",
+    b: "Your musician gets paid automatically once you complete payment. Whether it's a musician for an event or a teacher to expand your musical language, your booking supports them directly.",
   },
 ];
 
@@ -38,7 +38,7 @@ const musicianPillars = [
   {
     n: "II",
     t: "Trusted",
-    b: "All teachers are police vetted before their profile goes live, a standard the Gallery establishes on your behalf. Event musicians build that same trust independently, through client reviews and a portfolio of photos that speaks for itself.",
+    b: "All teachers are police vetted before their profile goes live, a standard the Gallery establishes on your behalf. Event musicians build that same trust independently, through client reviews and a detailed portfolio that speaks for itself.",
   },
   {
     n: "III",
@@ -82,7 +82,7 @@ export default function AboutPage() {
           </div>
           <div>
             <p className="font-serif text-2xl">Accessible</p>
-            <p className="text-xs text-mid max-w-[180px]">Browse and list on the gallery for free</p>
+            <p className="text-xs text-mid">Free to browse &amp; list</p>
           </div>
           <div>
             <p className="font-serif text-2xl">0%</p>
@@ -140,7 +140,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="px-6 md:px-[52px] py-20">
+      <section className="px-6 md:px-[52px] py-20 border-b border-rule">
         <div className="flex flex-wrap items-end justify-between gap-6 mb-14">
           <div>
             <span className="eyebrow">For musicians</span>
@@ -182,12 +182,12 @@ export default function AboutPage() {
           </h2>
         </div>
         <div className="space-y-6 max-w-2xl">
-          <p className="text-sm leading-relaxed">
+          <p className="text-sm text-mid leading-relaxed">
             All payments run through Stripe. Once your musician confirms
             your booking, you&rsquo;ll receive a secure payment link by
             email, no invoices needed.
           </p>
-          <p className="text-sm leading-relaxed">
+          <p className="text-sm text-mid leading-relaxed">
             On the musician&rsquo;s side, setup is simple: a one-time
             Stripe account linked directly to your bank account. From
             there, every payment lands automatically, in full, with

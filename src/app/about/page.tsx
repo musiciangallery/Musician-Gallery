@@ -10,7 +10,7 @@ const clientSteps = [
   {
     n: "I",
     t: "Browse the gallery",
-    b: "Search by instrument, location, or occasion. Every profile shows rates and experience upfront, with vetted teachers clearly marked, so you know exactly who you're booking.",
+    b: "Search by instrument, location, or occasion. Every profile shows rates and experience upfront, so you know exactly who you're booking.",
   },
   {
     n: "II",
@@ -38,7 +38,7 @@ const musicianPillars = [
   {
     n: "II",
     t: "Trusted",
-    b: "All teachers are police vetted before their profile goes live, a standard the Gallery establishes on your behalf. Event musicians build that same trust independently, through client reviews and a detailed portfolio that speaks for itself.",
+    b: "Teachers go through an additional verification step before their profile goes live, one the Gallery manages on your behalf. Event musicians build trust independently, through client reviews and a detailed portfolio that speaks for itself.",
   },
   {
     n: "III",
@@ -70,16 +70,16 @@ export default function AboutPage() {
           Musician Gallery is a directory and booking tool for musicians and
           teachers across Aotearoa, New Zealand. Musicians list a free
           profile, set their own rates, and retain the full amount.
-          Clients search a curated gallery of musicians and vetted
-          teachers, and pay a 10% platform fee at checkout. An amount that
+          Clients search a curated gallery of musicians and teachers,
+          and pay a 10% platform fee at checkout. An amount that
           goes directly toward supporting New Zealand musicians through
-          introduction, vetting, and streamlined support.
+          introduction and ongoing support.
         </p>
+        {/* NOTE (19 July 2026): "100% Police vetted teachers" stat removed —
+            Musician Gallery's NZ Police Vetting Service authorised-agency
+            application is still pending, so no teachers have actually been
+            vetted yet. Restore once real vetting is live. */}
         <div className="flex flex-wrap gap-x-12 gap-y-6">
-          <div>
-            <p className="font-serif text-2xl">100%</p>
-            <p className="text-xs text-mid">Police vetted teachers</p>
-          </div>
           <div>
             <p className="font-serif text-2xl">Accessible</p>
             <p className="text-xs text-mid">Free to browse &amp; list</p>
@@ -116,9 +116,9 @@ export default function AboutPage() {
             to <em>finish.</em>
           </h2>
           <p className="text-sm text-mid mt-6 max-w-xs">
-            Every profile is priced and ready to book, with vetted teachers
-            clearly marked. Once you and your musician confirm,
-            you&rsquo;ll pay securely online in a few clicks.
+            Every profile is priced and ready to book. Once you and
+            your musician confirm, you&rsquo;ll pay securely online in
+            a few clicks.
           </p>
           <Link
             href="/gallery"
@@ -130,7 +130,7 @@ export default function AboutPage() {
         <div className="space-y-8">
           {clientSteps.map((s) => (
             <div key={s.n} className="flex gap-6 border-t border-rule pt-6">
-              <span className="font-serif text-2xl text-mid">{s.n}</span>
+              <span className="font-serif text-2xl text-mid w-8 shrink-0">{s.n}</span>
               <div>
                 <h3 className="font-serif text-xl mb-1">{s.t}</h3>
                 <p className="text-sm text-mid leading-relaxed">{s.b}</p>

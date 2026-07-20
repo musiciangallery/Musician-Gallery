@@ -236,8 +236,8 @@ export default function JoinForm() {
         <h2 className="font-serif text-3xl mb-4">Welcome to the gallery.</h2>
         <p className="text-sm text-mid max-w-sm mx-auto">
           {needsVetting
-            ? "We’ll be in touch once your application review is complete, then your profile goes live."
-            : "We’ll review your application and be in touch shortly to get your profile live."}
+            ? "We'll be in touch once your application review is complete, then your profile goes live."
+            : "We'll review your application and be in touch shortly to get your profile live."}
         </p>
       </div>
     );

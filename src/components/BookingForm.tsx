@@ -118,7 +118,7 @@ export default function BookingForm({ musician }: { musician: Musician }) {
             <label className={labelClass}>Location</label>
             <input
               type="text"
-              placeholder="e.g. Auckland CBD"
+              placeholder={`e.g. ${musician.region}`}
               className={inputClass}
               value={form.location}
               onChange={(e) => update("location", e.target.value)}

@@ -57,7 +57,7 @@ const teacherItems = [
 
 export default function ToolkitPage() {
   return (
-    <>
+    <div className="max-w-6xl mx-auto">
       <section className="px-6 md:px-[52px] py-16 border-b border-rule">
         <span className="eyebrow">Getting started</span>
         <h1 className="font-serif text-4xl md:text-5xl mt-3 mb-6 max-w-2xl">
@@ -99,6 +99,6 @@ export default function ToolkitPage() {
       </section>
 
       <ToolkitBusinessSection />
-    </>
+    </div>
   );
 }

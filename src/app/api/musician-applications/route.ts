@@ -55,6 +55,11 @@ export async function POST(req: NextRequest) {
     // never the file bytes — that keeps large files well clear of the
     // ~4.5MB request body limit serverless functions enforce.
     const fileUrls = parseJsonArray(form.get("previousWorkFileUrls"));
+    // Teacher applicants only, both optional — the CVCheck Police Vetting
+    // Check can take weeks, so applicants aren't blocked from applying
+    // while they wait on it.
+    const vettingCertificateUrl = form.get("vettingCertificateUrl");
+    const vettingCertificateNumber = form.get("vettingCertificateNumber");
 
     if (
       typeof name !== "string" ||
@@ -72,7 +77,7 @@ export async function POST(req: NextRequest) {
       INSERT INTO musician_applications
         (id, name, email, instrument, instruments, region, type, bio, status,
          previous_work, previous_work_files, years_experience, travel, lesson_format, lesson_length,
-         student_level, available_as, genre, sound_system)
+         student_level, available_as, genre, sound_system, vetting_certificate_url, vetting_certificate_number)
       VALUES
         (${id}, ${name}, ${email}, ${instrumentList.join(", ")}, ${instrumentList},
          ${region}, ${typeof type === "string" ? type : "Event Musician"}, ${typeof bio === "string" ? bio : ""}, 'pending_review',
@@ -81,7 +86,9 @@ export async function POST(req: NextRequest) {
          ${typeof travel === "string" ? travel : ""},
          ${typeof lessonFormat === "string" ? lessonFormat : ""}, ${lessonLength},
          ${studentLevel}, ${availableAs}, ${genre},
-         ${typeof soundSystem === "string" ? soundSystem : ""})
+         ${typeof soundSystem === "string" ? soundSystem : ""},
+         ${typeof vettingCertificateUrl === "string" ? vettingCertificateUrl : ""},
+         ${typeof vettingCertificateNumber === "string" ? vettingCertificateNumber : ""})
     `;
     return NextResponse.json({ ok: true, id }, { status: 201 });
   } catch (err) {

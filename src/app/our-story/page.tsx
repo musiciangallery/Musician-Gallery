@@ -32,21 +32,20 @@ export default function OurStoryPage() {
           mattered.
         </p>
         <p className="text-sm text-mid mb-4">
-          For years I&rsquo;ve lived in two worlds: performing at weddings,
-          events and teaching, alongside working with property sector
-          clients to bring structure to the parts of their businesses no
-          one sees. Two worlds that don&rsquo;t obviously belong together.
-          Until you notice what&rsquo;s missing from one, and abundant in
-          the other.
+          For years I&rsquo;ve lived in two worlds: performing at weddings
+          and events, teaching, and contrastingly working alongside
+          property sector clients to bring structure to the parts of
+          their businesses no one sees. Two worlds that don&rsquo;t
+          obviously belong together. Until you notice what&rsquo;s
+          missing from one, and abundant in the other.
         </p>
         <p className="text-sm text-mid mb-4">
-          Knowing musicians and teachers I&rsquo;d want to book, with no
-          obvious place to find them, and standing alongside others who
-          were pouring everything into their craft, with little time left
-          for the business side of it, became the driver behind this
+          Knowing musicians and teachers I&rsquo;d want to book, with
+          nowhere obvious to find them. Standing alongside others who
+          poured everything into their craft, with little time left for
+          the business side of it. That became the driver behind this
           gallery: a space that gives their talent the structure and
-          accessibility it deserves. Musician Gallery is what happens when
-          those two worlds finally meet.
+          accessibility it deserves.
         </p>
         <p className="text-sm text-mid mb-4">
           Whether you&rsquo;re a musician ready to be found, or someone

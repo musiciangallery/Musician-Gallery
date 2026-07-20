@@ -30,7 +30,18 @@ export function getSql() {
   return client;
 }
 
+// Every public page (homepage, gallery, musician profiles) calls
+// ensureTables() before reading data, which used to re-run the full set of
+// CREATE TABLE / ALTER TABLE checks below on every single page load — real
+// visitor traffic paying for schema setup that only ever needs to happen
+// once. This flag makes it a no-op after the first successful run within a
+// given server instance, since the tables/columns don't change between
+// requests. A fresh flag (and one real check) only happens again after a
+// cold start, which is the correct, cheap behaviour.
+let tablesEnsured = false;
+
 export async function ensureTables() {
+  if (tablesEnsured) return;
   const sql = getSql();
   await sql`
     CREATE TABLE IF NOT EXISTS bookings (
@@ -170,4 +181,5 @@ export async function ensureTables() {
       created_at timestamptz NOT NULL DEFAULT now()
     )
   `;
+  tablesEnsured = true;
 }

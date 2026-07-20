@@ -75,19 +75,18 @@ export default async function Home() {
           <h2 className="font-serif text-3xl md:text-4xl mt-3 mb-4">
             Built for <em>both sides.</em>
           </h2>
-          <p className="text-sm text-mid">
+          <p className="text-sm text-mid mb-4">
             A platform built on structure. Browse musician portfolios for
             your next event, or find the right teacher for lessons. A
             complete, curated gallery where musicians are found and their
             talent recognised.
-            <br />
-            <Link
-              href="/about"
-              className="text-dark underline underline-offset-4 hover:text-accent"
-            >
-              See exactly how it works &rarr;
-            </Link>
           </p>
+          <Link
+            href="/about"
+            className="text-xs tracking-[0.1em] uppercase hover:text-accent inline-block"
+          >
+            See exactly how it works &rarr;
+          </Link>
         </div>
         <div className="grid md:grid-cols-2 gap-12">
           <div>

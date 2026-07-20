@@ -29,6 +29,8 @@ export type ApplicationForReview = {
   available_as: string[] | null;
   genre: string[] | null;
   sound_system: string | null;
+  vetting_certificate_url: string | null;
+  vetting_certificate_number: string | null;
 };
 
 const ALL_OCCASIONS = ["Weddings", "Corporate Events", "Private Functions", "Lessons"];
@@ -293,15 +295,51 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
           </div>
 
           {isTeacher && (
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input
-                type="checkbox"
-                checked={vetted}
-                onChange={(e) => setVetted(e.target.checked)}
-                className="accent-accent"
-              />
-              Police vetting confirmed
-            </label>
+            <div className="bg-off/60 border border-rule p-4 space-y-3">
+              <p className="text-[10px] tracking-[0.08em] uppercase text-mid">
+                CVCheck Police Vetting
+              </p>
+              {a.vetting_certificate_url ? (
+                
+                  href={a.vetting_certificate_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-accent hover:underline text-xs block"
+                >
+                  View uploaded certificate &rarr;
+                </a>
+              ) : (
+                <p className="text-xs text-mid">No certificate uploaded yet.</p>
+              )}
+              {a.vetting_certificate_number && (
+                <p className="text-xs text-mid">
+                  Certificate number: {a.vetting_certificate_number}
+                </p>
+              )}
+              
+                href="https://cvcheck.com/nz/verify-a-cvcheck-certificate/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-accent hover:underline text-xs block"
+              >
+                Verify this certificate on CVCheck &rarr;
+              </a>
+              <p className="text-[11px] text-mid leading-relaxed">
+                Confirm the certificate is genuine on CVCheck&rsquo;s free
+                verification tool before ticking the box below — the
+                verification page should be on a cvcheck.com domain with
+                their security seal next to the address bar.
+              </p>
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={vetted}
+                  onChange={(e) => setVetted(e.target.checked)}
+                  className="accent-accent"
+                />
+                Police vetting confirmed
+              </label>
+            </div>
           )}
 
           <div>

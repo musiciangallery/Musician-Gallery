@@ -7,7 +7,11 @@ import MusicianCard from "@/components/MusicianCard";
 import Ticker from "@/components/Ticker";
 import FeaturedReviews from "@/components/FeaturedReviews";
 
-export const dynamic = "force-dynamic";
+// Cached and refreshed at most once a minute, instead of hitting the
+// database on every single visit — a newly featured musician can take up to
+// a minute to appear here, which is a fair trade for how much faster the
+// homepage loads for everyone else.
+export const revalidate = 60;
 
 export default async function Home() {
   // Admin-curated musicians (see /admin) take priority for this section.

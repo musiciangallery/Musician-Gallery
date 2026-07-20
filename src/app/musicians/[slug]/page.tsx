@@ -10,10 +10,12 @@ import ProfileTabs from "@/components/ProfileTabs";
 import ReviewForm from "@/components/ReviewForm";
 
 // Real, approved musicians are added after the site is built and deployed,
-// so their profile pages can't be pre-generated at build time — this page
-// is rendered dynamically on request instead.
-export const dynamic = "force-dynamic";
+// so their profile pages can't be pre-generated at build time — dynamicParams
+// lets Next.js render and cache any slug on first request. revalidate then
+// refreshes that cached page at most once a minute, instead of hitting the
+// database on every single visit.
 export const dynamicParams = true;
+export const revalidate = 60;
 
 export function generateStaticParams() {
   return musicians.map((m) => ({ slug: m.slug }));

@@ -141,7 +141,7 @@ export default function AboutPage() {
       </section>
 
       <section className="px-6 md:px-[52px] py-20 border-b border-rule">
-        <div className="flex flex-wrap items-end justify-between gap-6 mb-14">
+        <div className="flex flex-wrap items-start md:items-end justify-between gap-6 mb-14">
           <div>
             <span className="eyebrow">For musicians</span>
             <h2 className="font-serif text-3xl md:text-4xl mt-3 max-w-md">
@@ -152,7 +152,7 @@ export default function AboutPage() {
               through profiles, rates, and getting booked.
             </p>
           </div>
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex flex-col items-start md:items-end gap-2">
             <Link href="/join" className="text-xs tracking-[0.1em] uppercase hover:text-accent">
               Join the gallery &rarr;
             </Link>

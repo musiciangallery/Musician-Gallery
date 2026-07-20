@@ -68,6 +68,8 @@ type Application = {
   available_as: string[] | null;
   genre: string[] | null;
   sound_system: string | null;
+  vetting_certificate_url: string | null;
+  vetting_certificate_number: string | null;
 };
 
 async function getData() {
@@ -416,6 +418,17 @@ export default async function AdminPage() {
                         </a>
                       ))}
                     </div>
+                  </div>
+                )}
+                {a.vetting_certificate_url && (
+                  <div className="mt-2">
+                    <span className="block text-[10px] uppercase tracking-[0.08em] text-mid mb-1">CVCheck vetting certificate</span>
+                    <a href={a.vetting_certificate_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline text-xs">
+                      View certificate &rarr;
+                    </a>
+                    {a.vetting_certificate_number && (
+                      <span className="text-xs text-mid ml-3">No. {a.vetting_certificate_number}</span>
+                    )}
                   </div>
                 )}
               </div>

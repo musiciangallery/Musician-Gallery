@@ -69,6 +69,10 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
   const [photo, setPhoto] = useState<File | null>(null);
   const [galleryPhotos, setGalleryPhotos] = useState<File[]>([]);
   const [video, setVideo] = useState<File | null>(null);
+  const [vettingCertUrl, setVettingCertUrl] = useState(a.vetting_certificate_url || "");
+  const [vettingCertNumber, setVettingCertNumber] = useState(a.vetting_certificate_number || "");
+  const [savingVetting, setSavingVetting] = useState(false);
+  const [vettingSaved, setVettingSaved] = useState(false);
 
   const toggleOccasion = (o: string) =>
     setOccasions((cur) => (cur.includes(o) ? cur.filter((x) => x !== o) : [...cur, o]));
@@ -141,6 +145,33 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
       setSubmitting(null);
+    }
+  }
+
+  async function saveVetting() {
+    setSavingVetting(true);
+    setVettingSaved(false);
+    setError(null);
+    try {
+      const res = await fetch("/api/admin/update-vetting", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          applicationId: a.id,
+          vettingCertificateUrl: vettingCertUrl,
+          vettingCertificateNumber: vettingCertNumber,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error ?? "Something went wrong.");
+      }
+      setVettingSaved(true);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      setSavingVetting(false);
     }
   }
 
@@ -299,31 +330,51 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
               <p className="text-[10px] tracking-[0.08em] uppercase text-mid">
                 CVCheck Police Vetting
               </p>
-              {a.vetting_certificate_url ? (
-                
-                  href={a.vetting_certificate_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-accent hover:underline text-xs block"
+
+              {a.vetting_certificate_url && (
+                <a href={a.vetting_certificate_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline text-xs block">View currently saved certificate &rarr;</a>
+              )}
+
+              <p className="text-[11px] text-mid leading-relaxed">
+                Applicants can apply before their CVCheck comes back, since
+                it can take weeks. If they email it to you later, paste the
+                link and certificate number here and save — no need to wait
+                for a full approval to record it.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClass}>Certificate link</label>
+                  <input
+                    className={inputClass}
+                    placeholder="Link to the certificate (upload it somewhere and paste the URL)"
+                    value={vettingCertUrl}
+                    onChange={(e) => setVettingCertUrl(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Certificate number</label>
+                  <input
+                    className={inputClass}
+                    placeholder="e.g. the certificate number on the CVCheck report"
+                    value={vettingCertNumber}
+                    onChange={(e) => setVettingCertNumber(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={saveVetting}
+                  disabled={savingVetting}
+                  className="text-xs tracking-[0.08em] uppercase border border-rule px-4 py-2 hover:border-accent hover:text-accent transition-colors disabled:opacity-50"
                 >
-                  View uploaded certificate &rarr;
-                </a>
-              ) : (
-                <p className="text-xs text-mid">No certificate uploaded yet.</p>
-              )}
-              {a.vetting_certificate_number && (
-                <p className="text-xs text-mid">
-                  Certificate number: {a.vetting_certificate_number}
-                </p>
-              )}
-              
-                href="https://cvcheck.com/nz/verify-a-cvcheck-certificate/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-accent hover:underline text-xs block"
-              >
-                Verify this certificate on CVCheck &rarr;
-              </a>
+                  {savingVetting ? "Saving..." : "Save certificate info"}
+                </button>
+                {vettingSaved && <span className="text-xs text-mid">Saved.</span>}
+              </div>
+
+              <a href="https://cvcheck.com/nz/verify-a-cvcheck-certificate/" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline text-xs block">Verify this certificate on CVCheck &rarr;</a>
               <p className="text-[11px] text-mid leading-relaxed">
                 Confirm the certificate is genuine on CVCheck&rsquo;s free
                 verification tool before ticking the box below — the

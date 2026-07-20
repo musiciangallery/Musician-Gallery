@@ -71,6 +71,7 @@ type FormState = {
   availableAs: string[];
   genre: string[];
   soundSystem: string;
+  vettingCertificateNumber: string;
 };
 
 const initialForm: FormState = {
@@ -89,6 +90,7 @@ const initialForm: FormState = {
   availableAs: [],
   genre: [],
   soundSystem: "",
+  vettingCertificateNumber: "",
 };
 
 function CheckboxGroup({
@@ -129,6 +131,7 @@ export default function JoinForm() {
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(initialForm);
   const [previousWorkFiles, setPreviousWorkFiles] = useState<File[]>([]);
+  const [vettingCertificateFile, setVettingCertificateFile] = useState<File | null>(null);
 
   const update = <K extends keyof FormState>(field: K, value: FormState[K]) =>
     setForm((f) => ({ ...f, [field]: value }));
@@ -175,6 +178,20 @@ export default function JoinForm() {
         previousWorkFileUrls.push(blob.url);
       }
 
+      // Teacher applicants only, and optional — the CVCheck Police Vetting
+      // Check can take weeks to come back, so applicants shouldn't be
+      // blocked from applying while they wait. They can upload it now if
+      // they already have it, or send it through later.
+      let vettingCertificateUrl = "";
+      if (vettingCertificateFile) {
+        const blob = await upload(
+          `vetting-${Date.now()}-${sanitizeFilename(vettingCertificateFile.name)}`,
+          vettingCertificateFile,
+          { access: "public", handleUploadUrl: "/api/upload" }
+        );
+        vettingCertificateUrl = blob.url;
+      }
+
       const body = new FormData();
       body.set("name", form.name);
       body.set("email", form.email);
@@ -192,6 +209,8 @@ export default function JoinForm() {
       body.set("availableAs", JSON.stringify(form.availableAs));
       body.set("genre", JSON.stringify(form.genre));
       body.set("previousWorkFileUrls", JSON.stringify(previousWorkFileUrls));
+      body.set("vettingCertificateNumber", form.vettingCertificateNumber);
+      if (vettingCertificateUrl) body.set("vettingCertificateUrl", vettingCertificateUrl);
 
       const res = await fetch("/api/musician-applications", {
         method: "POST",
@@ -339,6 +358,49 @@ export default function JoinForm() {
               selected={form.studentLevel}
               onToggle={(v) => toggleMulti("studentLevel", v)}
             />
+          </div>
+
+          <div className="bg-off/60 border border-rule p-4 text-sm leading-relaxed">
+            <p className="mb-2">
+              Teachers need a CVCheck Police Vetting Check before their
+              profile goes live. You can{" "}
+              
+                href="https://cvcheck.com/nz/police-vetting/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-4 hover:text-accent"
+              >
+                order one here &rarr;
+              </a>{" "}
+              ($70.16 incl GST, typically around 20 working days — we&rsquo;ll
+              reimburse the cost once you complete your first booking).
+            </p>
+            <p className={hintClass}>
+              Don&rsquo;t have it yet? No problem, submit your application
+              now and send it through once it arrives.
+            </p>
+          </div>
+
+          <div>
+            <label className={labelClass}>Vetting certificate number (optional, if you have it)</label>
+            <input
+              className={inputClass}
+              placeholder="e.g. the certificate number on your CVCheck report"
+              value={form.vettingCertificateNumber}
+              onChange={(e) => update("vettingCertificateNumber", e.target.value)}
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Upload vetting certificate (optional)</label>
+            <input
+              type="file"
+              accept="application/pdf,image/*"
+              onChange={(e) => setVettingCertificateFile(e.target.files?.[0] ?? null)}
+              className="text-sm"
+            />
+            {vettingCertificateFile && (
+              <p className={hintClass}>{vettingCertificateFile.name}</p>
+            )}
           </div>
         </div>
       )}

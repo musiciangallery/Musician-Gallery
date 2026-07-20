@@ -91,7 +91,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="px-6 md:px-[52px] pt-8 pb-16">
+      <section className="px-6 md:px-[52px] pt-10 pb-0">
         <div className="grid grid-cols-3 gap-6 md:gap-8 h-[38vh] md:h-[45vh] max-h-[420px] md:max-h-[480px]">
           {galleryImages.map((img) => (
             <div key={img.src} className="relative h-full">

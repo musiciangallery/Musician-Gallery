@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import GalleryBrowser from "@/components/GalleryBrowser";
 import { getAllMusicians } from "@/lib/musicians-live";
 
-export const dynamic = "force-dynamic";
+// Cached and refreshed at most once a minute, instead of hitting the
+// database on every single visit — a newly approved musician can take up
+// to a minute to appear here, which is a fair trade for how much faster
+// the gallery loads for everyone else.
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "The Gallery | Musician Gallery",

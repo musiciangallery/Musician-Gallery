@@ -18,14 +18,14 @@
   --color-dark: var(--dark);
   --color-blk: var(--blk);
   --color-accent: var(--accent);
-  --font-serif: 'Cormorant Garamond', serif;
-  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-serif: var(--font-cormorant), serif;
+  --font-sans: var(--font-dm-sans), system-ui, sans-serif;
 }
 
 body {
   background: var(--w);
   color: var(--dark);
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
   font-weight: 300;
   -webkit-font-smoothing: antialiased;
 }
@@ -38,7 +38,7 @@ body {
 }
 
 .serif {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
 }
 
 /* Ticker marquee */

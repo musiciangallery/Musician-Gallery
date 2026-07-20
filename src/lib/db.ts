@@ -98,6 +98,16 @@ export async function ensureTables() {
   // work" text field, which is for pasted links (YouTube, Instagram, etc).
   await sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS previous_work_files text[]`;
 
+  // Teacher applicants only. Musician Gallery isn't an authorised NZ Police
+  // Vetting Service agency (application declined 19 July 2026) — teachers
+  // instead complete a CVCheck "NZ Police Vetting Check" themselves and
+  // upload the resulting certificate here for review. The certificate
+  // number lets an admin jump straight to CVCheck's free public
+  // verification tool (cvcheck.com/nz/verify-a-cvcheck-certificate) before
+  // ticking "Police vetting confirmed" in /admin.
+  await sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS vetting_certificate_url text`;
+  await sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS vetting_certificate_number text`;
+
   // Live, approved musician profiles — separate from applications so that
   // publishing an application (editing the bio, uploading a treated photo)
   // doesn't overwrite what the applicant originally submitted.

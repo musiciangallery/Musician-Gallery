@@ -72,7 +72,11 @@ export default function PrivacyPage() {
           your bank account details &mdash; these are collected and held
           directly by Stripe.
         </li>
-        <li>Police vetting result (teachers only), provided via NZ Police</li>
+        <li>
+          Police vetting certificate (teachers only), obtained by the
+          musician via CVCheck, an approved third-party NZ Police vetting
+          provider
+        </li>
       </ul>
       <h3 className={h3}>2.3 Additional Information Collected from Clients</h3>
       <ul className={ul}>
@@ -100,9 +104,9 @@ export default function PrivacyPage() {
           Booking.
         </li>
         <li>
-          <strong>To verify musicians.</strong> Conducting or presenting
-          police vetting results for teachers, and confirming the accuracy
-          of musician profiles before they go live.
+          <strong>To verify musicians.</strong> Reviewing and presenting
+          teachers&rsquo; CVCheck police vetting certificates, and
+          confirming the accuracy of musician profiles before they go live.
         </li>
         <li>
           <strong>To comply with legal obligations</strong>, including
@@ -132,11 +136,16 @@ export default function PrivacyPage() {
       </p>
       <h3 className={h3}>4.1 Police Vetting Results</h3>
       <p className={p}>
-        Police vetting results are collected only from musicians applying
-        to be listed as teachers on the platform. This information is:
+        Police vetting certificates are collected only from musicians
+        applying to be listed as teachers on the platform. This
+        information is:
       </p>
       <ul className={ul}>
-        <li>Collected directly from NZ Police via the official vetting process</li>
+        <li>
+          Obtained by the musician directly through CVCheck, an approved
+          third-party NZ Police vetting provider, and provided by them to
+          Musician Gallery
+        </li>
         <li>Used solely to determine eligibility for the teacher listing category</li>
         <li>
           Not shared with clients beyond the display of a verified badge on
@@ -146,7 +155,7 @@ export default function PrivacyPage() {
       </ul>
       <div className={callout}>
         Important: Police vetting reflects a point in time. Musician
-        Gallery presents vetting results as provided by NZ Police but does
+        Gallery presents vetting results as provided by CVCheck but does
         not independently verify ongoing character or conduct.
       </div>
       <h2 className={h2}>5. How We Store and Protect Your Information</h2>

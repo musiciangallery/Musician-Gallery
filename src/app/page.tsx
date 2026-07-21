@@ -77,7 +77,7 @@ export default async function Home() {
           </h2>
           <p className="text-sm text-mid mb-4">
             A platform built on structure. Browse musician portfolios for
-            your next event, or find the right teacher for lessons. A
+            your next event, or find a vetted teacher for lessons. A
             complete, curated gallery where musicians are found and their
             talent recognised.
           </p>
@@ -129,7 +129,8 @@ export default async function Home() {
             <p className="text-sm text-mid mb-6">
               Free to list, no commission. Be discovered by clients
               searching for your instrument and region, with a curated
-              portfolio, and payments handled for you.
+              portfolio, independent vetting for teachers, and payments
+              handled for you.
             </p>
             <Link href="/join" className="text-xs tracking-[0.1em] uppercase border-b border-blk pb-1 hover:text-accent hover:border-accent">
               Join the gallery

@@ -18,13 +18,16 @@ export default function JoinPage() {
         your profile.
       </p>
       <p className="text-sm text-mid mb-12">
-        Not sure what to have ready? See the{" "}
-        <Link
-          href="/toolkit"
-          className="underline underline-offset-4 hover:text-accent block md:inline mt-1 md:mt-0"
-        >
-          Musician Toolkit &rarr;
-        </Link>
+        Not sure what to have ready?{" "}
+        <span className="block md:inline mt-1 md:mt-0">
+          See the{" "}
+          <Link
+            href="/toolkit"
+            className="underline underline-offset-4 hover:text-accent"
+          >
+            Musician Toolkit &rarr;
+          </Link>
+        </span>
       </p>
       <JoinForm />
     </section>

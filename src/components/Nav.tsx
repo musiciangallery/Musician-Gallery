@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const LINKS: [string, string][] = [
@@ -13,12 +14,24 @@ const LINKS: [string, string][] = [
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Next.js only resets scroll position on an actual route change — clicking
+  // a nav link back to the page you're already on doesn't count, so if
+  // you're scrolled down and tap the same link again nothing happens. This
+  // scrolls to top manually whenever the clicked link matches the current
+  // page.
+  const handleNavClick = (href: string) => {
+    if (href === pathname) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   return (
     <nav
@@ -39,6 +52,7 @@ export default function Nav() {
             <li key={href}>
               <Link
                 href={href}
+                onClick={() => handleNavClick(href)}
                 className="text-[9px] tracking-[0.13em] uppercase text-mid hover:text-blk transition-colors"
               >
                 {label}
@@ -76,7 +90,10 @@ export default function Nav() {
             <li key={href}>
               <Link
                 href={href}
-                onClick={() => setMenuOpen(false)}
+                onClick={() => {
+                  handleNavClick(href);
+                  setMenuOpen(false);
+                }}
                 className="text-xs tracking-[0.14em] uppercase text-dark hover:text-accent transition-colors"
               >
                 {label}

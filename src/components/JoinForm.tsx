@@ -362,11 +362,13 @@ export default function JoinForm() {
 
           <div className="bg-off/60 border border-rule p-4 text-sm leading-relaxed">
             <p className="mb-2">
-              Teachers need a CVCheck Police Vetting Check before their
-              profile goes live. You can{" "}
-              <a href="https://cvcheck.com/nz/police-vetting/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-accent">order one here &rarr;</a>{" "}
-              ($70.16 incl GST, typically around 20 working days — we&rsquo;ll
-              reimburse the cost once you complete your first booking).
+              Once approved, your profile carries a Police Vetted badge, and
+              every lesson payment is collected and paid out to you
+              automatically &mdash; no invoicing required. Getting there
+              starts with a CVCheck Police Vetting Check, a one-off cost
+              (currently $81.40 incl GST, about 20 days), generally
+              claimable as a business expense. You can{" "}
+              <a href="https://cvcheck.com/nz/police-vetting/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-accent">order one here &rarr;</a>.
             </p>
             <p className={hintClass}>
               Don&rsquo;t have it yet? No problem, submit your application

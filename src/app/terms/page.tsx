@@ -160,12 +160,17 @@ export default function TermsPage() {
       <ul className={ul}>
         <li>
           To be listed as a Teacher, you must complete and pass a NZ Police
-          vetting check.
+          Vetting Check, arranged and paid for by you directly through
+          CVCheck, an approved third-party vetting provider.
         </li>
         <li>
-          Vetting is completed through the official NZ Police process.
-          Musician Gallery presents the result of that process but does not
-          conduct independent background checks.
+          Musician Gallery reviews the certificate provided by CVCheck but
+          does not conduct independent background checks and is not
+          involved in the vetting process itself.
+        </li>
+        <li>
+          The cost of the vetting check is your responsibility and is not
+          reimbursed by Musician Gallery.
         </li>
         <li>
           Your vetting result reflects your status at the time of vetting.
@@ -277,10 +282,11 @@ export default function TermsPage() {
         information.
       </div>
       <p className={p}>
-        For Teachers, the police vetting badge indicates that a vetting
-        check was completed at a point in time via NZ Police. Musician
-        Gallery is not liable for any conduct by a vetted Teacher that
-        occurs after their vetting date.
+        For Teachers, the police vetting badge indicates that an NZ Police
+        Vetting Check was completed at a point in time via CVCheck, an
+        approved third-party provider. Musician Gallery is not liable for
+        any conduct by a vetted Teacher that occurs after their vetting
+        date.
       </p>
       <h3 className={h3}>5.4 Booking Confirmation</h3>
       <ul className={ul}>

@@ -38,7 +38,7 @@ const musicianPillars = [
   {
     n: "II",
     t: "Trusted",
-    b: "Teachers go through an additional verification step before their profile goes live, one the Gallery manages on your behalf. Event musicians build trust independently, through client reviews and a detailed portfolio that speaks for itself.",
+    b: "Teachers complete a one-off NZ Police Vetting Check through CVCheck (currently $81.40 incl GST, generally claimable as a business expense) before their profile goes live, earning a Police Vetted badge. Event musicians build trust independently, through client reviews and a detailed portfolio that speaks for itself.",
   },
   {
     n: "III",

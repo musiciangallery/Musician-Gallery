@@ -79,10 +79,30 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
 
   const instruments = a.instruments?.length ? a.instruments : a.instrument ? [a.instrument] : [];
 
+  // A Teacher listing can only go live once a real certificate is on file —
+  // checked against the saved application record (a.vetting_certificate_*),
+  // not the in-progress text fields, so an admin can't publish on the back
+  // of a number they've typed but not yet saved.
+  const hasCertificate = Boolean(
+    a.vetting_certificate_url?.trim() || a.vetting_certificate_number?.trim()
+  );
+
   async function approve() {
     setError(null);
     if (!photo) {
       setError("Please upload a photo before approving.");
+      return;
+    }
+    if (isTeacher && !hasCertificate) {
+      setError(
+        "Save a vetting certificate (link or number) for this applicant before publishing a Teacher profile."
+      );
+      return;
+    }
+    if (isTeacher && !vetted) {
+      setError(
+        "Tick \"Police vetting confirmed\" before publishing a Teacher profile."
+      );
       return;
     }
     setSubmitting("approve");
@@ -381,15 +401,26 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
                 verification page should be on a cvcheck.com domain with
                 their security seal next to the address bar.
               </p>
-              <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <label
+                className={`flex items-center gap-2 text-sm ${
+                  hasCertificate ? "cursor-pointer" : "cursor-not-allowed opacity-50"
+                }`}
+              >
                 <input
                   type="checkbox"
                   checked={vetted}
+                  disabled={!hasCertificate}
                   onChange={(e) => setVetted(e.target.checked)}
                   className="accent-accent"
                 />
                 Police vetting confirmed
               </label>
+              {!hasCertificate && (
+                <p className="text-[11px] text-accent leading-relaxed">
+                  Save a certificate link or number above first — a Teacher
+                  profile can&rsquo;t be published without one on file.
+                </p>
+              )}
             </div>
           )}
 
@@ -433,7 +464,12 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
           <div className="flex flex-wrap gap-3 pt-2">
             <button
               onClick={approve}
-              disabled={submitting !== null}
+              disabled={submitting !== null || (isTeacher && (!hasCertificate || !vetted))}
+              title={
+                isTeacher && (!hasCertificate || !vetted)
+                  ? "Save a vetting certificate and confirm it before publishing a Teacher profile."
+                  : undefined
+              }
               className="bg-blk text-w text-xs tracking-[0.1em] uppercase py-2.5 px-6 hover:bg-accent transition-colors disabled:opacity-50"
             >
               {submitting === "approve" ? "Publishing..." : "Approve & publish"}

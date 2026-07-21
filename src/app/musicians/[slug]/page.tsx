@@ -69,6 +69,14 @@ export default async function MusicianProfile({
         </div>
       </div>
 
+      {m.vetted && m.type !== "Event Musician" && (
+        <p className="text-xs text-mid mt-3 max-w-md">
+          {firstName} has independently completed a New Zealand Police
+          Vetting Check through CVCheck &mdash; at their own cost and by
+          their own choice, before this profile ever went live.
+        </p>
+      )}
+
       <div className="mt-10 max-w-xs">
         <MusicianGallery m={m} />
       </div>

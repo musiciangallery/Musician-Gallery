@@ -23,6 +23,11 @@ function parseJsonArray(value: FormDataEntryValue | null): string[] {
   }
 }
 
+// Teacher-category applicants must have a real CVCheck Police Vetting
+// certificate on file before they can go live — matches the "Teacher" type
+// used in the Join form and admin review UI.
+const TEACHER_TYPES = new Set(["Teacher", "Teacher & Events"]);
+
 export async function POST(req: NextRequest) {
   try {
     const form = await req.formData();
@@ -70,6 +75,42 @@ export async function POST(req: NextRequest) {
 
     await ensureTables();
     const sql = getSql();
+
+    // Server-side vetting gate — the client already disables this, but the
+    // client can be bypassed by anyone calling this endpoint directly, so
+    // the real check has to live here. Reads the certificate straight off
+    // the saved application record rather than trusting anything the
+    // client submits, since the client never sends certificate data to
+    // this route at all (it's saved separately via /api/admin/update-vetting).
+    if (TEACHER_TYPES.has(type)) {
+      const certRows = await sql`
+        SELECT vetting_certificate_url, vetting_certificate_number
+        FROM musician_applications
+        WHERE id = ${applicationId}
+      `;
+      const cert = certRows[0] as
+        | { vetting_certificate_url: string | null; vetting_certificate_number: string | null }
+        | undefined;
+      const hasCertificate = Boolean(
+        cert?.vetting_certificate_url?.trim() || cert?.vetting_certificate_number?.trim()
+      );
+      if (!hasCertificate) {
+        return NextResponse.json(
+          {
+            error:
+              "This applicant is a Teacher and can't be published until a vetting certificate (link or number) has been saved for them.",
+          },
+          { status: 400 }
+        );
+      }
+      if (!vetted) {
+        return NextResponse.json(
+          { error: "Confirm \"Police vetting confirmed\" before publishing a Teacher profile." },
+          { status: 400 }
+        );
+      }
+    }
+
     const id = randomUUID();
 
     await sql`

@@ -21,7 +21,7 @@ export default function JoinPage() {
         Not sure what to have ready? See the{" "}
         <Link
           href="/toolkit"
-          className="underline underline-offset-4 hover:text-accent"
+          className="underline underline-offset-4 hover:text-accent block md:inline mt-1 md:mt-0"
         >
           Musician Toolkit &rarr;
         </Link>

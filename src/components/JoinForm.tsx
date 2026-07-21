@@ -362,17 +362,21 @@ export default function JoinForm() {
 
           <div className="bg-off/60 border border-rule p-4 text-sm leading-relaxed">
             <p className="mb-2">
-              Once approved, your profile carries a Police Vetted badge, and
-              every lesson payment is collected and paid out to you
-              automatically &mdash; no invoicing required. Getting there
-              starts with a CVCheck Police Vetting Check, a one-off cost
-              (currently $81.40 incl GST, about 20 days), generally
-              claimable as a business expense. You can{" "}
+              Teacher profiles carry a Police Vetted badge and don&rsquo;t go
+              live until vetting is complete &mdash; event bookings
+              don&rsquo;t require this at all. Once approved, every lesson
+              payment is also collected and paid out to you automatically,
+              no invoicing required. Getting vetted starts with a CVCheck
+              Police Vetting Check, a one-off cost (currently $81.40 incl
+              GST, about 20 days), generally claimable as a business
+              expense. You can{" "}
               <a href="https://cvcheck.com/nz/police-vetting/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-accent">order one here &rarr;</a>.
             </p>
             <p className={hintClass}>
-              Don&rsquo;t have it yet? No problem, submit your application
-              now and send it through once it arrives.
+              Don&rsquo;t have it yet? No problem &mdash; submit your
+              application now, and your Teacher profile will go live as
+              soon as your certificate is reviewed, whether that&rsquo;s
+              today or in a few weeks.
             </p>
           </div>
 
@@ -409,6 +413,7 @@ export default function JoinForm() {
               options={AVAILABLE_AS}
               selected={form.availableAs}
               onToggle={(v) => toggleMulti("availableAs", v)}
+              columns={3}
             />
           </div>
           <div>

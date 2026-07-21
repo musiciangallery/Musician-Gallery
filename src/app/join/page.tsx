@@ -13,7 +13,7 @@ export default function JoinPage() {
       <h1 className="font-serif text-4xl mt-3 mb-4">
         List your profile. <em>Set your terms.</em>
       </h1>
-      <p className="text-sm text-mid mb-0">
+      <p className="text-sm text-mid mb-2 md:mb-0">
         Free to list, no commission. Fill in your details below to create
         your profile.
       </p>

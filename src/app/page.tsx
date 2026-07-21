@@ -129,8 +129,8 @@ export default async function Home() {
             <p className="text-sm text-mid mb-6">
               Free to list, no commission. Be discovered by clients
               searching for your instrument and region, with a curated
-              portfolio, independent vetting for teachers, and payments
-              handled for you.
+              portfolio and payments handled for you. Teachers go live
+              once independently vetted.
             </p>
             <Link href="/join" className="text-xs tracking-[0.1em] uppercase border-b border-blk pb-1 hover:text-accent hover:border-accent">
               Join the gallery

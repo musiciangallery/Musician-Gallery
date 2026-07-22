@@ -300,7 +300,7 @@ export default function JoinForm() {
 
       {isTeacher && (
         <div className="bg-off/60 border border-rule p-4 text-sm leading-relaxed">
-          <p className="mb-2">
+          <p className="mb-4">
             Teacher profiles carry a Police Vetted badge and only go live
             once vetting is complete. Event musicians don&rsquo;t need
             this at all. Getting vetted starts with a CVCheck Police
@@ -308,11 +308,10 @@ export default function JoinForm() {
             generally claimable as a business expense. You can{" "}
             <a href="https://cvcheck.com/nz/police-vetting/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-accent">order one here &rarr;</a>.
           </p>
-          <p className="mt-2">
+          <p>
             Don&rsquo;t have it yet? No problem. Submit your application now,
             and your Teacher profile will go live once your certificate is
-            sent through to contact@musiciangallery.co.nz, whether
-            that&rsquo;s today or in a few weeks.
+            sent through to contact@musiciangallery.co.nz.
           </p>
         </div>
       )}

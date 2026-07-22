@@ -311,9 +311,35 @@ export default function JoinForm() {
           <p className="mt-2">
             Don&rsquo;t have it yet? No problem. Submit your application now,
             and your Teacher profile will go live once your certificate is
-            added in the fields below, whether that&rsquo;s today or in a
-            few weeks.
+            sent through to contact@musiciangallery.co.nz, whether
+            that&rsquo;s today or in a few weeks.
           </p>
+        </div>
+      )}
+
+      {isTeacher && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className={labelClass}>Vetting certificate number (optional, if you have it)</label>
+            <input
+              className={inputClass}
+              placeholder="e.g. the certificate number on your CVCheck report"
+              value={form.vettingCertificateNumber}
+              onChange={(e) => update("vettingCertificateNumber", e.target.value)}
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Upload vetting certificate (optional)</label>
+            <input
+              type="file"
+              accept="application/pdf,image/*"
+              onChange={(e) => setVettingCertificateFile(e.target.files?.[0] ?? null)}
+              className="text-sm"
+            />
+            {vettingCertificateFile && (
+              <p className={hintClass}>{vettingCertificateFile.name}</p>
+            )}
+          </div>
         </div>
       )}
 
@@ -377,28 +403,6 @@ export default function JoinForm() {
               selected={form.studentLevel}
               onToggle={(v) => toggleMulti("studentLevel", v)}
             />
-          </div>
-
-          <div>
-            <label className={labelClass}>Vetting certificate number (optional, if you have it)</label>
-            <input
-              className={inputClass}
-              placeholder="e.g. the certificate number on your CVCheck report"
-              value={form.vettingCertificateNumber}
-              onChange={(e) => update("vettingCertificateNumber", e.target.value)}
-            />
-          </div>
-          <div>
-            <label className={labelClass}>Upload vetting certificate (optional)</label>
-            <input
-              type="file"
-              accept="application/pdf,image/*"
-              onChange={(e) => setVettingCertificateFile(e.target.files?.[0] ?? null)}
-              className="text-sm"
-            />
-            {vettingCertificateFile && (
-              <p className={hintClass}>{vettingCertificateFile.name}</p>
-            )}
           </div>
         </div>
       )}

@@ -10,7 +10,7 @@ export default function Footer() {
             A home for Aotearoa, New Zealand musicians
           </p>
           <div className="flex items-center gap-4 mt-5">
-            
+            <a
               href="mailto:contact@musiciangallery.co.nz"
               aria-label="Email Musician Gallery"
               className="text-mid hover:text-accent transition-colors"
@@ -20,7 +20,7 @@ export default function Footer() {
                 <path d="M3 6.5l9 6.5 9-6.5" />
               </svg>
             </a>
-            
+            <a
               href="https://www.instagram.com/musiciangallery_nz"
               target="_blank"
               rel="noopener noreferrer"
@@ -33,7 +33,7 @@ export default function Footer() {
                 <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
               </svg>
             </a>
-            
+            <a
               href="https://www.facebook.com/profile.php?id=61591558377661"
               target="_blank"
               rel="noopener noreferrer"

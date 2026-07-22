@@ -108,10 +108,8 @@ export default function ToolkitPage() {
         </h1>
         <p className="text-sm max-w-2xl text-mid">
           A short list of things worth having ready before your first
-          booking or student, gathered by musicians for musicians.
-        </p>
-        <p className="text-sm max-w-2xl text-mid">
-          None of it is required to join.
+          booking or student, gathered by musicians for musicians. None of
+          it is required to join.
         </p>
       </section>
 

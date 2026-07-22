@@ -116,9 +116,8 @@ export default function AboutPage() {
             to <em>finish.</em>
           </h2>
           <p className="text-sm text-mid mt-6 max-w-xs">
-            Every profile is priced and ready to book. Once you and
-            your musician confirm, you&rsquo;ll pay securely online in
-            a few clicks.
+            Every profile shows an indicative rate and experience upfront,
+            so you know what to expect before you send a request.
           </p>
           <Link
             href="/gallery"
@@ -149,7 +148,8 @@ export default function AboutPage() {
             </h2>
             <p className="text-sm text-mid mt-4 max-w-sm">
               Not sure what to have ready? Our Musician Toolkit walks you
-              through profiles, rates, and getting booked.
+              through your portfolio, your first booking, and setting
+              yourself up as a business.
             </p>
           </div>
           <div className="flex flex-col items-start md:items-end gap-2">

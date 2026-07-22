@@ -17,7 +17,7 @@ export default function ToolkitBusinessSection() {
           Running it like <em>a business.</em>
         </h2>
         <p className="text-sm text-mid mb-6">
-          A short, plain summary of the basics. None of this needs sorting before you go live, and it is general information only, not financial or legal advice.
+          A short, plain summary of the basics, handy to consider early on. None of it needs sorting before you go live, and it is general information only, not financial or legal advice.
         </p>
         <button
           onClick={() => setOpen((o) => !o)}
@@ -32,13 +32,17 @@ export default function ToolkitBusinessSection() {
           <div>
             <h3 className="font-serif text-xl mb-3">Registering as a sole trader</h3>
             <p className="text-sm text-mid leading-relaxed mb-4">
-              If you are taking paid bookings or lessons on your own account, you are already a sole trader. There is no form to fill out to become one. A few things worth doing early:
+              If you are taking paid bookings or lessons on your own account, you are considered a sole trader for that income, even if you are also employed elsewhere. A few things worth doing early:
             </p>
             <ul className="space-y-2 text-sm text-mid leading-relaxed list-disc pl-5">
               <li>Get an IRD number if you do not already have one from previous work or study.</li>
-              <li>Tell IRD you are self employed, through myIR. This is quick and free.</li>
-              <li>GST registration only becomes compulsory once you earn over $60,000 in a twelve month period. Below that it is optional.</li>
-              <li>ACC cover happens automatically once IRD knows you are self employed. You will be enrolled on their default cover and levied based on your income the following year.</li>
+              <li>
+                Tell IRD you are a sole trader, through{" "}
+                <a href="https://myir.ird.govt.nz/" target="_blank" rel="noopener noreferrer" className="underline hover:text-accent">myIR</a>.
+                This is quick and free.
+              </li>
+              <li>GST registration becomes compulsory once you earn over $60,000 in a twelve month period. Below that it is optional.</li>
+              <li>ACC cover happens automatically once IRD knows you are in part, or fully self employed. You will be enrolled on their default cover and levied based on your income the following year.</li>
               <li>An NZBN is optional for a sole trader but free to get, and some clients or venues ask for one on an invoice.</li>
             </ul>
           </div>
@@ -54,15 +58,16 @@ export default function ToolkitBusinessSection() {
               <li>Studio or venue hire</li>
               <li>Website, promotional materials, printed materials</li>
               <li>Teaching materials: workbooks, sheet music, practice charts</li>
+              <li>Police vetting</li>
               <li>Professional fees: accountant fees, relevant courses or training</li>
               <li>A portion of home costs if you teach or rehearse from home</li>
             </ul>
             <p className="text-sm text-mid leading-relaxed mt-4">
-              A separate bank account for your music income makes this dramatically easier, and IRD asks that receipts be kept for seven years. A simple habit from the start, a folder, an app, or a spreadsheet, saves a scramble later.
+              A separate bank account for your music income makes this dramatically easier, and IRD asks that receipts be kept for seven years. A simple habit from the start, a folder, an app, or a spreadsheet, saves a scramble later. Income earned through Musician Gallery is tracked automatically via Stripe, so that side of your record keeping is already taken care of.
             </p>
           </div>
 
-          <p className="text-xs text-mid leading-relaxed">
+          <p className="text-sm text-mid leading-relaxed">
             For anything specific to your situation, <a href="https://www.ird.govt.nz/roles/self-employed" target="_blank" rel="noopener noreferrer" className="underline hover:text-accent">IRD</a> and <a href="https://www.business.govt.nz/business-stage-or-type/sole-traders" target="_blank" rel="noopener noreferrer" className="underline hover:text-accent">business.govt.nz</a> are the official sources, and a chat with an accountant is worth it once you are earning consistently.
           </p>
         </div>

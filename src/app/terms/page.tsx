@@ -14,7 +14,7 @@ export default function TermsPage() {
       <span className="eyebrow">Legal</span>
       <h1 className="font-serif text-4xl mt-3 mb-2">Terms &amp; Conditions</h1>
       <p className={small}>Effective Date: 16 April 2026</p>
-      <p className={`${small} mb-8`}>Last Updated: April 2026</p>
+      <p className={`${small} mb-8`}>Last Reviewed: July 2026</p>
 
       <p className={p}>
         These Terms and Conditions (&ldquo;Terms&rdquo;) govern your use of

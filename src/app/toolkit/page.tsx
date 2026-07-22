@@ -108,15 +108,17 @@ export default function ToolkitPage() {
         </h1>
         <p className="text-sm max-w-2xl text-mid">
           A short list of things worth having ready before your first
-          booking or your first student, gathered by musicians for
-          musicians. None of it is required to join.
+          booking or student, gathered by musicians for musicians.
+        </p>
+        <p className="text-sm max-w-2xl text-mid">
+          None of it is required to join.
         </p>
       </section>
 
       <section className="px-6 md:px-[52px] py-16 border-b border-rule">
         <span className="eyebrow">For teachers</span>
         <h2 className="font-serif text-3xl md:text-4xl mt-3 mb-10 max-w-md">
-          Ready for the <em>lesson.</em>
+          Ready for <em>lessons.</em>
         </h2>
         <div className="space-y-8 max-w-2xl">
           {teacherItems.map((item) => (

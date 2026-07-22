@@ -9,6 +9,42 @@ export default function Footer() {
           <p className="text-xs text-mid mt-2">
             A home for Aotearoa, New Zealand musicians
           </p>
+          <div className="flex items-center gap-4 mt-5">
+            
+              href="mailto:contact@musiciangallery.co.nz"
+              aria-label="Email Musician Gallery"
+              className="text-mid hover:text-accent transition-colors"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                <rect x="2.5" y="4.5" width="19" height="15" rx="1.5" />
+                <path d="M3 6.5l9 6.5 9-6.5" />
+              </svg>
+            </a>
+            
+              href="https://www.instagram.com/musiciangallery_nz"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Musician Gallery on Instagram"
+              className="text-mid hover:text-accent transition-colors"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                <rect x="2.5" y="2.5" width="19" height="19" rx="5" />
+                <circle cx="12" cy="12" r="4.5" />
+                <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+              </svg>
+            </a>
+            
+              href="https://www.facebook.com/profile.php?id=61591558377661"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Musician Gallery on Facebook"
+              className="text-mid hover:text-accent transition-colors"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                <path d="M15 3h-2.5A4.5 4.5 0 0 0 8 7.5V10H5.5v3.5H8V21h3.5v-7.5h2.7l.5-3.5h-3.2V7.8c0-.98.42-1.55 1.62-1.55H15V3z" />
+              </svg>
+            </a>
+          </div>
         </div>
         <div>
           <h4 className="text-[10px] tracking-[0.18em] uppercase text-mid mb-3">

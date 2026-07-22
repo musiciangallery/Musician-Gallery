@@ -14,7 +14,7 @@ export default function PrivacyPage() {
       <span className="eyebrow">Legal</span>
       <h1 className="font-serif text-4xl mt-3 mb-2">Privacy Policy</h1>
       <p className={small}>Effective Date: 16 April 2026</p>
-      <p className={`${small} mb-8`}>Last Updated: April 2026</p>
+      <p className={`${small} mb-8`}>Last Reviewed: July 2026</p>
 
       <p className={p}>
         Musician Gallery Limited (&ldquo;Musician Gallery&rdquo;,
@@ -264,7 +264,7 @@ export default function PrivacyPage() {
       <h2 className={h2}>10. Changes to This Policy</h2>
       <p className={p}>
         We may update this Privacy Policy from time to time. When we do, we
-        will update the &ldquo;Last Updated&rdquo; date at the top of this
+        will update the &ldquo;Last Reviewed&rdquo; date at the top of this
         document and, where changes are material, notify registered users
         by email. Continued use of the platform after changes are posted
         constitutes acceptance of the updated policy.

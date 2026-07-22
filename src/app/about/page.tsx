@@ -66,7 +66,7 @@ export default function AboutPage() {
         <h1 className="font-serif text-4xl md:text-5xl mt-3 mb-6 max-w-2xl">
           A functional, considered <em>space.</em>
         </h1>
-        <p className="text-sm max-w-2xl mb-10 text-dark">
+        <p className="text-sm max-w-2xl mb-10 text-mid">
           Musician Gallery is a directory and booking tool for musicians and
           teachers across Aotearoa, New Zealand. Musicians list a free
           profile, set their own rates, and retain the full amount.

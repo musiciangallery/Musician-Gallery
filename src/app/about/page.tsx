@@ -53,9 +53,9 @@ const musicianPillars = [
 ];
 
 const galleryImages = [
-  { src: "/brand/about-violin-bridge.jpg", alt: "Close detail of a violin bow and bridge" },
-  { src: "/brand/hero-piano-doorway.jpg", alt: "A pianist performing live at a grand piano" },
-  { src: "/brand/story-emily-cello.jpg", alt: "Emily, founder of Musician Gallery, playing cello" },
+  { src: "/brand/marina-bay-band.jpg", alt: "A live band performing outdoors at Marina Bay Sands" },
+  { src: "/brand/street-accordion-player.jpg", alt: "A street musician playing accordion beneath stone archways" },
+  { src: "/brand/orchestra-rehearsal.jpg", alt: "Musicians rehearsing together on stage with cello and double bass" },
 ];
 
 export default function AboutPage() {

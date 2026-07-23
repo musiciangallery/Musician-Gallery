@@ -1,5 +1,4 @@
 const ITEMS = [
-  "Trusted & Vetted",
   "Aotearoa, New Zealand",
   "Event Musicians",
   "Music Teachers",

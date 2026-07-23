@@ -61,14 +61,13 @@ export default function ToolkitBusinessSection() {
               <li>Professional fees: accountant fees, relevant courses or training</li>
               <li>A portion of home costs if you teach or rehearse from home</li>
             </ul>
-            <p className="text-sm text-mid leading-relaxed mt-4">
+            <p className="text-sm text-mid leading-relaxed mt-6">
               A separate bank account for your music income makes this dramatically easier, and IRD asks that receipts be kept for seven years. A simple habit from the start, a folder, an app, or a spreadsheet, saves a scramble later. Income earned through Musician Gallery is tracked automatically via Stripe, so that side of your record keeping is already taken care of.
             </p>
+            <p className="text-sm text-mid leading-relaxed mt-4">
+              For anything specific to your situation, <a href="https://www.ird.govt.nz/roles/self-employed" target="_blank" rel="noopener noreferrer" className="underline hover:text-accent">IRD</a> and <a href="https://www.business.govt.nz/business-stage-or-type/sole-traders" target="_blank" rel="noopener noreferrer" className="underline hover:text-accent">business.govt.nz</a> are the official sources, and a chat with an accountant is worth it once you are earning consistently.
+            </p>
           </div>
-
-          <p className="text-sm text-mid leading-relaxed">
-            For anything specific to your situation, <a href="https://www.ird.govt.nz/roles/self-employed" target="_blank" rel="noopener noreferrer" className="underline hover:text-accent">IRD</a> and <a href="https://www.business.govt.nz/business-stage-or-type/sole-traders" target="_blank" rel="noopener noreferrer" className="underline hover:text-accent">business.govt.nz</a> are the official sources, and a chat with an accountant is worth it once you are earning consistently.
-          </p>
         </div>
       )}
     </section>

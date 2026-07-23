@@ -53,7 +53,7 @@ const musicianPillars = [
 ];
 
 const galleryImages = [
-  { src: "/brand/marina-bay-band.jpg", alt: "A live band performing outdoors at Marina Bay Sands" },
+  { src: "/brand/find-musician-guitar-shop.jpg", alt: "Guitars, a ukulele, and a cymbal on display in a music shop" },
   { src: "/brand/street-accordion-player.jpg", alt: "A street musician playing accordion beneath stone archways" },
   { src: "/brand/orchestra-rehearsal.jpg", alt: "Musicians rehearsing together on stage with cello and double bass" },
 ];

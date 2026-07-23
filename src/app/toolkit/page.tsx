@@ -94,14 +94,14 @@ const eventMusicianItems: ToolkitItem[] = [
   {
     n: "V",
     t: "Reviews",
-    b: "Once you have played a few gigs booked through the Gallery, a genuine testimonial from a happy client makes a difference to future bookings. It is fine to ask directly. Most people are glad to help once they have enjoyed themselves.",
+    b: "Once you have played a few gigs booked through the Gallery, a genuine testimonial from a happy client makes a real difference to future bookings. It is fine to ask directly. Most people are glad to help once they have enjoyed themselves.",
   },
 ];
 
 export default function ToolkitPage() {
   return (
     <div className="max-w-6xl mx-auto">
-      <section className="px-6 md:px-[52px] py-16">
+      <section className="px-6 md:px-[52px] pt-16 pb-8">
         <span className="eyebrow">Getting started</span>
         <h1 className="font-serif text-4xl md:text-5xl mt-3 mb-6 max-w-2xl">
           Musician <em>toolkit.</em>
@@ -113,7 +113,7 @@ export default function ToolkitPage() {
         </p>
       </section>
 
-      <section className="px-6 md:px-[52px] py-16">
+      <section className="px-6 md:px-[52px] pt-8 pb-16">
         <span className="eyebrow">For teachers</span>
         <h2 className="font-serif text-3xl md:text-4xl mt-3 mb-10 max-w-md">
           Ready for <em>lessons.</em>

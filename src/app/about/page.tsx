@@ -10,7 +10,7 @@ const clientSteps = [
   {
     n: "I",
     t: "Browse the gallery",
-    b: "Search by instrument, location, or occasion. Every profile shows rates and experience upfront, so you know exactly who you're booking.",
+    b: "Search by instrument, region, or occasion to find exactly who you need.",
   },
   {
     n: "II",
@@ -20,7 +20,7 @@ const clientSteps = [
   {
     n: "III",
     t: "Pay securely, once confirmed",
-    b: "You and your musician or teacher confirm the details that matter: set list or lesson structure, capability, availability, and rate. From there, your booking is secured with a payment link sent directly to your email.",
+    b: "You and your musician or teacher confirm the details that matter: set list or lesson structure, capability, availability, and rate. Once your musician confirms, your booking is secured with a payment link sent directly to your email.",
   },
   {
     n: "IV",
@@ -38,7 +38,7 @@ const musicianPillars = [
   {
     n: "II",
     t: "Trusted",
-    b: "Teachers complete a one-off NZ Police Vetting Check through CVCheck (currently $81.40 incl GST, generally claimable as a business expense) before their profile goes live, earning a Police Vetted badge. Event musicians build trust independently, through client reviews and a detailed portfolio that speaks for itself.",
+    b: "Teachers complete a one-off NZ Police Vetting Check through CVCheck before their profile goes live, earning a Police Vetted badge. Event musicians build trust independently, through client reviews and a detailed portfolio.",
   },
   {
     n: "III",
@@ -70,10 +70,10 @@ export default function AboutPage() {
           Musician Gallery is a directory and booking tool for musicians and
           teachers across Aotearoa, New Zealand. Musicians list a free
           profile, set their own rates, and retain the full amount.
-          Clients search a curated gallery of musicians and teachers,
-          and pay a 10% platform fee at checkout. An amount that
-          goes directly toward supporting New Zealand musicians through
-          introduction and ongoing support.
+          Clients search a curated gallery of musicians and teachers, and
+          pay a 10% platform fee at checkout, an amount that keeps the
+          gallery free and accessible for musicians to join and be
+          discovered.
         </p>
         {/* NOTE (19 July 2026): "100% Police vetted teachers" stat removed —
             Musician Gallery's NZ Police Vetting Service authorised-agency
@@ -183,9 +183,11 @@ export default function AboutPage() {
         </div>
         <div className="space-y-6 max-w-2xl">
           <p className="text-sm text-mid leading-relaxed">
-            All payments run through Stripe. Once your musician confirms
-            your booking, you&rsquo;ll receive a secure payment link by
-            email, no invoices needed.
+            Stripe is the secure payment processor that powers every
+            transaction on Musician Gallery, used by millions of businesses
+            worldwide. Once your musician confirms your booking,
+            you&rsquo;ll receive a secure payment link by email, no
+            invoices needed.
           </p>
           <p className="text-sm text-mid leading-relaxed">
             On the musician&rsquo;s side, setup is simple: a one-time

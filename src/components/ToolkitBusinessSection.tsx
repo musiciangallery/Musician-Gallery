@@ -43,7 +43,6 @@ export default function ToolkitBusinessSection() {
               </li>
               <li>GST registration becomes compulsory once you earn over $60,000 in a twelve month period. Below that it is optional.</li>
               <li>ACC cover happens automatically once IRD knows you are in part, or fully self employed. You will be enrolled on their default cover and levied based on your income the following year.</li>
-              <li>An NZBN is optional for a sole trader but free to get, and some clients or venues ask for one on an invoice.</li>
             </ul>
           </div>
 

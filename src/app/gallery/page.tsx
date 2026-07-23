@@ -26,7 +26,7 @@ export default async function GalleryPage() {
         vetting shown on each profile. Filter by instrument, region, or
         occasion to find exactly who you need.
       </p>
-      <p className="text-sm text-mid max-w-xl -mt-8 mb-12">
+      <p className="text-sm text-mid max-w-xl -mt-8 mb-10">
         The badge next to a Teacher&rsquo;s name means they&rsquo;ve
         independently completed a New Zealand Police Vetting Check. A real
         cost and process every Teacher has chosen to undertake before

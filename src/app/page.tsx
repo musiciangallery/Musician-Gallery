@@ -92,8 +92,8 @@ export default async function Home() {
           <div>
             <div className="relative aspect-[16/10] mb-6">
               <Image
-                src="/brand/clients-studio-session.jpg"
-                alt="A musician at work in a recording studio"
+                src="/brand/find-musician-guitar-shop.jpg"
+                alt="Guitars, a ukulele, and a cymbal on display in a music shop"
                 fill
                 className="object-cover photo-mono"
                 sizes="(max-width: 768px) 100vw, 45vw"

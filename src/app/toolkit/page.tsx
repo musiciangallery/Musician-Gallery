@@ -113,7 +113,7 @@ export default function ToolkitPage() {
         </p>
       </section>
 
-      <section className="px-6 md:px-[52px] pt-8 pb-16">
+      <section className="px-6 md:px-[52px] py-8">
         <span className="eyebrow">For teachers</span>
         <h2 className="font-serif text-3xl md:text-4xl mt-3 mb-10 max-w-md">
           Ready for <em>lessons.</em>
@@ -128,7 +128,7 @@ export default function ToolkitPage() {
         </div>
       </section>
 
-      <section className="px-6 md:px-[52px] py-16 border-b border-rule">
+      <section className="px-6 md:px-[52px] pt-8 pb-16 border-b border-rule">
         <span className="eyebrow">For event musicians</span>
         <h2 className="font-serif text-3xl md:text-4xl mt-3 mb-10 max-w-md">
           Ready for the <em>enquiry.</em>

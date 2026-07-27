@@ -312,8 +312,7 @@ export default function JoinForm() {
             Don&rsquo;t have it yet? No problem. Submit your application now,
             and your Teacher profile will go live once your certificate is
             sent through to contact@musiciangallery.co.nz. There&rsquo;s
-            more on getting set up in the Musician Toolkit once
-            you&rsquo;re ready.
+            more on completing this on the Musician Toolkit Page.
           </p>
         </div>
       )}

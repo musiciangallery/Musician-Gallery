@@ -71,7 +71,7 @@ export default function AboutPage() {
           teachers across Aotearoa, New Zealand. Musicians list a free
           profile, set their own rates, and retain the full amount.
           Clients search a curated gallery of musicians and teachers, and
-          pay a 10% platform fee at checkout, an amount that keeps the
+          pay a 10% platform fee at checkout. An amount that keeps the
           gallery free and accessible for musicians to join and be
           discovered.
         </p>
@@ -107,7 +107,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="px-6 md:px-[52px] py-20 border-b border-rule grid md:grid-cols-[35%_65%] gap-12">
+      <section className="px-6 md:px-[52px] py-20 grid md:grid-cols-[35%_65%] gap-12">
         <div>
           <span className="eyebrow">For clients &amp; students</span>
           <h2 className="font-serif text-3xl md:text-4xl mt-3">
@@ -181,7 +181,7 @@ export default function AboutPage() {
             <em>moves.</em>
           </h2>
         </div>
-        <div className="space-y-6 max-w-2xl">
+        <div className="space-y-4 max-w-2xl">
           <p className="text-sm text-mid leading-relaxed">
             Stripe is the secure payment processor that powers every
             transaction on Musician Gallery, used by millions of businesses

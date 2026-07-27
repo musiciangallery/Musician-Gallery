@@ -46,8 +46,7 @@ export default function TermsPage() {
         </li>
         <li>
           <strong>Teacher</strong> means a Musician who has completed police
-          vetting and is listed on the Platform to offer term-based private
-          music lessons.
+          vetting and is listed on the Platform to offer music lessons.
         </li>
         <li>
           <strong>Gig Musician</strong> means a Musician listed on the
@@ -63,7 +62,7 @@ export default function TermsPage() {
           Client and a Musician made through the Platform.
         </li>
         <li>
-          <strong>Platform Fee</strong> means the 10% fee added to the
+          <strong>Platform Fee</strong>{" "}means the 10% fee added to the
           Client&rsquo;s total at checkout, on top of the Musician&rsquo;s
           stated rate. The Platform Fee is retained by Musician Gallery; the
           Musician receives their full stated rate.
@@ -147,8 +146,8 @@ export default function TermsPage() {
           experience, instruments, and availability.
         </li>
         <li>
-          Profile photos must meet the Musician Gallery photo specification
-          provided during onboarding.
+          Profile photos must be a genuine, appropriate representation of
+          you as a musician or teacher.
         </li>
         <li>
           Musician Gallery reserves the right to reject or remove profiles

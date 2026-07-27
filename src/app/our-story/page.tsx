@@ -43,7 +43,7 @@ export default function OurStoryPage() {
           Knowing musicians and teachers I&rsquo;d want to book, with
           nowhere obvious to find them. Standing alongside others who
           poured everything into their craft, with little time left for
-          the business side of it. That became the driver behind this
+          the business side. That became the driver behind this
           gallery: a space that gives their talent the structure and
           accessibility it deserves.
         </p>

@@ -302,16 +302,18 @@ export default function JoinForm() {
         <div className="bg-off/60 border border-rule p-4 text-sm leading-relaxed">
           <p className="mb-4">
             Teacher profiles carry a Police Vetted badge and only go live
-            once vetting is complete. Event musicians don&rsquo;t need
-            this at all. Getting vetted starts with a Police Vetting Check
-            through CVCheck. A one-off cost of $81.40 including GST and
-            generally claimable as a business expense. You can{" "}
+            once vetting is complete. Getting vetted starts with a Police
+            Vetting Check through CVCheck. A one-off cost of $81.40
+            including GST and generally claimable as a business expense.
+            You can{" "}
             <a href="https://cvcheck.com/nz/police-vetting/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-accent">order one here &rarr;</a>.
           </p>
           <p>
             Don&rsquo;t have it yet? No problem. Submit your application now,
             and your Teacher profile will go live once your certificate is
-            sent through to contact@musiciangallery.co.nz.
+            sent through to contact@musiciangallery.co.nz. There&rsquo;s
+            more on getting set up in the Musician Toolkit once
+            you&rsquo;re ready.
           </p>
         </div>
       )}
@@ -503,7 +505,7 @@ export default function JoinForm() {
       >
         {submitting ? "Submitting..." : "Submit application"}
       </button>
-      <p className="text-[10px] text-mid leading-relaxed">
+      <p className="text-[11px] text-mid leading-relaxed">
         Free to list, zero commission. Submit your details to get started.
       </p>
     </form>

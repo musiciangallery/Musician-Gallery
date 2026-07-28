@@ -27,9 +27,9 @@ export default async function GalleryPage() {
         occasion to find exactly who you need.
       </p>
       <p className="text-sm text-mid max-w-xl -mt-8 mb-10">
-        The badge next to a Teacher&rsquo;s name means they&rsquo;ve
+        The badge next to a teacher&rsquo;s name means they&rsquo;ve
         independently completed a New Zealand Police Vetting Check. A real
-        cost and process every Teacher has chosen to undertake before
+        cost and process every teacher has chosen to undertake before
         their profile shows on Musician Gallery.
       </p>
       <GalleryBrowser allMusicians={allMusicians} />

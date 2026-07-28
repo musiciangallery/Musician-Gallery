@@ -40,8 +40,8 @@ export default function PrivacyPage() {
       <p className={p}>
         Musician Gallery operates as an online marketplace connecting
         clients with musicians in New Zealand. We facilitate two service
-        types: term-based music lessons (via teachers) and one-off event
-        bookings (via gig musicians).
+        types: music lessons (via teachers) and one-off event bookings
+        (via gig musicians).
       </p>
 
       <h2 className={h2}>2. Information We Collect</h2>
@@ -53,7 +53,6 @@ export default function PrivacyPage() {
       <ul className={ul}>
         <li>Full name</li>
         <li>Email address</li>
-        <li>Phone number</li>
         <li>Location (city or region)</li>
         <li>
           Our hosting provider (Vercel) and payment processor (Stripe) may
@@ -63,7 +62,7 @@ export default function PrivacyPage() {
       </ul>
       <h3 className={h3}>2.2 Additional Information Collected from Musicians</h3>
       <ul className={ul}>
-        <li>Profile photo (subject to our photo specifications)</li>
+        <li>Profile photo</li>
         <li>Instrument(s) and genre(s)</li>
         <li>Biography and portfolio information</li>
         <li>
@@ -84,6 +83,7 @@ export default function PrivacyPage() {
           Payment card information, processed and held securely by Stripe.
           We do not store card details ourselves.
         </li>
+        <li>Phone number (optional, provided when making a Booking)</li>
         <li>Booking history and lesson or event preferences</li>
       </ul>
 
@@ -95,7 +95,7 @@ export default function PrivacyPage() {
       <ul className={ul}>
         <li>
           <strong>To operate the platform.</strong> Creating and managing
-          accounts, processing bookings, facilitating payments, and
+          profiles, processing bookings, facilitating payments, and
           enabling communication between musicians and clients.
         </li>
         <li>
@@ -173,9 +173,10 @@ export default function PrivacyPage() {
           Stripe and is not stored on Musician Gallery servers.
         </li>
         <li>
-          We retain your personal information for as long as your account
-          is active, and for a reasonable period after account closure to
-          meet our legal and financial record-keeping obligations.
+          We retain your personal information for as long as your profile
+          is active or your booking history is relevant, and for a
+          reasonable period afterward to meet our legal and financial
+          record-keeping obligations.
         </li>
       </ul>
 
@@ -195,7 +196,7 @@ export default function PrivacyPage() {
       <ul className={ul}>
         <li>Stripe: payment processing and disbursement</li>
         <li>Vercel: website hosting and infrastructure</li>
-        <li>Resend: transactional email delivery (booking and account notifications)</li>
+        <li>Resend: transactional email delivery (booking and application notifications)</li>
         <li>Google Workspace: internal communications and email</li>
       </ul>
       <p className={p}>
@@ -210,16 +211,10 @@ export default function PrivacyPage() {
       </p>
 
       <h2 className={h2}>7. Cookies and Tracking</h2>
-      <p className={p}>Musician Gallery uses cookies to:</p>
-      <ul className={ul}>
-        <li>Keep you logged in to your account</li>
-        <li>Remember your preferences</li>
-        <li>Understand how users navigate the platform (via de-identified analytics)</li>
-      </ul>
       <p className={p}>
-        You can manage cookie preferences through your browser settings.
-        Disabling cookies may affect the functionality of some parts of the
-        platform.
+        Musician Gallery does not currently use cookies for tracking,
+        analytics, or login sessions. If this changes in future, we will
+        update this policy and seek your consent where required by law.
       </p>
 
       <h2 className={h2}>8. Your Rights</h2>
@@ -235,7 +230,7 @@ export default function PrivacyPage() {
         </li>
         <li>
           <strong>Delete your information.</strong> You may request
-          deletion of your account and associated data, subject to our
+          deletion of your profile and associated data, subject to our
           legal retention obligations (e.g. financial records may need to
           be kept for a period required by law).
         </li>
@@ -255,9 +250,9 @@ export default function PrivacyPage() {
       <h2 className={h2}>9. Children&rsquo;s Privacy</h2>
       <p className={p}>
         Musician Gallery is not directed at children under the age of 16.
-        Users must be 16 or older to create an account. If a parent or
-        guardian is booking lessons on behalf of a child, the account must
-        be held in the adult&rsquo;s name. We do not knowingly collect
+        Users must be 16 or older to use the Platform. If a parent or
+        guardian is booking lessons on behalf of a child, the Booking must
+        be made under the adult&rsquo;s name. We do not knowingly collect
         personal information from children under 16.
       </p>
 
@@ -265,9 +260,9 @@ export default function PrivacyPage() {
       <p className={p}>
         We may update this Privacy Policy from time to time. When we do, we
         will update the &ldquo;Last Reviewed&rdquo; date at the top of this
-        document and, where changes are material, notify registered users
-        by email. Continued use of the platform after changes are posted
-        constitutes acceptance of the updated policy.
+        document and, where changes are material, notify users by email.
+        Continued use of the platform after changes are posted constitutes
+        acceptance of the updated policy.
       </p>
 
       <h2 className={h2}>11. Contact Us</h2>

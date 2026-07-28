@@ -17,7 +17,11 @@ export async function POST(request: Request): Promise<NextResponse> {
       request,
       onBeforeGenerateToken: async () => {
         return {
-          allowedContentTypes: ["image/*", "video/*"],
+          // Teacher applicants can upload their vetting certificate as a
+          // PDF (the format CVCheck reports commonly come in) or an image,
+          // and portfolio uploads can be a photo or video — all three need
+          // to be allowed here, or Blob storage rejects the upload.
+          allowedContentTypes: ["image/*", "video/*", "application/pdf"],
           addRandomSuffix: true,
         };
       },

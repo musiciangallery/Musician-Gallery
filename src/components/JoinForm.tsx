@@ -125,7 +125,11 @@ function CheckboxGroup({
   );
 }
 
-export default function JoinForm() {
+export default function JoinForm({
+  onSubmitted,
+}: {
+  onSubmitted?: () => void;
+} = {}) {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -221,6 +225,7 @@ export default function JoinForm() {
         throw new Error(data.error ?? "Something went wrong.");
       }
       setSubmitted(true);
+      onSubmitted?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {

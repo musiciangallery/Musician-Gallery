@@ -134,7 +134,14 @@ export default function JoinForm({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(initialForm);
-  const [previousWorkFiles, setPreviousWorkFiles] = useState<File[]>([]);
+  // Split into separate photo/video selections rather than one input
+  // accepting both. iOS Safari's file picker silently drops multi-select
+  // when `accept` spans more than one media category (e.g. "image/*,video/*"
+  // together) — even with the `multiple` attribute set, it only lets you
+  // choose one file. Keeping each input to a single category is the
+  // reliable fix and matches how iOS's own Photos picker behaves.
+  const [previousWorkPhotos, setPreviousWorkPhotos] = useState<File[]>([]);
+  const [previousWorkVideos, setPreviousWorkVideos] = useState<File[]>([]);
   const [vettingCertificateFile, setVettingCertificateFile] = useState<File | null>(null);
 
   const update = <K extends keyof FormState>(field: K, value: FormState[K]) =>
@@ -174,7 +181,7 @@ export default function JoinForm({
       // storage avoids that limit entirely, since only the resulting
       // small URL gets sent through the form submission below.
       const previousWorkFileUrls: string[] = [];
-      for (const file of previousWorkFiles) {
+      for (const file of [...previousWorkPhotos, ...previousWorkVideos]) {
         const blob = await upload(`${Date.now()}-${sanitizeFilename(file.name)}`, file, {
           access: "public",
           handleUploadUrl: "/api/upload",
@@ -489,15 +496,27 @@ export default function JoinForm({
           Paste links to anything that shows off your playing, and/or upload
           files directly below.
         </p>
+        <label className={`${labelClass} mt-4`}>Photos</label>
         <input
           type="file"
-          accept="image/*,video/*"
+          accept="image/*"
           multiple
-          onChange={(e) => setPreviousWorkFiles(Array.from(e.target.files ?? []))}
-          className="text-sm mt-3"
+          onChange={(e) => setPreviousWorkPhotos(Array.from(e.target.files ?? []))}
+          className="text-sm"
         />
-        {previousWorkFiles.length > 0 && (
-          <p className={hintClass}>{previousWorkFiles.length} file(s) selected</p>
+        {previousWorkPhotos.length > 0 && (
+          <p className={hintClass}>{previousWorkPhotos.length} photo(s) selected</p>
+        )}
+        <label className={`${labelClass} mt-4`}>Videos</label>
+        <input
+          type="file"
+          accept="video/*"
+          multiple
+          onChange={(e) => setPreviousWorkVideos(Array.from(e.target.files ?? []))}
+          className="text-sm"
+        />
+        {previousWorkVideos.length > 0 && (
+          <p className={hintClass}>{previousWorkVideos.length} video(s) selected</p>
         )}
       </div>
 

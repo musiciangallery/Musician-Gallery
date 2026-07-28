@@ -24,9 +24,10 @@ export default function TermsPage() {
         registered in New Zealand.
       </p>
       <p className={p}>
-        By creating an account or using the platform in any way, you agree to
-        be bound by these Terms. Please read them carefully. If you do not
-        agree, you must not use the platform.
+        By submitting an application, making a Booking, or otherwise using
+        the platform in any way, you agree to be bound by these Terms.
+        Please read them carefully. If you do not agree, you must not use
+        the platform.
       </p>
 
       <h2 className={h2}>1. Definitions</h2>
@@ -103,35 +104,24 @@ export default function TermsPage() {
         </li>
       </ul>
 
-      <h2 className={h2}>3. Accounts and Registration</h2>
+      <h2 className={h2}>3. Eligibility and Platform Access</h2>
       <h3 className={h3}>3.1 Eligibility</h3>
       <p className={p}>
-        You must be at least 16 years of age to create an account. By
-        registering, you confirm that the information you provide is
-        accurate, complete, and up to date.
+        You must be at least 16 years of age to use the Platform. By
+        submitting an application or making a Booking, you confirm that
+        the information you provide is accurate, complete, and up to date.
       </p>
-      <h3 className={h3}>3.2 Account Responsibility</h3>
-      <ul className={ul}>
-        <li>
-          You are responsible for maintaining the confidentiality of your
-          account credentials.
-        </li>
-        <li>You are responsible for all activity that occurs under your account.</li>
-        <li>
-          You must notify us immediately at contact@musiciangallery.co.nz if
-          you suspect unauthorised access to your account.
-        </li>
-        <li>
-          Musician Gallery reserves the right to suspend or terminate any
-          account at our sole discretion, including where these Terms have
-          been breached.
-        </li>
-      </ul>
-      <h3 className={h3}>3.3 One Account Per Person</h3>
+      <h3 className={h3}>3.2 Platform Access</h3>
       <p className={p}>
-        Each individual or organisation may hold only one account on the
-        Platform. Creating duplicate accounts may result in all associated
-        accounts being suspended.
+        Musician Gallery reserves the right to suspend or remove access to
+        the Platform at our sole discretion, including where these Terms
+        have been breached.
+      </p>
+      <h3 className={h3}>3.3 One Profile Per Musician</h3>
+      <p className={p}>
+        Each musician may hold only one active profile on the Platform.
+        Creating duplicate applications may result in all associated
+        profiles being removed.
       </p>
 
       <h2 className={h2}>4. Terms Specific to Musicians</h2>
@@ -393,7 +383,7 @@ export default function TermsPage() {
         <li>Harass, threaten, or abuse other Users</li>
         <li>Post or transmit any content that is unlawful, offensive, or defamatory</li>
         <li>Attempt to circumvent, disable, or interfere with the security features of the Platform</li>
-        <li>Create multiple accounts or impersonate another person or organisation</li>
+        <li>Submit duplicate applications or impersonate another person or organisation</li>
       </ul>
       <p className={p}>
         Breach of any of the above may result in immediate suspension or
@@ -437,14 +427,15 @@ export default function TermsPage() {
       <p className={p}>
         Musician Gallery may update these Terms from time to time. When we
         do, we will update the effective date at the top of this document.
-        Where changes are material, we will notify registered Users by
-        email at least 14 days before the changes take effect.
+        Where changes are material, we will notify Users by email at least
+        14 days before the changes take effect.
       </p>
       <p className={p}>
         Continued use of the Platform after updated Terms take effect
         constitutes your acceptance of the new Terms. If you do not agree
-        with updated Terms, you must stop using the Platform and may close
-        your account.
+        with updated Terms, you must stop using the Platform. You may
+        request removal of your profile and data at any time (see our
+        Privacy Policy).
       </p>
 
       <h2 className={h2}>12. Governing Law</h2>

@@ -432,6 +432,18 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
               onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
               className="text-sm"
             />
+            {photo && (
+              <p className="text-xs text-mid mt-1 flex items-center gap-2">
+                {photo.name}
+                <button
+                  type="button"
+                  onClick={() => setPhoto(null)}
+                  className="text-accent hover:underline"
+                >
+                  Remove
+                </button>
+              </p>
+            )}
           </div>
 
           <div>
@@ -444,7 +456,22 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
               className="text-sm"
             />
             {galleryPhotos.length > 0 && (
-              <p className="text-xs text-mid mt-1">{galleryPhotos.length} photo(s) selected</p>
+              <ul className="text-xs text-mid mt-1 space-y-1">
+                {galleryPhotos.map((f, i) => (
+                  <li key={`${f.name}-${i}`} className="flex items-center gap-2">
+                    <span>{f.name}</span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setGalleryPhotos((cur) => cur.filter((_, idx) => idx !== i))
+                      }
+                      className="text-accent hover:underline"
+                    >
+                      Remove
+                    </button>
+                  </li>
+                ))}
+              </ul>
             )}
           </div>
 
@@ -456,7 +483,18 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
               onChange={(e) => setVideo(e.target.files?.[0] ?? null)}
               className="text-sm"
             />
-            {video && <p className="text-xs text-mid mt-1">{video.name}</p>}
+            {video && (
+              <p className="text-xs text-mid mt-1 flex items-center gap-2">
+                {video.name}
+                <button
+                  type="button"
+                  onClick={() => setVideo(null)}
+                  className="text-accent hover:underline"
+                >
+                  Remove
+                </button>
+              </p>
+            )}
           </div>
 
           {error && <p className="text-xs text-accent">{error}</p>}

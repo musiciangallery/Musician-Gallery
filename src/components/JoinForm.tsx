@@ -501,22 +501,63 @@ export default function JoinForm({
           type="file"
           accept="image/*"
           multiple
-          onChange={(e) => setPreviousWorkPhotos(Array.from(e.target.files ?? []))}
+          onChange={(e) => {
+            const newFiles = Array.from(e.target.files ?? []);
+            // Add to what's already selected rather than replacing it —
+            // choosing files again (e.g. to add one more) would otherwise
+            // silently wipe out an earlier selection.
+            setPreviousWorkPhotos((cur) => [...cur, ...newFiles]);
+            e.target.value = "";
+          }}
           className="text-sm"
         />
         {previousWorkPhotos.length > 0 && (
-          <p className={hintClass}>{previousWorkPhotos.length} photo(s) selected</p>
+          <ul className={`${hintClass} space-y-1`}>
+            {previousWorkPhotos.map((f, i) => (
+              <li key={`${f.name}-${i}`} className="flex items-center gap-2">
+                <span>{f.name}</span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setPreviousWorkPhotos((cur) => cur.filter((_, idx) => idx !== i))
+                  }
+                  className="text-accent hover:underline"
+                >
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
         )}
         <label className={`${labelClass} mt-4`}>Videos</label>
         <input
           type="file"
           accept="video/*"
           multiple
-          onChange={(e) => setPreviousWorkVideos(Array.from(e.target.files ?? []))}
+          onChange={(e) => {
+            const newFiles = Array.from(e.target.files ?? []);
+            setPreviousWorkVideos((cur) => [...cur, ...newFiles]);
+            e.target.value = "";
+          }}
           className="text-sm"
         />
         {previousWorkVideos.length > 0 && (
-          <p className={hintClass}>{previousWorkVideos.length} video(s) selected</p>
+          <ul className={`${hintClass} space-y-1`}>
+            {previousWorkVideos.map((f, i) => (
+              <li key={`${f.name}-${i}`} className="flex items-center gap-2">
+                <span>{f.name}</span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setPreviousWorkVideos((cur) => cur.filter((_, idx) => idx !== i))
+                  }
+                  className="text-accent hover:underline"
+                >
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
 

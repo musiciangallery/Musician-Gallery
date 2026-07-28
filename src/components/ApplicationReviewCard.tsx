@@ -67,6 +67,11 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
       : ["Weddings", "Corporate Events", "Private Functions"]
   );
   const [photo, setPhoto] = useState<File | null>(null);
+  // Lets an admin reuse one of the applicant's own uploaded files as the
+  // profile photo directly, instead of downloading it and re-uploading it
+  // through the file input below. Holds the already-uploaded Blob URL —
+  // approve() skips a fresh upload and uses this URL as-is when set.
+  const [existingPhotoUrl, setExistingPhotoUrl] = useState<string | null>(null);
   const [galleryPhotos, setGalleryPhotos] = useState<File[]>([]);
   const [video, setVideo] = useState<File | null>(null);
   const [vettingCertUrl, setVettingCertUrl] = useState(a.vetting_certificate_url || "");
@@ -89,7 +94,7 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
 
   async function approve() {
     setError(null);
-    if (!photo) {
+    if (!photo && !existingPhotoUrl) {
       setError("Please upload a photo before approving.");
       return;
     }
@@ -112,11 +117,18 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
       // real camera photos and video easily exceed — going direct to
       // storage avoids that limit entirely, since only the resulting
       // URLs get sent to the approve route below.
-      const photoBlob = await upload(`musicians/${slug}-${Date.now()}`, photo, {
-        access: "public",
-        handleUploadUrl: "/api/upload",
-      });
-      const photoUrl = photoBlob.url;
+      // If an existing uploaded file was chosen as the profile photo, it's
+      // already on Blob storage — reuse that URL instead of re-uploading.
+      let photoUrl: string;
+      if (photo) {
+        const photoBlob = await upload(`musicians/${slug}-${Date.now()}`, photo, {
+          access: "public",
+          handleUploadUrl: "/api/upload",
+        });
+        photoUrl = photoBlob.url;
+      } else {
+        photoUrl = existingPhotoUrl!;
+      }
 
       const galleryUrls: string[] = [];
       for (const file of galleryPhotos) {
@@ -254,9 +266,22 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
           <span className="block text-[10px] uppercase tracking-[0.08em] mb-1">Uploaded files</span>
           <div className="flex flex-wrap gap-3">
             {a.previous_work_files.map((url, i) => (
-              <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline text-xs">
-                File {i + 1} &rarr;
-              </a>
+              <span key={url} className="flex items-center gap-2">
+                <a href={url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline text-xs">
+                  File {i + 1} &rarr;
+                </a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setExistingPhotoUrl(url);
+                    setPhoto(null);
+                    setExpanded(true);
+                  }}
+                  className="text-[10px] tracking-[0.05em] uppercase border border-rule px-2 py-0.5 hover:border-accent hover:text-accent transition-colors"
+                >
+                  Use as profile photo
+                </button>
+              </span>
             ))}
           </div>
         </div>
@@ -429,7 +454,10 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
+              onChange={(e) => {
+                setPhoto(e.target.files?.[0] ?? null);
+                setExistingPhotoUrl(null);
+              }}
               className="text-sm"
             />
             {photo && (
@@ -438,6 +466,26 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
                 <button
                   type="button"
                   onClick={() => setPhoto(null)}
+                  className="text-accent hover:underline"
+                >
+                  Remove
+                </button>
+              </p>
+            )}
+            {existingPhotoUrl && !photo && (
+              <p className="text-xs text-mid mt-1 flex items-center gap-2">
+                Using an uploaded file as the profile photo —{" "}
+                <a
+                  href={existingPhotoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-accent hover:underline"
+                >
+                  preview
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setExistingPhotoUrl(null)}
                   className="text-accent hover:underline"
                 >
                   Remove

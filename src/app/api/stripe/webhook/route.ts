@@ -6,26 +6,41 @@ import { sendBookingPaidEmail } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
-/** Stripe webhook receiver — set up in the Stripe dashboard to send
- * checkout.session.completed and account.updated events here (see
- * STRIPE_WEBHOOK_SECRET in Vercel env vars). Verifies the signature against
- * the raw request body before trusting anything in the payload. */
+/** Stripe webhook receiver — checkout.session.completed and account.updated
+ * arrive from two separate event destinations in the Stripe dashboard,
+ * since Stripe requires different destination scopes for each: checkout
+ * sessions belong to "Your account", while account.updated for a musician's
+ * connected Express account requires the "Connected accounts" scope. Each
+ * destination has its own signing secret, so both STRIPE_WEBHOOK_SECRET
+ * (the "Your account" destination) and STRIPE_CONNECT_WEBHOOK_SECRET (the
+ * "Connected accounts" destination) are accepted here — whichever one
+ * successfully verifies the incoming signature is used. */
 export async function POST(req: NextRequest) {
   const signature = req.headers.get("stripe-signature");
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const webhookSecrets = [
+    process.env.STRIPE_WEBHOOK_SECRET,
+    process.env.STRIPE_CONNECT_WEBHOOK_SECRET,
+  ].filter((s): s is string => Boolean(s));
 
-  if (!signature || !webhookSecret) {
+  if (!signature || webhookSecrets.length === 0) {
     return NextResponse.json({ error: "Webhook not configured." }, { status: 400 });
   }
 
   const rawBody = await req.text();
   const stripe = getStripe();
 
-  let event: Stripe.Event;
-  try {
-    event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
-  } catch (err) {
-    console.error("Stripe webhook signature verification failed:", err);
+  let event: Stripe.Event | null = null;
+  for (const secret of webhookSecrets) {
+    try {
+      event = stripe.webhooks.constructEvent(rawBody, signature, secret);
+      break;
+    } catch {
+      // Try the next secret — a mismatch here just means this event came
+      // from the other destination, not that anything is wrong.
+    }
+  }
+  if (!event) {
+    console.error("Stripe webhook signature verification failed against all configured secrets.");
     return NextResponse.json({ error: "Invalid signature." }, { status: 400 });
   }
 

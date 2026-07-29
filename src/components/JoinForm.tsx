@@ -179,29 +179,36 @@ export default function JoinForm({
       // Serverless functions reject request bodies over ~4.5MB, which a
       // real phone photo or video easily exceeds — going direct to
       // storage avoids that limit entirely, since only the resulting
-      // small URL gets sent through the form submission below.
-      const previousWorkFileUrls: string[] = [];
-      for (const file of [...previousWorkPhotos, ...previousWorkVideos]) {
+      // small URL gets sent through the form submission below. All files
+      // (portfolio photos/videos, plus the vetting certificate if present)
+      // upload in parallel rather than one at a time — a few photos or a
+      // video uploaded sequentially could add up to a long wait before the
+      // applicant sees the confirmation screen.
+      const previousWorkFiles = [...previousWorkPhotos, ...previousWorkVideos];
+      const uploadPromises: Promise<string>[] = previousWorkFiles.map(async (file) => {
         const blob = await upload(`${Date.now()}-${sanitizeFilename(file.name)}`, file, {
           access: "public",
           handleUploadUrl: "/api/upload",
         });
-        previousWorkFileUrls.push(blob.url);
-      }
+        return blob.url;
+      });
 
       // Teacher applicants only, and optional — the CVCheck Police Vetting
       // Check can take weeks to come back, so applicants shouldn't be
       // blocked from applying while they wait. They can upload it now if
       // they already have it, or send it through later.
-      let vettingCertificateUrl = "";
-      if (vettingCertificateFile) {
-        const blob = await upload(
-          `vetting-${Date.now()}-${sanitizeFilename(vettingCertificateFile.name)}`,
-          vettingCertificateFile,
-          { access: "public", handleUploadUrl: "/api/upload" }
-        );
-        vettingCertificateUrl = blob.url;
-      }
+      const vettingUploadPromise: Promise<string> | null = vettingCertificateFile
+        ? upload(
+            `vetting-${Date.now()}-${sanitizeFilename(vettingCertificateFile.name)}`,
+            vettingCertificateFile,
+            { access: "public", handleUploadUrl: "/api/upload" }
+          ).then((blob) => blob.url)
+        : null;
+
+      const [previousWorkFileUrls, vettingCertificateUrl] = await Promise.all([
+        Promise.all(uploadPromises),
+        vettingUploadPromise ?? Promise.resolve(""),
+      ]);
 
       const body = new FormData();
       body.set("name", form.name);

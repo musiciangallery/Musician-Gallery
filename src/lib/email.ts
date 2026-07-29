@@ -106,19 +106,22 @@ function secondaryButton(label: string, href: string) {
 }
 
 /** Shared card layout — cream page background, off-white card, thin rule
- * borders, serif heading — matching the site's design system (colors pulled
- * directly from globals.css: --off, --w, --rule, --mid, --dark, --blk,
- * --accent). A 3px accent-colored top edge gives these transactional emails
- * a stronger brand anchor at a glance in an inbox. Table-based markup with
- * inline styles throughout for broad email client support (Gmail, Outlook,
- * Apple Mail all strip or mangle <style> blocks and modern CSS to varying
- * degrees, so this deliberately avoids relying on either). The <link> in
- * the <head> below requests the site's actual Cormorant Garamond/DM Sans —
- * clients that honour it (Apple Mail, most webmail) render the real
- * typeface; clients that strip <head> content or don't support web fonts
- * (Outlook desktop, mainly) silently fall through to the Georgia/Arial
- * pairing already set as the rest of each font-family stack, so nothing
- * breaks for them either way. */
+ * border, centered serif heading — matching the site's own "confirmation"
+ * pattern (see the .text-center.border.border-rule block JoinForm.tsx
+ * renders after a successful submission: gray .eyebrow label, centered
+ * font-serif heading, centered muted-gray body copy, generous padding).
+ * Colors pulled directly from globals.css: --off, --w, --rule, --mid,
+ * --blk. The eyebrow deliberately uses --mid (gray), not --accent —
+ * the site's real .eyebrow class is never accent-colored, only ever gray.
+ * Table-based markup with inline styles throughout for broad email client
+ * support (Gmail, Outlook, Apple Mail all strip or mangle <style> blocks
+ * and modern CSS to varying degrees, so this deliberately avoids relying on
+ * either). The <link> in the <head> below requests the site's actual
+ * Cormorant Garamond/DM Sans — clients that honour it (Apple Mail, most
+ * webmail) render the real typeface; clients that strip <head> content or
+ * don't support web fonts (Outlook desktop, mainly) silently fall through
+ * to the Georgia/Arial pairing already set as the rest of each font-family
+ * stack, so nothing breaks for them either way. */
 function layout({
   eyebrow,
   heading,
@@ -157,26 +160,26 @@ function layout({
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F0EEEA;">
       <tr>
         <td align="center" style="padding:32px 16px;">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px; background-color:#F8F7F5; border:1px solid #DDDAD4; border-top:3px solid #B4472A;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px; background-color:#F8F7F5; border:1px solid #DDDAD4;">
             <tr>
-              <td style="padding:28px 40px; border-bottom:1px solid #DDDAD4;">
+              <td align="center" style="padding:24px 40px; border-bottom:1px solid #DDDAD4;">
                 <span style="font-family:${SERIF_STACK}; font-size:18px; letter-spacing:4px; text-transform:uppercase; color:#181510;">Musician Gallery</span>
               </td>
             </tr>
             <tr>
-              <td style="padding:36px 40px 8px 40px;">
-                <p style="margin:0 0 10px 0; font-family:${SANS_STACK}; font-size:9px; letter-spacing:2.5px; text-transform:uppercase; color:#B4472A;">${escapeHtml(
+              <td align="center" style="padding:48px 40px 8px 40px; text-align:center;">
+                <p style="margin:0 0 12px 0; font-family:${SANS_STACK}; font-size:9px; letter-spacing:2.5px; text-transform:uppercase; color:#8A8680;">${escapeHtml(
                   eyebrow
                 )}</p>
-                <h1 style="margin:0 0 16px 0; font-family:${SERIF_STACK}; font-weight:400; font-size:26px; line-height:1.3; color:#181510;">${escapeHtml(
+                <h1 style="margin:0 0 16px 0; font-family:${SERIF_STACK}; font-weight:400; font-size:28px; line-height:1.3; color:#181510;">${escapeHtml(
                   heading
                 )}</h1>
-                <p style="margin:0 0 24px 0; font-family:${SANS_STACK}; font-size:14px; line-height:1.6; color:#45403A;">${intro}</p>
+                <p style="margin:0 auto 28px auto; max-width:360px; font-family:${SANS_STACK}; font-size:14px; line-height:1.6; color:#8A8680;">${intro}</p>
                 ${ctaHtml ? `<p style="margin:0 0 8px 0;">${ctaHtml}</p>` : ""}
               </td>
             </tr>${rowsSection}
             <tr>
-              <td style="padding:20px 40px 32px 40px; border-top:1px solid #DDDAD4;">
+              <td align="center" style="padding:20px 40px 36px 40px; border-top:1px solid #DDDAD4; text-align:center;">
                 <p style="margin:0; font-family:${SANS_STACK}; font-size:11px; line-height:1.6; color:#8A8680;">${escapeHtml(
                   footerNote
                 )}</p>
@@ -341,12 +344,12 @@ export async function sendApplicationReceivedEmail(a: ApplicationReceivedEmailIn
       from: FROM,
       to: a.email,
       subject: "We've received your application",
-      text: `Hi ${firstName},\n\nThanks for applying to join Musician Gallery. We personally review every application, and you'll hear back from us within a week or two.\n\n— Musician Gallery`,
+      text: `Hi ${firstName},\n\nYour application to join Musician Gallery has been received. Thank you for your patience, as we personally review your application.\n\n— Musician Gallery`,
       html: layout({
         eyebrow: "Application received",
         heading: `Thanks for applying, ${firstName}`,
         intro:
-          "Your application to join Musician Gallery has been received. We personally review every application, so it can take a week or two to hear back — thanks for your patience.",
+          "Your application to join Musician Gallery has been received. Thank you for your patience, as we personally review your application.",
         footerNote: "You're receiving this because you applied to join Musician Gallery.",
       }),
     });

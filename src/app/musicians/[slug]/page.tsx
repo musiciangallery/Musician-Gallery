@@ -17,6 +17,26 @@ import ReviewForm from "@/components/ReviewForm";
 export const dynamicParams = true;
 export const revalidate = 60;
 
+// Spotify share links (open.spotify.com/{type}/{id}) can be embedded
+// directly as a playable iframe. Anything else — SoundCloud, Bandcamp,
+// YouTube, a personal site — just gets shown as a plain "Listen" link
+// instead, since only Spotify's embed URL format is being handled here.
+function getSpotifyEmbed(url: string): { embedUrl: string; height: number } | null {
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname !== "open.spotify.com") return null;
+    const [type, id] = parsed.pathname.split("/").filter(Boolean);
+    const validTypes = ["track", "album", "playlist", "artist", "episode", "show"];
+    if (!type || !id || !validTypes.includes(type)) return null;
+    return {
+      embedUrl: `https://open.spotify.com/embed/${type}/${id}`,
+      height: type === "track" ? 152 : type === "episode" || type === "show" ? 232 : 352,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export function generateStaticParams() {
   return musicians.map((m) => ({ slug: m.slug }));
 }
@@ -88,6 +108,35 @@ export default async function MusicianProfile({
             about={
               <>
                 <p className="text-sm leading-relaxed">{m.longBio}</p>
+
+                {m.audioLink && (() => {
+                  const spotify = getSpotifyEmbed(m.audioLink!);
+                  return (
+                    <div className="mt-10">
+                      <h2 className="font-serif text-2xl mb-3">Listen</h2>
+                      {spotify ? (
+                        <iframe
+                          src={spotify.embedUrl}
+                          width="100%"
+                          height={spotify.height}
+                          style={{ borderRadius: 0, border: "none" }}
+                          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                          loading="lazy"
+                          title={`${m.name} on Spotify`}
+                        />
+                      ) : (
+                        <a
+                          href={m.audioLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs tracking-[0.1em] uppercase border border-rule px-4 py-2 hover:border-accent hover:text-accent transition-colors inline-block"
+                        >
+                          Listen &rarr;
+                        </a>
+                      )}
+                    </div>
+                  );
+                })()}
 
                 <h2 className="font-serif text-2xl mt-10 mb-3">Available for</h2>
                 <ul className="flex flex-wrap gap-2">

@@ -62,6 +62,7 @@ type Application = {
   previous_work_files: string[] | null;
   years_experience: string | null;
   travel: string | null;
+  availability: string | null;
   lesson_format: string | null;
   lesson_length: string[] | null;
   student_level: string[] | null;

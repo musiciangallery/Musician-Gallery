@@ -34,6 +34,11 @@ export type Musician = {
   /** Manually curated in /admin — featured musicians are the ones shown in
    * the homepage "From the gallery" section. */
   featured?: boolean;
+  /** Free-text availability signal (e.g. "Weekday evenings, most
+   * weekends"), stated by the applicant and editable by an admin — a
+   * lightweight alternative to a real calendar, shown on the profile page
+   * when set. */
+  availability?: string;
 };
 
 // NOTE (19 July 2026): The five mock "Teacher" profiles below (james-tuhoe,

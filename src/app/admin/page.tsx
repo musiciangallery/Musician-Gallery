@@ -63,6 +63,7 @@ type Application = {
   years_experience: string | null;
   travel: string | null;
   availability: string | null;
+  audio_link: string | null;
   lesson_format: string | null;
   lesson_length: string[] | null;
   student_level: string[] | null;

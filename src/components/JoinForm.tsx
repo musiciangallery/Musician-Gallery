@@ -65,6 +65,7 @@ type FormState = {
   yearsExperience: string;
   type: string;
   travel: string;
+  availability: string;
   lessonFormat: string;
   lessonLength: string[];
   studentLevel: string[];
@@ -84,6 +85,7 @@ const initialForm: FormState = {
   yearsExperience: "",
   type: "Event Musician",
   travel: "",
+  availability: "",
   lessonFormat: "",
   lessonLength: [],
   studentLevel: [],
@@ -219,6 +221,7 @@ export default function JoinForm({
       body.set("previousWork", form.previousWork);
       body.set("yearsExperience", form.yearsExperience);
       body.set("travel", form.travel);
+      body.set("availability", form.availability);
       body.set("lessonFormat", form.lessonFormat);
       body.set("soundSystem", form.soundSystem);
       body.set("instruments", JSON.stringify(form.instruments));
@@ -479,6 +482,21 @@ export default function JoinForm({
             <option key={t}>{t}</option>
           ))}
         </select>
+      </div>
+
+      <div>
+        <label className={labelClass}>General availability (optional)</label>
+        <input
+          className={inputClass}
+          placeholder="e.g. Weekday evenings, most weekends"
+          value={form.availability}
+          onChange={(e) => update("availability", e.target.value)}
+        />
+        <p className="text-xs text-mid mt-1">
+          A rough guide only, shown on your public profile — not a real-time
+          calendar. Clients still request specific dates and you confirm
+          each one.
+        </p>
       </div>
 
       <div>

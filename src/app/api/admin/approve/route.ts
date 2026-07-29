@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
     const bio = form.get("bio");
     const longBio = form.get("longBio");
     const yearsExperience = form.get("yearsExperience");
+    const availability = form.get("availability");
     const rateFromRaw = form.get("rateFrom");
     const rateUnit = form.get("rateUnit");
     const vetted = form.get("vetted") === "true";
@@ -117,13 +118,14 @@ export async function POST(req: NextRequest) {
       INSERT INTO musicians
         (id, slug, name, instrument, instruments, region, type, occasions,
          vetted, rate_from, rate_unit, bio, long_bio, years_experience, photo,
-         photos, video, email, application_id)
+         photos, video, email, application_id, availability)
       VALUES
         (${id}, ${slug}, ${name}, ${instruments[0]}, ${instruments}, ${region},
          ${type}, ${occasions}, ${vetted}, ${rateFrom}, ${String(rateUnit ?? "")},
          ${String(bio ?? "")}, ${String(longBio ?? "")}, ${String(yearsExperience ?? "")},
          ${typeof photoUrl === "string" ? photoUrl : null}, ${galleryUrls},
-         ${typeof videoUrl === "string" ? videoUrl : null}, ${typeof email === "string" ? email : null}, ${applicationId})
+         ${typeof videoUrl === "string" ? videoUrl : null}, ${typeof email === "string" ? email : null}, ${applicationId},
+         ${typeof availability === "string" ? availability : ""})
     `;
 
     await sql`UPDATE musician_applications SET status = 'approved' WHERE id = ${applicationId}`;

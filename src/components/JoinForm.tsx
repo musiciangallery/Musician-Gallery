@@ -66,6 +66,7 @@ type FormState = {
   type: string;
   travel: string;
   availability: string;
+  audioLink: string;
   lessonFormat: string;
   lessonLength: string[];
   studentLevel: string[];
@@ -86,6 +87,7 @@ const initialForm: FormState = {
   type: "Event Musician",
   travel: "",
   availability: "",
+  audioLink: "",
   lessonFormat: "",
   lessonLength: [],
   studentLevel: [],
@@ -222,6 +224,7 @@ export default function JoinForm({
       body.set("yearsExperience", form.yearsExperience);
       body.set("travel", form.travel);
       body.set("availability", form.availability);
+      body.set("audioLink", form.audioLink);
       body.set("lessonFormat", form.lessonFormat);
       body.set("soundSystem", form.soundSystem);
       body.set("instruments", JSON.stringify(form.instruments));
@@ -496,6 +499,21 @@ export default function JoinForm({
           A rough guide only, shown on your public profile — not a real-time
           calendar. Clients still request specific dates and you confirm
           each one.
+        </p>
+      </div>
+
+      <div>
+        <label className={labelClass}>Spotify or other music link (optional)</label>
+        <input
+          className={inputClass}
+          placeholder="https://open.spotify.com/..."
+          value={form.audioLink}
+          onChange={(e) => update("audioLink", e.target.value)}
+        />
+        <p className="text-xs text-mid mt-1">
+          A Spotify link shows as a playable embed on your profile. Any other
+          link (SoundCloud, Bandcamp, YouTube, etc.) shows as a plain
+          &quot;Listen&quot; link instead.
         </p>
       </div>
 

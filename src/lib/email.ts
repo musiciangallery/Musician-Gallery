@@ -8,7 +8,7 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 
 // FROM must be an address on a domain verified in Resend.
 const FROM = process.env.BOOKING_FROM_EMAIL || "Musician Gallery <onboarding@resend.dev>";
-const OWNER_EMAIL = process.env.OWNER_EMAIL || "contact@emilygracestudios.com";
+const OWNER_EMAIL = process.env.OWNER_EMAIL || "contact@musiciangallery.co.nz";
 const SITE_URL = process.env.SITE_URL || "https://musiciangallery.co.nz";
 
 type BookingEmailInput = {
@@ -242,16 +242,24 @@ export async function sendBookingEmails(b: BookingEmailInput) {
         from: FROM,
         to: b.musicianEmail,
         replyTo: b.clientEmail,
-        subject: "New booking request via Musician Gallery",
-        text: `You've received a new booking request through Musician Gallery.\n\n${summaryLines(
+        subject: `${b.clientName} is looking for a musician for ${b.occasion}`,
+        text: `${b.clientName} is looking for a musician for ${b.occasion} on ${
+          b.eventDate
+        }.\n\n${summaryLines(
           b
-        )}\n\nConfirm or decline this request: ${respondUrl}\n\nReply directly to this email to get in touch with ${b.clientName}.\n\n— Musician Gallery`,
+        )}\n\nHave a read of the details above, then reply to this email if you'd like to ask anything or say hello before deciding — ${
+          b.clientName
+        } will see your reply directly.\n\nOnce you're ready, confirm or decline here: ${respondUrl}\n\n— Musician Gallery`,
         html: layout({
           eyebrow: "New booking request",
-          heading: "You've got a new request",
-          intro: `You've received a new booking request through Musician Gallery. Confirm or decline it below, or reply directly to this email to get in touch with ${escapeHtml(
+          heading: `${b.clientName} would like to book you`,
+          intro: `${escapeHtml(b.clientName)} is looking for a musician for ${escapeHtml(
+            b.occasion
+          )} on ${escapeHtml(
+            b.eventDate
+          )}. Have a read of the details below, then reply to this email if you'd like to ask anything or say hello before deciding — ${escapeHtml(
             b.clientName
-          )} first.`,
+          )} will see your reply directly. Once you're ready, confirm or decline using the button below.`,
           rowsHtml,
           ctaHtml: primaryButton("Confirm or decline", respondUrl),
           footerNote: "You're receiving this because you have a live profile on Musician Gallery.",
@@ -265,15 +273,17 @@ export async function sendBookingEmails(b: BookingEmailInput) {
       from: FROM,
       to: b.clientEmail,
       subject: `We've sent your request to ${b.musicianName}`,
-      text: `Hi ${b.clientName},\n\nYour booking request has been sent to ${b.musicianName}. Most musicians respond within 48 hours.\n\nYour request:\n${summaryLines(
+      text: `Hi ${b.clientName},\n\nYour request has been sent to ${
+        b.musicianName
+      }. They may reply directly with a question or two before confirming, or confirm the booking right away — either way, you'll hear from them here.\n\nYour request:\n${summaryLines(
         b
       )}\n\n— Musician Gallery`,
       html: layout({
         eyebrow: "Request sent",
-        heading: `${b.musicianName} will be in touch shortly`,
-        intro: `Hi ${escapeHtml(b.clientName)}, your booking request has been sent to ${escapeHtml(
+        heading: `${b.musicianName} will be in touch`,
+        intro: `Hi ${escapeHtml(b.clientName)}, your request has been sent to ${escapeHtml(
           b.musicianName
-        )}. Most musicians respond within 48 hours.`,
+        )}. They may reply directly with a question or two before confirming, or confirm the booking right away — either way, you'll hear from them here.`,
         rowsHtml,
         footerNote:
           "This is a confirmation only — no payment has been taken. A booking is only confirmed once the musician responds.",
@@ -318,12 +328,12 @@ export async function sendWelcomeEmail(w: WelcomeEmailInput) {
       from: FROM,
       to: w.musicianEmail,
       subject: "Your Musician Gallery profile is live",
-      text: `Hi ${firstName},\n\nWelcome to the Gallery — your profile is now live: ${profileUrl}\n\nBefore your first booking, set up automatic payouts so you get paid the moment a client pays: ${payoutsUrl}\n\nWe've also put together a short toolkit of things worth having ready for your first booking or student: ${toolkitUrl}\n\n— Musician Gallery`,
+      text: `Hi ${firstName},\n\nWelcome to the Gallery — your profile is now live: ${profileUrl}\n\nBefore your first booking, set up automatic payouts so you get paid the moment a client pays: ${payoutsUrl}\n\nWe've also put together a short toolkit of things worth having ready for your first booking or student: ${toolkitUrl}\n\nWhen a client reaches out, you'll have a chance to talk directly before confirming anything — no pressure to decide on the spot.\n\n— Musician Gallery`,
       html: layout({
         eyebrow: "You're live",
         heading: `Welcome, ${firstName}`,
         intro:
-          "Your profile is now live on Musician Gallery. Set up automatic payouts so you're ready to get paid the moment a client confirms a booking, and take a look at a short toolkit of things worth having ready for your first booking or student.",
+          "Your profile is now live on Musician Gallery. Set up automatic payouts so you're ready to get paid the moment a client confirms a booking, and take a look at a short toolkit of things worth having ready for your first booking or student. When a client reaches out, you'll have a chance to talk directly before confirming anything — no pressure to decide on the spot.",
         ctaHtml,
         footerNote: "You're receiving this because your profile just went live on Musician Gallery.",
       }),
@@ -369,40 +379,42 @@ export async function sendApplicationReceivedEmail(a: ApplicationReceivedEmailIn
   }
 }
 
-type ApplicationDeclinedEmailInput = {
+type ApplicationDeclinedReminderInput = {
   name: string;
   email: string;
 };
 
-/** Sent if an application isn't taken further. Kept deliberately gentle and
- * short, with the door left open for the future — worth a tone check from
- * Emily since it's the one email in the whole system that delivers a "no."
- * Fail-quiet, matching the other emails. */
-export async function sendApplicationDeclinedEmail(a: ApplicationDeclinedEmailInput) {
+/** No email goes to the applicant when their application is declined —
+ * that's deliberately left as a personal, manual decision for Emily to
+ * make case by case, rather than the platform delivering a "no" on her
+ * behalf. This instead notifies her (with reply-to set to the applicant)
+ * so declining in /admin doubles as a reminder to personally follow up if
+ * she chooses to, rather than the applicant just hearing silence. Fail-
+ * quiet, matching the other emails. */
+export async function sendApplicationDeclinedReminderEmail(a: ApplicationDeclinedReminderInput) {
   if (!resend) {
-    console.warn("RESEND_API_KEY not set — skipping application declined email.");
+    console.warn("RESEND_API_KEY not set — skipping application declined reminder email.");
     return;
   }
-
-  const firstName = a.name.split(" ")[0];
 
   try {
     await resend.emails.send({
       from: FROM,
-      to: a.email,
-      subject: "Your Musician Gallery application",
-      text: `Hi ${firstName},\n\nThank you for taking the time to apply to Musician Gallery. After review, we won't be moving forward with your application at this time.\n\nWe appreciate you thinking of us, and you're welcome to apply again in future if your situation changes.\n\n— Musician Gallery`,
+      to: OWNER_EMAIL,
+      replyTo: a.email,
+      subject: `Reminder: you declined ${a.name}'s application`,
+      text: `You declined ${a.name}'s application (${a.email}). No email was sent to them — reply directly to this email to follow up personally if you'd like to.\n\n— Musician Gallery`,
       html: layout({
-        eyebrow: "Application update",
-        heading: "Thank you for applying",
-        intro: `Hi ${escapeHtml(
-          firstName
-        )}, thank you for taking the time to apply to Musician Gallery. After review, we won't be moving forward with your application at this time. We appreciate you thinking of us, and you're welcome to apply again in future if your situation changes.`,
-        footerNote: "You're receiving this because you applied to join Musician Gallery.",
+        eyebrow: "Application declined",
+        heading: `You declined ${a.name}`,
+        intro: `You declined ${escapeHtml(a.name)}'s application (${escapeHtml(
+          a.email
+        )}). No email was sent to them — reply directly to this email to follow up personally if you'd like to.`,
+        footerNote: "You're receiving this because you're the site owner at Musician Gallery.",
       }),
     });
   } catch (err) {
-    console.error("Application declined email failed to send:", err);
+    console.error("Application declined reminder email failed to send:", err);
   }
 }
 
@@ -431,17 +443,17 @@ export async function sendBookingConfirmedEmail(b: BookingConfirmedEmailInput) {
       from: FROM,
       to: b.clientEmail,
       subject: `${b.musicianName} confirmed your booking — payment requested`,
-      text: `Hi ${b.clientName},\n\n${b.musicianName} has confirmed your booking for ${b.occasion} on ${b.eventDate}, for $${b.amount.toFixed(
+      text: `Hi ${b.clientName},\n\nAfter chatting with ${b.musicianName}, your booking for ${b.occasion} on ${b.eventDate} is confirmed — $${b.amount.toFixed(
         2
       )} plus a 10% platform fee.\n\nPay securely here: ${b.checkoutUrl}\n\n— Musician Gallery`,
       html: layout({
         eyebrow: "Booking confirmed",
         heading: `${b.musicianName} is confirmed`,
-        intro: `Hi ${escapeHtml(b.clientName)}, ${escapeHtml(
+        intro: `Hi ${escapeHtml(b.clientName)}, after chatting with ${escapeHtml(
           b.musicianName
-        )} has confirmed your booking for ${escapeHtml(b.occasion)} on ${escapeHtml(
+        )}, your booking for ${escapeHtml(b.occasion)} on ${escapeHtml(
           b.eventDate
-        )}, for $${b.amount.toFixed(2)} plus a 10% platform fee. Pay securely below to lock it in.`,
+        )} is confirmed — $${b.amount.toFixed(2)} plus a 10% platform fee. Pay securely below to lock it in.`,
         ctaHtml: primaryButton(`Pay $${b.amount.toFixed(2)} now`, b.checkoutUrl),
         footerNote: "Payment is handled securely by Stripe — Musician Gallery never sees your card details.",
       }),

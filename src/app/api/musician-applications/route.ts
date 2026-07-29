@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { getSql, ensureTables } from "@/lib/db";
+import { sendApplicationReceivedEmail } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -90,6 +91,15 @@ export async function POST(req: NextRequest) {
          ${typeof vettingCertificateUrl === "string" ? vettingCertificateUrl : ""},
          ${typeof vettingCertificateNumber === "string" ? vettingCertificateNumber : ""})
     `;
+
+    // Best-effort — a failed or unconfigured email send should never stop
+    // an application that already saved successfully from returning 201.
+    try {
+      await sendApplicationReceivedEmail({ name, email });
+    } catch (emailErr) {
+      console.error("Application received email failed:", emailErr);
+    }
+
     return NextResponse.json({ ok: true, id }, { status: 201 });
   } catch (err) {
     return NextResponse.json(

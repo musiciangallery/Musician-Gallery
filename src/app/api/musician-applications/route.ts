@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { randomUUID } from "crypto";
 import { getSql, ensureTables } from "@/lib/db";
 import { sendApplicationReceivedEmail } from "@/lib/email";
@@ -92,13 +92,19 @@ export async function POST(req: NextRequest) {
          ${typeof vettingCertificateNumber === "string" ? vettingCertificateNumber : ""})
     `;
 
-    // Best-effort — a failed or unconfigured email send should never stop
-    // an application that already saved successfully from returning 201.
-    try {
-      await sendApplicationReceivedEmail({ name, email });
-    } catch (emailErr) {
-      console.error("Application received email failed:", emailErr);
-    }
+    // Sent after the response is returned (via after()) rather than
+    // awaited here — the applicant is watching for the confirmation
+    // screen right after clicking submit, so there's no reason to make
+    // them wait on an email round-trip that isn't part of what they're
+    // waiting to see. Best-effort either way: a failed or unconfigured
+    // send should never affect an application that already saved.
+    after(async () => {
+      try {
+        await sendApplicationReceivedEmail({ name, email });
+      } catch (emailErr) {
+        console.error("Application received email failed:", emailErr);
+      }
+    });
 
     return NextResponse.json({ ok: true, id }, { status: 201 });
   } catch (err) {

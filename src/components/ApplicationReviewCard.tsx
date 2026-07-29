@@ -23,6 +23,7 @@ export type ApplicationForReview = {
   previous_work_files: string[] | null;
   years_experience: string | null;
   travel: string | null;
+  availability: string | null;
   lesson_format: string | null;
   lesson_length: string[] | null;
   student_level: string[] | null;
@@ -57,6 +58,7 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
   const [longBio, setLongBio] = useState(a.bio || "");
   const [rateFrom, setRateFrom] = useState("");
   const [rateUnit, setRateUnit] = useState(isTeacher ? "per lesson" : "per event");
+  const [availability, setAvailability] = useState(a.availability || "");
   const [vetted, setVetted] = useState(false);
   const [yearsExperience, setYearsExperience] = useState(a.years_experience || "");
   const [occasions, setOccasions] = useState<string[]>(
@@ -163,6 +165,7 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
       form.set("bio", bio);
       form.set("longBio", longBio);
       form.set("yearsExperience", yearsExperience);
+      form.set("availability", availability);
       form.set("photoUrl", photoUrl);
       form.set("galleryUrls", JSON.stringify(galleryUrls));
       if (videoUrl) form.set("videoUrl", videoUrl);
@@ -261,6 +264,14 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
           {a.previous_work}
         </p>
       )}
+      {a.availability && (
+        <p className="text-mid mb-3">
+          <span className="block text-[10px] uppercase tracking-[0.08em]">
+            Availability (applicant-stated)
+          </span>
+          {a.availability}
+        </p>
+      )}
       {a.previous_work_files && a.previous_work_files.length > 0 && (
         <div className="text-mid mb-3">
           <span className="block text-[10px] uppercase tracking-[0.08em] mb-1">Uploaded files</span>
@@ -351,6 +362,16 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
                 <option value="per lesson">per lesson</option>
               </select>
             </div>
+          </div>
+
+          <div>
+            <label className={labelClass}>Availability (shown on public profile, optional)</label>
+            <input
+              className={inputClass}
+              placeholder="e.g. Weekday evenings, most weekends"
+              value={availability}
+              onChange={(e) => setAvailability(e.target.value)}
+            />
           </div>
 
           <div>

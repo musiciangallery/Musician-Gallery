@@ -503,21 +503,6 @@ export default function JoinForm({
       </div>
 
       <div>
-        <label className={labelClass}>Spotify or other music link (optional)</label>
-        <input
-          className={inputClass}
-          placeholder="https://open.spotify.com/..."
-          value={form.audioLink}
-          onChange={(e) => update("audioLink", e.target.value)}
-        />
-        <p className="text-xs text-mid mt-1">
-          A Spotify link shows as a playable embed on your profile. Any other
-          link (SoundCloud, Bandcamp, YouTube, etc.) shows as a plain
-          &quot;Listen&quot; link instead.
-        </p>
-      </div>
-
-      <div>
         <label className={labelClass}>A little about you</label>
         <textarea
           rows={4}
@@ -602,6 +587,21 @@ export default function JoinForm({
             ))}
           </ul>
         )}
+      </div>
+
+      <div>
+        <label className={labelClass}>Spotify or other music link (optional)</label>
+        <input
+          className={inputClass}
+          placeholder="https://open.spotify.com/..."
+          value={form.audioLink}
+          onChange={(e) => update("audioLink", e.target.value)}
+        />
+        <p className="text-xs text-mid mt-1">
+          A Spotify link shows as a playable embed on your profile. Any other
+          link (SoundCloud, Bandcamp, YouTube, etc.) shows as a plain
+          &quot;Listen&quot; link instead.
+        </p>
       </div>
 
       {error && <p className="text-xs text-accent">{error}</p>}

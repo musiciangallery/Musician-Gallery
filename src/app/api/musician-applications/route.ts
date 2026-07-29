@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
     const yearsExperience = form.get("yearsExperience");
     const travel = form.get("travel");
     const availability = form.get("availability");
+    const audioLink = form.get("audioLink");
     const lessonFormat = form.get("lessonFormat");
     const soundSystem = form.get("soundSystem");
     const instrumentList = parseJsonArray(form.get("instruments"));
@@ -78,7 +79,7 @@ export async function POST(req: NextRequest) {
     await sql`
       INSERT INTO musician_applications
         (id, name, email, instrument, instruments, region, type, bio, status,
-         previous_work, previous_work_files, years_experience, travel, availability, lesson_format, lesson_length,
+         previous_work, previous_work_files, years_experience, travel, availability, audio_link, lesson_format, lesson_length,
          student_level, available_as, genre, sound_system, vetting_certificate_url, vetting_certificate_number)
       VALUES
         (${id}, ${name}, ${email}, ${instrumentList.join(", ")}, ${instrumentList},
@@ -87,6 +88,7 @@ export async function POST(req: NextRequest) {
          ${typeof yearsExperience === "string" ? yearsExperience : ""},
          ${typeof travel === "string" ? travel : ""},
          ${typeof availability === "string" ? availability : ""},
+         ${typeof audioLink === "string" ? audioLink : ""},
          ${typeof lessonFormat === "string" ? lessonFormat : ""}, ${lessonLength},
          ${studentLevel}, ${availableAs}, ${genre},
          ${typeof soundSystem === "string" ? soundSystem : ""},

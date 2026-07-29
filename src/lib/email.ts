@@ -152,9 +152,20 @@ function layout({
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="color-scheme" content="light" />
+    <meta name="supported-color-schemes" content="light" />
     <!--[if !mso]><!-->
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet" />
     <!--<![endif]-->
+    <style>
+      :root { color-scheme: light; supported-color-schemes: light; }
+      @media (prefers-color-scheme: dark) {
+        body, table, td { background-color: #F0EEEA !important; }
+        .mg-card { background-color: #F8F7F5 !important; }
+        h1, .mg-wordmark { color: #181510 !important; }
+        p, .mg-muted { color: #8A8680 !important; }
+      }
+    </style>
   </head>
   <body style="margin:0; padding:0; background-color:#F0EEEA;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F0EEEA;">

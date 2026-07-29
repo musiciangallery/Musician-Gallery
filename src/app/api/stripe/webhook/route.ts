@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
       const bookingRows = await sql`
-        SELECT id, musician_slug, client_name, occasion, event_date, amount, status
+        SELECT id, musician_slug, client_name, client_email, occasion, event_date, amount, status
         FROM bookings WHERE stripe_checkout_session_id = ${session.id}
       `;
       const booking = bookingRows[0];
@@ -76,6 +76,7 @@ export async function POST(req: NextRequest) {
             musicianName: (musician?.name as string | undefined) ?? booking.musician_slug,
             musicianEmail: musician?.email as string | undefined,
             clientName: booking.client_name,
+            clientEmail: booking.client_email as string | undefined,
             occasion: booking.occasion,
             eventDate: booking.event_date,
             amount: booking.amount ? booking.amount / 100 : 0,

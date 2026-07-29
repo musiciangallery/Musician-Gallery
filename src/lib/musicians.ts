@@ -39,6 +39,10 @@ export type Musician = {
    * lightweight alternative to a real calendar, shown on the profile page
    * when set. */
   availability?: string;
+  /** A link to hear the musician play — a Spotify share link (embedded as
+   * a player on the profile) or any other music link (shown as a plain
+   * "Listen" link instead). */
+  audioLink?: string;
 };
 
 // NOTE (19 July 2026): The five mock "Teacher" profiles below (james-tuhoe,

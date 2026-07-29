@@ -119,6 +119,12 @@ export async function ensureTables() {
   await sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS vetting_certificate_url text`;
   await sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS vetting_certificate_number text`;
 
+  // Free-text availability signal (e.g. "Weekday evenings, most weekends"),
+  // stated by the applicant and editable by an admin before publishing —
+  // a lightweight alternative to a real calendar, so clients get a rough
+  // sense of fit before submitting a request.
+  await sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS availability text`;
+
   // Live, approved musician profiles — separate from applications so that
   // publishing an application (editing the bio, uploading a treated photo)
   // doesn't overwrite what the applicant originally submitted.
@@ -157,6 +163,10 @@ export async function ensureTables() {
   // Manually curated in /admin — featured musicians are the ones shown in
   // the homepage "From the gallery" section, instead of a hardcoded slice.
   await sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS featured boolean NOT NULL DEFAULT false`;
+
+  // Carried over from the application (and editable by an admin) at
+  // approval time — shown publicly on the profile page.
+  await sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS availability text`;
 
   // Stripe Connect Express account for automatic payouts. stripe_onboarded
   // only flips true once Stripe confirms (via webhook) that charges and

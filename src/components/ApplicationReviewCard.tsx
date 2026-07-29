@@ -24,6 +24,7 @@ export type ApplicationForReview = {
   years_experience: string | null;
   travel: string | null;
   availability: string | null;
+  audio_link: string | null;
   lesson_format: string | null;
   lesson_length: string[] | null;
   student_level: string[] | null;
@@ -59,6 +60,7 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
   const [rateFrom, setRateFrom] = useState("");
   const [rateUnit, setRateUnit] = useState(isTeacher ? "per lesson" : "per event");
   const [availability, setAvailability] = useState(a.availability || "");
+  const [audioLink, setAudioLink] = useState(a.audio_link || "");
   const [vetted, setVetted] = useState(false);
   const [yearsExperience, setYearsExperience] = useState(a.years_experience || "");
   const [occasions, setOccasions] = useState<string[]>(
@@ -166,6 +168,7 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
       form.set("longBio", longBio);
       form.set("yearsExperience", yearsExperience);
       form.set("availability", availability);
+      form.set("audioLink", audioLink);
       form.set("photoUrl", photoUrl);
       form.set("galleryUrls", JSON.stringify(galleryUrls));
       if (videoUrl) form.set("videoUrl", videoUrl);
@@ -272,6 +275,14 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
           {a.availability}
         </p>
       )}
+      {a.audio_link && (
+        <p className="text-mid mb-3">
+          <span className="block text-[10px] uppercase tracking-[0.08em]">Music link</span>
+          <a href={a.audio_link} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
+            {a.audio_link}
+          </a>
+        </p>
+      )}
       {a.previous_work_files && a.previous_work_files.length > 0 && (
         <div className="text-mid mb-3">
           <span className="block text-[10px] uppercase tracking-[0.08em] mb-1">Uploaded files</span>
@@ -371,6 +382,16 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
               placeholder="e.g. Weekday evenings, most weekends"
               value={availability}
               onChange={(e) => setAvailability(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className={labelClass}>Spotify or other music link (optional)</label>
+            <input
+              className={inputClass}
+              placeholder="https://open.spotify.com/..."
+              value={audioLink}
+              onChange={(e) => setAudioLink(e.target.value)}
             />
           </div>
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSql, ensureTables } from "@/lib/db";
-import { sendApplicationDeclinedEmail } from "@/lib/email";
+import { sendApplicationDeclinedReminderEmail } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -18,13 +18,15 @@ export async function POST(req: NextRequest) {
     `;
     const applicant = rows[0] as { name?: string; email?: string } | undefined;
 
-    // Best-effort — a failed or unconfigured email send should never stop
-    // the decline itself from succeeding.
+    // No email goes to the applicant — this is a reminder to the site
+    // owner instead, so declining doubles as a nudge to personally follow
+    // up if she chooses to. Best-effort — a failed or unconfigured email
+    // send should never stop the decline itself from succeeding.
     if (applicant?.name && applicant?.email) {
       try {
-        await sendApplicationDeclinedEmail({ name: applicant.name, email: applicant.email });
+        await sendApplicationDeclinedReminderEmail({ name: applicant.name, email: applicant.email });
       } catch (emailErr) {
-        console.error("Application declined email failed:", emailErr);
+        console.error("Application declined reminder email failed:", emailErr);
       }
     }
 

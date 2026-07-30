@@ -72,6 +72,8 @@ type Application = {
   sound_system: string | null;
   vetting_certificate_url: string | null;
   vetting_certificate_number: string | null;
+  rate_from: number | null;
+  rate_unit: string | null;
 };
 
 async function getData() {

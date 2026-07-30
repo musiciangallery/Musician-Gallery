@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSql, ensureTables } from "@/lib/db";
-import { getStripe, SITE_URL, PLATFORM_FEE_RATE } from "@/lib/stripe";
+import { getStripe, SITE_URL, PLATFORM_FEE_RATE, APPLICATION_FEE_PERCENT } from "@/lib/stripe";
 import { sendBookingConfirmedEmail } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +14,7 @@ type BookingRow = {
   client_email: string;
   status: string;
   confirm_token: string | null;
+  sessions: number | null;
 };
 
 type MusicianRow = {
@@ -37,6 +38,10 @@ export async function POST(
     const body = await req.json();
     const token = typeof body.token === "string" ? body.token : "";
     const amountDollars = Number(body.amount);
+    // The musician can adjust the session count at confirm time (the client's
+    // original number was just a starting point) — falls back to whatever
+    // the client originally asked for if left unchanged.
+    const sessionsOverride = body.sessions !== undefined ? Number(body.sessions) : null;
 
     if (!token || !amountDollars || amountDollars <= 0) {
       return NextResponse.json({ error: "Missing token or a valid amount." }, { status: 400 });
@@ -69,33 +74,70 @@ export async function POST(
     const totalCents = Math.round(amountCents * (1 + PLATFORM_FEE_RATE));
     const feeCents = totalCents - amountCents;
 
+    // Recurring lesson booking: booking.sessions was set when the client
+    // first requested it. A subscription-mode Checkout Session replaces the
+    // one-time payment link — the client's card is saved once and Stripe
+    // auto-charges every cycle, rather than one flat payment.
+    const sessions = sessionsOverride && sessionsOverride > 0 ? Math.round(sessionsOverride) : booking.sessions;
+    const isRecurring = !!sessions && sessions > 0;
+
     const stripe = getStripe();
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      line_items: [
-        {
-          price_data: {
-            currency: "nzd",
-            unit_amount: totalCents,
-            product_data: {
-              name: `${musician.name} — ${booking.occasion} (${booking.event_date})`,
+    let session;
+
+    if (isRecurring) {
+      const interval_count = booking.event_date === "Fortnightly" ? 2 : 1;
+      session = await stripe.checkout.sessions.create({
+        mode: "subscription",
+        line_items: [
+          {
+            price_data: {
+              currency: "nzd",
+              unit_amount: totalCents,
+              recurring: { interval: "week", interval_count },
+              product_data: {
+                name: `${musician.name} — ${booking.occasion} (${booking.event_date} lessons)`,
+              },
             },
+            quantity: 1,
           },
-          quantity: 1,
+        ],
+        subscription_data: {
+          application_fee_percent: APPLICATION_FEE_PERCENT,
+          transfer_data: { destination: musician.stripe_account_id },
         },
-      ],
-      payment_intent_data: {
-        application_fee_amount: feeCents,
-        transfer_data: { destination: musician.stripe_account_id },
-      },
-      customer_email: booking.client_email,
-      success_url: `${SITE_URL}/pay/${booking.id}/success`,
-      cancel_url: `${SITE_URL}/pay/${booking.id}`,
-    });
+        customer_email: booking.client_email,
+        success_url: `${SITE_URL}/pay/${booking.id}/success`,
+        cancel_url: `${SITE_URL}/pay/${booking.id}`,
+      });
+    } else {
+      session = await stripe.checkout.sessions.create({
+        mode: "payment",
+        line_items: [
+          {
+            price_data: {
+              currency: "nzd",
+              unit_amount: totalCents,
+              product_data: {
+                name: `${musician.name} — ${booking.occasion} (${booking.event_date})`,
+              },
+            },
+            quantity: 1,
+          },
+        ],
+        payment_intent_data: {
+          application_fee_amount: feeCents,
+          transfer_data: { destination: musician.stripe_account_id },
+        },
+        customer_email: booking.client_email,
+        success_url: `${SITE_URL}/pay/${booking.id}/success`,
+        cancel_url: `${SITE_URL}/pay/${booking.id}`,
+      });
+    }
 
     await sql`
       UPDATE bookings
-      SET status = 'confirmed', amount = ${amountCents}, stripe_checkout_session_id = ${session.id}, confirmed_at = now()
+      SET status = 'confirmed', amount = ${amountCents}, stripe_checkout_session_id = ${session.id},
+          sessions = ${isRecurring ? sessions : null}, confirmed_at = now()
       WHERE id = ${booking.id}
     `;
 
@@ -108,6 +150,7 @@ export async function POST(
         eventDate: booking.event_date,
         amount: amountDollars,
         checkoutUrl: session.url || `${SITE_URL}/pay/${booking.id}`,
+        sessions: isRecurring ? sessions ?? undefined : undefined,
       });
     } catch (emailErr) {
       console.error("Booking confirmed email failed:", emailErr);

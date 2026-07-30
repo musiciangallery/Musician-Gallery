@@ -43,6 +43,8 @@ export async function POST(req: NextRequest) {
     const travel = form.get("travel");
     const availability = form.get("availability");
     const audioLink = form.get("audioLink");
+    const rateFromRaw = form.get("rateFrom");
+    const rateUnit = form.get("rateUnit");
     const lessonFormat = form.get("lessonFormat");
     const soundSystem = form.get("soundSystem");
     const instrumentList = parseJsonArray(form.get("instruments"));
@@ -73,6 +75,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
     }
 
+    const rateFrom =
+      typeof rateFromRaw === "string" && rateFromRaw.trim() ? parseInt(rateFromRaw, 10) : null;
+
     await ensureTables();
     const sql = getSql();
     const id = randomUUID();
@@ -80,7 +85,8 @@ export async function POST(req: NextRequest) {
       INSERT INTO musician_applications
         (id, name, email, instrument, instruments, region, type, bio, status,
          previous_work, previous_work_files, years_experience, travel, availability, audio_link, lesson_format, lesson_length,
-         student_level, available_as, genre, sound_system, vetting_certificate_url, vetting_certificate_number)
+         student_level, available_as, genre, sound_system, vetting_certificate_url, vetting_certificate_number,
+         rate_from, rate_unit)
       VALUES
         (${id}, ${name}, ${email}, ${instrumentList.join(", ")}, ${instrumentList},
          ${region}, ${typeof type === "string" ? type : "Event Musician"}, ${typeof bio === "string" ? bio : ""}, 'pending_review',
@@ -93,7 +99,8 @@ export async function POST(req: NextRequest) {
          ${studentLevel}, ${availableAs}, ${genre},
          ${typeof soundSystem === "string" ? soundSystem : ""},
          ${typeof vettingCertificateUrl === "string" ? vettingCertificateUrl : ""},
-         ${typeof vettingCertificateNumber === "string" ? vettingCertificateNumber : ""})
+         ${typeof vettingCertificateNumber === "string" ? vettingCertificateNumber : ""},
+         ${rateFrom}, ${typeof rateUnit === "string" ? rateUnit : ""})
     `;
 
     // Sent after the response is returned (via after()) rather than

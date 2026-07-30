@@ -18,6 +18,8 @@ type BookingRow = {
   status: string;
   confirm_token: string | null;
   amount: number | null;
+  sessions: number | null;
+  sessions_paid: number;
 };
 
 type MusicianRow = {
@@ -50,6 +52,7 @@ export default async function RespondToBooking({
   const rowsData: [string, string][] = [
     ["Occasion", booking.occasion],
     ["Date / frequency", booking.event_date],
+    ...(booking.sessions ? ([["Number of lessons", String(booking.sessions)]] as [string, string][]) : []),
     ["Location", booking.location || "—"],
     ["Notes", booking.details || "—"],
     ["Client", booking.client_name],
@@ -86,11 +89,19 @@ export default async function RespondToBooking({
         <p className="text-sm text-accent mt-6">This link is invalid or has expired.</p>
       ) : booking.status === "confirmed" ? (
         <p className="text-sm text-mid mt-6">
-          You&rsquo;ve already confirmed this booking{booking.amount ? ` for $${(booking.amount / 100).toFixed(2)}` : ""} — a payment link has been sent to the client.
+          You&rsquo;ve already confirmed this booking{booking.amount ? ` for $${(booking.amount / 100).toFixed(2)}${booking.sessions ? " per lesson" : ""}` : ""} — a payment link has been sent to the client.
         </p>
       ) : booking.status === "paid" ? (
         <p className="text-sm text-mid mt-6">
-          This booking has been paid{booking.amount ? ` — $${(booking.amount / 100).toFixed(2)}` : ""}. Nothing more to do here.
+          {booking.sessions
+            ? `${booking.sessions_paid} of ${booking.sessions} lessons paid so far${
+                booking.amount ? ` — $${(booking.amount / 100).toFixed(2)} per lesson` : ""
+              }. Billing continues automatically until all ${booking.sessions} are paid.`
+            : `This booking has been paid${booking.amount ? ` — $${(booking.amount / 100).toFixed(2)}` : ""}. Nothing more to do here.`}
+        </p>
+      ) : booking.status === "completed" ? (
+        <p className="text-sm text-mid mt-6">
+          All {booking.sessions ?? ""} lessons have been paid and billing has stopped automatically. Nothing more to do here.
         </p>
       ) : booking.status === "declined" ? (
         <p className="text-sm text-mid mt-6">You declined this booking.</p>
@@ -106,7 +117,13 @@ export default async function RespondToBooking({
               <a href={`/api/stripe/onboard/${booking.musician_slug}`} className="inline-block bg-blk text-w text-xs tracking-[0.1em] uppercase py-3 px-8 hover:bg-accent transition-colors">Set up payouts</a>
             </div>
           )}
-          <BookingResponseForm bookingId={booking.id} token={token as string} canConfirm={canConfirm} />
+          <BookingResponseForm
+            bookingId={booking.id}
+            token={token as string}
+            canConfirm={canConfirm}
+            frequency={booking.event_date}
+            initialSessions={booking.sessions}
+          />
         </>
       )}
 

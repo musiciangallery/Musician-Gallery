@@ -26,12 +26,18 @@ export async function POST(req: NextRequest) {
     musicianSlug,
     occasion,
     eventDate,
+    sessions,
     location,
     details,
     clientName,
     clientEmail,
     clientPhone,
   } = body;
+
+  const sessionsCount =
+    sessions !== undefined && sessions !== null && Number(sessions) > 0
+      ? Math.round(Number(sessions))
+      : null;
 
   const musician = musicianSlug ? await getMusicianBySlugAsync(musicianSlug) : undefined;
   if (!musicianSlug || !musician) {
@@ -51,9 +57,9 @@ export async function POST(req: NextRequest) {
     const confirmToken = randomUUID();
     await sql`
       INSERT INTO bookings
-        (id, musician_slug, occasion, event_date, location, details, client_name, client_email, client_phone, confirm_token)
+        (id, musician_slug, occasion, event_date, sessions, location, details, client_name, client_email, client_phone, confirm_token)
       VALUES
-        (${id}, ${musicianSlug}, ${occasion}, ${eventDate}, ${location ?? ""}, ${details ?? ""}, ${clientName}, ${clientEmail}, ${clientPhone ?? ""}, ${confirmToken})
+        (${id}, ${musicianSlug}, ${occasion}, ${eventDate}, ${sessionsCount}, ${location ?? ""}, ${details ?? ""}, ${clientName}, ${clientEmail}, ${clientPhone ?? ""}, ${confirmToken})
     `;
 
     // Best-effort — a failed or unconfigured email send should never stop

@@ -19,6 +19,7 @@ export default function BookingForm({ musician }: { musician: Musician }) {
   const [form, setForm] = useState({
     occasion: musician.occasions[0] as Occasion,
     eventDate: "",
+    sessions: "",
     location: "",
     details: "",
     clientName: "",
@@ -30,7 +31,9 @@ export default function BookingForm({ musician }: { musician: Musician }) {
     setForm((f) => ({ ...f, [field]: value }));
 
   const isLessons = form.occasion === "Lessons";
-  const canContinueStep1 = form.occasion && form.eventDate;
+  const isRecurring = isLessons && form.eventDate !== "One-off" && form.eventDate !== "";
+  const canContinueStep1 =
+    form.occasion && form.eventDate && (!isRecurring || Number(form.sessions) > 0);
   const canContinueStep2 = form.clientName && form.clientEmail;
 
   async function submit() {
@@ -114,6 +117,24 @@ export default function BookingForm({ musician }: { musician: Musician }) {
               />
             )}
           </div>
+          {isRecurring && (
+            <div>
+              <label className={labelClass}>Number of lessons</label>
+              <input
+                type="number"
+                min="1"
+                placeholder="e.g. 8"
+                className={inputClass}
+                value={form.sessions}
+                onChange={(e) => update("sessions", e.target.value)}
+              />
+              <p className="text-xs text-mid mt-2">
+                A rough number is fine &mdash; e.g. a school term is usually
+                8&ndash;10 weeks. {musician.name.split(" ")[0]} will confirm
+                the exact count and rate with you.
+              </p>
+            </div>
+          )}
           <div>
             <label className={labelClass}>Location</label>
             <input
@@ -199,6 +220,7 @@ export default function BookingForm({ musician }: { musician: Musician }) {
               ["Musician", musician.name],
               ["Occasion", form.occasion],
               [isLessons ? "Frequency" : "Date", form.eventDate],
+              ...(isRecurring ? [["Number of lessons", form.sessions]] : []),
               ["Location", form.location || "—"],
               ["Notes", form.details || "—"],
               ["Name", form.clientName],

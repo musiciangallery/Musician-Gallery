@@ -8,8 +8,10 @@ export type Musician = {
   type: "Event Musician" | "Teacher" | "Teacher & Events";
   occasions: Occasion[];
   vetted: boolean;
-  rateFrom: number;
-  rateUnit: "per event" | "per lesson";
+  /** Null when the musician has chosen to keep their rate private — see
+   * rateUnit below. */
+  rateFrom: number | null;
+  rateUnit: "per event" | "per lesson" | "By enquiry";
   bio: string;
   longBio: string;
   /** A number of years (the original mock profiles) or a range like

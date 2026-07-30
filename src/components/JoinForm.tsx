@@ -67,6 +67,9 @@ type FormState = {
   travel: string;
   availability: string;
   audioLink: string;
+  rateFrom: string;
+  rateUnit: string;
+  rateByEnquiry: boolean;
   lessonFormat: string;
   lessonLength: string[];
   studentLevel: string[];
@@ -88,6 +91,9 @@ const initialForm: FormState = {
   travel: "",
   availability: "",
   audioLink: "",
+  rateFrom: "",
+  rateUnit: "per event",
+  rateByEnquiry: false,
   lessonFormat: "",
   lessonLength: [],
   studentLevel: [],
@@ -225,6 +231,8 @@ export default function JoinForm({
       body.set("travel", form.travel);
       body.set("availability", form.availability);
       body.set("audioLink", form.audioLink);
+      body.set("rateFrom", form.rateByEnquiry ? "" : form.rateFrom);
+      body.set("rateUnit", form.rateByEnquiry ? "By enquiry" : form.rateUnit);
       body.set("lessonFormat", form.lessonFormat);
       body.set("soundSystem", form.soundSystem);
       body.set("instruments", JSON.stringify(form.instruments));
@@ -485,6 +493,47 @@ export default function JoinForm({
             <option key={t}>{t}</option>
           ))}
         </select>
+      </div>
+
+      <div className="border-t border-rule pt-8">
+        <label className={labelClass}>Your starting rate</label>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <input
+              type="number"
+              min="0"
+              disabled={form.rateByEnquiry}
+              className={`${inputClass} disabled:opacity-40 disabled:bg-off/60`}
+              placeholder="e.g. 350"
+              value={form.rateFrom}
+              onChange={(e) => update("rateFrom", e.target.value)}
+            />
+          </div>
+          <div>
+            <select
+              disabled={form.rateByEnquiry}
+              className={`${inputClass} disabled:opacity-40 disabled:bg-off/60`}
+              value={form.rateUnit}
+              onChange={(e) => update("rateUnit", e.target.value)}
+            >
+              <option value="per event">per event</option>
+              <option value="per lesson">per lesson</option>
+            </select>
+          </div>
+        </div>
+        <label className="flex items-center gap-2 text-sm cursor-pointer mt-3">
+          <input
+            type="checkbox"
+            checked={form.rateByEnquiry}
+            onChange={(e) => update("rateByEnquiry", e.target.checked)}
+            className="accent-accent"
+          />
+          I&rsquo;d rather not list a public number &mdash; show &ldquo;By enquiry&rdquo; instead
+        </label>
+        <p className="text-xs text-mid mt-2">
+          This is a starting point we&rsquo;ll confirm with you before your
+          profile goes live, not a final price.
+        </p>
       </div>
 
       <div>

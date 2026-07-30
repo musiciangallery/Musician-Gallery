@@ -25,3 +25,14 @@ export const SITE_URL = process.env.SITE_URL || "https://musiciangallery.co.nz";
  * musician's quoted rate, so the musician always receives their full quote.
  * Kept as a single constant so the checkout + confirm flows stay in sync. */
 export const PLATFORM_FEE_RATE = 0.1;
+
+/** Stripe subscriptions (used for recurring lesson bookings) can only take
+ * a platform cut as a percentage of each invoice — there's no equivalent to
+ * payment_intent_data.application_fee_amount for a fixed dollar amount, since
+ * the billed amount is the same every cycle anyway. This is the percentage
+ * that works out to the same effective cut as PLATFORM_FEE_RATE: if the
+ * client is charged the musician's rate plus 10% on top, the platform's
+ * share of that total is 10/110, not 10/100. Rounded to 2dp, which is all
+ * Stripe's application_fee_percent accepts. */
+export const APPLICATION_FEE_PERCENT =
+  Math.round((PLATFORM_FEE_RATE / (1 + PLATFORM_FEE_RATE)) * 10000) / 100;

@@ -29,6 +29,11 @@ function parseJsonArray(value: FormDataEntryValue | null): string[] {
 const TEACHER_TYPES = new Set(["Teacher", "Teacher & Events"]);
 
 export async function POST(req: NextRequest) {
+  // Declared outside the try block (rather than with the rest of the
+  // parsed form fields) so the catch block below can still reference the
+  // slug that was attempted, to give a useful error message if the insert
+  // fails on the musicians.slug unique constraint.
+  let slug: FormDataEntryValue | string | null = null;
   try {
     const form = await req.formData();
 
@@ -55,7 +60,7 @@ export async function POST(req: NextRequest) {
     const photoUrl = form.get("photoUrl");
     const galleryUrls = parseJsonArray(form.get("galleryUrls"));
     const videoUrl = form.get("videoUrl");
-    let slug = form.get("slug");
+    slug = form.get("slug");
 
     if (
       typeof applicationId !== "string" ||
@@ -146,6 +151,27 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, slug }, { status: 201 });
   } catch (err) {
+    // Postgres error code 23505 = unique_violation. The musicians.slug
+    // column is unique (it's the profile URL), so this fires when the
+    // slug typed in "Profile URL slug" already belongs to another live
+    // profile — most commonly a repeat approval during testing, or two
+    // applicants who happen to share a name. Surface this as a clear,
+    // actionable message rather than the raw Postgres error text.
+    const isDuplicateSlug =
+      typeof err === "object" &&
+      err !== null &&
+      "code" in err &&
+      (err as { code?: string }).code === "23505";
+
+    if (isDuplicateSlug) {
+      return NextResponse.json(
+        {
+          error: `The profile URL slug "${slug}" is already in use by another musician. Edit the "Profile URL slug" field above to something unique (e.g. add a region or number) and approve again.`,
+        },
+        { status: 409 }
+      );
+    }
+
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Failed to approve application." },
       { status: 500 }

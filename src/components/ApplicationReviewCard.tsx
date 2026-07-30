@@ -33,6 +33,8 @@ export type ApplicationForReview = {
   sound_system: string | null;
   vetting_certificate_url: string | null;
   vetting_certificate_number: string | null;
+  rate_from: number | null;
+  rate_unit: string | null;
 };
 
 const ALL_OCCASIONS = ["Weddings", "Corporate Events", "Private Functions", "Lessons"];
@@ -57,8 +59,10 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
   const [slug, setSlug] = useState(slugify(a.name));
   const [bio, setBio] = useState(a.bio || "");
   const [longBio, setLongBio] = useState(a.bio || "");
-  const [rateFrom, setRateFrom] = useState("");
-  const [rateUnit, setRateUnit] = useState(isTeacher ? "per lesson" : "per event");
+  const [rateFrom, setRateFrom] = useState(a.rate_from != null ? String(a.rate_from) : "");
+  const [rateUnit, setRateUnit] = useState(
+    a.rate_unit || (isTeacher ? "per lesson" : "per event")
+  );
   const [availability, setAvailability] = useState(a.availability || "");
   const [audioLink, setAudioLink] = useState(a.audio_link || "");
   const [vetted, setVetted] = useState(false);
@@ -162,7 +166,7 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
       form.set("type", a.type);
       form.set("occasions", JSON.stringify(occasions));
       form.set("vetted", String(vetted));
-      form.set("rateFrom", rateFrom);
+      form.set("rateFrom", rateUnit === "By enquiry" ? "" : rateFrom);
       form.set("rateUnit", rateUnit);
       form.set("bio", bio);
       form.set("longBio", longBio);
@@ -357,7 +361,8 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
               <label className={labelClass}>Rate from ($)</label>
               <input
                 type="number"
-                className={inputClass}
+                disabled={rateUnit === "By enquiry"}
+                className={`${inputClass} disabled:opacity-40 disabled:bg-off/60`}
                 value={rateFrom}
                 onChange={(e) => setRateFrom(e.target.value)}
               />
@@ -371,9 +376,18 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
               >
                 <option value="per event">per event</option>
                 <option value="per lesson">per lesson</option>
+                <option value="By enquiry">By enquiry (no public number)</option>
               </select>
             </div>
           </div>
+          {a.rate_from != null || a.rate_unit === "By enquiry" ? (
+            <p className="text-[11px] text-mid -mt-2">
+              Applicant requested:{" "}
+              {a.rate_unit === "By enquiry"
+                ? "by enquiry"
+                : `$${a.rate_from} ${a.rate_unit ?? ""}`}
+            </p>
+          ) : null}
 
           <div>
             <label className={labelClass}>Availability (shown on public profile, optional)</label>

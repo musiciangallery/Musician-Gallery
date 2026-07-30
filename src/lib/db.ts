@@ -75,6 +75,26 @@ export async function ensureTables() {
   await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS declined_at timestamptz`;
   await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS paid_at timestamptz`;
 
+  // Recurring lessons ("Weekly"/"Fortnightly" frequency, stored in
+  // event_date) — sessions is the agreed number of lessons the client asked
+  // for (and the musician confirms), used to compute how many charges the
+  // Stripe subscription runs before it auto-cancels itself. NULL for
+  // one-off bookings, which keep using the existing single Checkout
+  // Session flow untouched. stripe_subscription_id identifies the
+  // recurring Checkout/subscription, the same way
+  // stripe_checkout_session_id already does for one-time payments.
+  await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS sessions integer`;
+  await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS stripe_subscription_id text`;
+  // How many of the agreed sessions have been paid so far — incremented by
+  // the webhook on each successful recurring charge, shown to the musician
+  // and client as "3 of 8 lessons paid".
+  await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS sessions_paid integer NOT NULL DEFAULT 0`;
+  // The most recent Stripe invoice ID counted toward sessions_paid — Stripe
+  // can retry webhook delivery for the same invoice.paid event, and without
+  // this the retry would double-count that lesson as paid and send a
+  // duplicate "you've been paid" email.
+  await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS last_paid_invoice_id text`;
+
   await sql`
     CREATE TABLE IF NOT EXISTS musician_applications (
       id uuid PRIMARY KEY,
@@ -130,6 +150,14 @@ export async function ensureTables() {
   // plain "Listen" link instead). Optional, stated by the applicant and
   // editable by an admin before publishing.
   await sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS audio_link text`;
+
+  // The applicant's self-set starting rate — a starting point for an admin
+  // to review and adjust during approval, not published as-is. rate_unit
+  // is either "per event" / "per lesson", or "By enquiry" when the
+  // applicant chose to keep their rate private rather than list a number
+  // (rate_from is left null in that case).
+  await sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS rate_from integer`;
+  await sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS rate_unit text`;
 
   // Live, approved musician profiles — separate from applications so that
   // publishing an application (editing the bio, uploading a treated photo)

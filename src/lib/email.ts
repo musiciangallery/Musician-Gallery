@@ -426,6 +426,9 @@ type BookingConfirmedEmailInput = {
   eventDate: string;
   amount: number;
   checkoutUrl: string;
+  /** Set only for recurring lesson bookings — switches the copy from "pay
+   * this once" to "this sets up automatic weekly/fortnightly billing". */
+  sessions?: number;
 };
 
 /** Sent to the client once the musician confirms a booking and enters their
@@ -438,24 +441,38 @@ export async function sendBookingConfirmedEmail(b: BookingConfirmedEmailInput) {
     return;
   }
 
+  const isRecurring = !!b.sessions && b.sessions > 0;
+  const frequency = b.eventDate === "Fortnightly" ? "fortnightly" : "weekly";
+  const subject = isRecurring
+    ? `${b.musicianName} confirmed your lessons — set up payment`
+    : `${b.musicianName} confirmed your booking — payment requested`;
+  const bodyText = isRecurring
+    ? `After chatting with ${b.musicianName}, your ${frequency} lessons are confirmed — $${b.amount.toFixed(
+        2
+      )} per lesson plus a 10% platform fee, for ${b.sessions} lessons in total. Set up payment once below and it bills automatically every ${
+        frequency === "fortnightly" ? "fortnight" : "week"
+      } until all ${b.sessions} are paid — no need to pay each week separately.`
+    : `After chatting with ${b.musicianName}, your booking for ${b.occasion} on ${b.eventDate} is confirmed — $${b.amount.toFixed(
+        2
+      )} plus a 10% platform fee.`;
+
   try {
     await resend.emails.send({
       from: FROM,
       to: b.clientEmail,
-      subject: `${b.musicianName} confirmed your booking — payment requested`,
-      text: `Hi ${b.clientName},\n\nAfter chatting with ${b.musicianName}, your booking for ${b.occasion} on ${b.eventDate} is confirmed — $${b.amount.toFixed(
-        2
-      )} plus a 10% platform fee.\n\nPay securely here: ${b.checkoutUrl}\n\n— Musician Gallery`,
+      subject,
+      text: `Hi ${b.clientName},\n\n${bodyText}\n\nSet up payment securely here: ${b.checkoutUrl}\n\n— Musician Gallery`,
       html: layout({
-        eyebrow: "Booking confirmed",
+        eyebrow: isRecurring ? "Lessons confirmed" : "Booking confirmed",
         heading: `${b.musicianName} is confirmed`,
-        intro: `Hi ${escapeHtml(b.clientName)}, after chatting with ${escapeHtml(
-          b.musicianName
-        )}, your booking for ${escapeHtml(b.occasion)} on ${escapeHtml(
-          b.eventDate
-        )} is confirmed — $${b.amount.toFixed(2)} plus a 10% platform fee. Pay securely below to lock it in.`,
-        ctaHtml: primaryButton(`Pay $${b.amount.toFixed(2)} now`, b.checkoutUrl),
-        footerNote: "Payment is handled securely by Stripe — Musician Gallery never sees your card details.",
+        intro: `Hi ${escapeHtml(b.clientName)}, ${escapeHtml(bodyText)}`,
+        ctaHtml: primaryButton(
+          isRecurring ? "Set up payment" : `Pay $${b.amount.toFixed(2)} now`,
+          b.checkoutUrl
+        ),
+        footerNote: isRecurring
+          ? "Payment is handled securely by Stripe — Musician Gallery never sees your card details. You can stop anytime by getting in touch."
+          : "Payment is handled securely by Stripe — Musician Gallery never sees your card details.",
       }),
     });
   } catch (err) {
@@ -510,19 +527,30 @@ type BookingPaidEmailInput = {
   occasion: string;
   eventDate: string;
   amount: number;
+  /** Set only for recurring lesson bookings — when both are present, the
+   * copy switches from "this booking is paid" to "lesson 3 of 8 paid",
+   * since a subscription generates one of these events per cycle rather
+   * than once. */
+  sessionsPaid?: number;
+  sessions?: number;
 };
 
 /** Sent once the Stripe webhook confirms a client's payment went through —
  * a copy to the site owner for visibility, one to the musician letting them
  * know the money is already on its way to their bank account automatically,
  * and one to the client confirming the payment itself (the /pay/[id]/success
- * page tells them to expect this). Fail-quiet, matching the other booking
- * emails. */
+ * page tells them to expect this). For recurring lesson bookings this fires
+ * once per billing cycle (each week/fortnight), not just once — the copy
+ * adjusts to show progress so it doesn't read like the whole thing was paid
+ * off in one go. Fail-quiet, matching the other booking emails. */
 export async function sendBookingPaidEmail(b: BookingPaidEmailInput) {
   if (!resend) {
     console.warn("RESEND_API_KEY not set — skipping booking paid email.");
     return;
   }
+
+  const isRecurring = !!b.sessions && b.sessions > 0;
+  const progress = isRecurring ? ` (lesson ${b.sessionsPaid} of ${b.sessions})` : "";
 
   const sends: Promise<unknown>[] = [];
 
@@ -530,16 +558,16 @@ export async function sendBookingPaidEmail(b: BookingPaidEmailInput) {
     resend.emails.send({
       from: FROM,
       to: OWNER_EMAIL,
-      subject: `Booking paid: ${b.musicianName}`,
-      text: `${b.clientName} paid for ${b.occasion} on ${b.eventDate} with ${b.musicianName}. Amount: $${b.amount.toFixed(
+      subject: `Booking paid: ${b.musicianName}${progress}`,
+      text: `${b.clientName} paid for ${b.occasion} on ${b.eventDate} with ${b.musicianName}${progress}. Amount: $${b.amount.toFixed(
         2
       )} (musician's share, paid out automatically).`,
       html: layout({
         eyebrow: "Payment received",
-        heading: `${b.musicianName} — booking paid`,
+        heading: `${b.musicianName} — booking paid${progress}`,
         intro: `${escapeHtml(b.clientName)} paid for ${escapeHtml(b.occasion)} on ${escapeHtml(
           b.eventDate
-        )} with ${escapeHtml(b.musicianName)}. A payout of $${b.amount.toFixed(
+        )} with ${escapeHtml(b.musicianName)}${escapeHtml(progress)}. A payout of $${b.amount.toFixed(
           2
         )} is on its way to the musician automatically.`,
         footerNote: "You're receiving this because you're the site owner at Musician Gallery.",
@@ -553,8 +581,8 @@ export async function sendBookingPaidEmail(b: BookingPaidEmailInput) {
       resend.emails.send({
         from: FROM,
         to: b.musicianEmail,
-        subject: `You've been paid for ${b.occasion}`,
-        text: `Hi ${firstName},\n\n${b.clientName} just paid for your booking (${b.occasion} on ${b.eventDate}). $${b.amount.toFixed(
+        subject: `You've been paid for ${b.occasion}${progress}`,
+        text: `Hi ${firstName},\n\n${b.clientName} just paid for your booking (${b.occasion} on ${b.eventDate})${progress}. $${b.amount.toFixed(
           2
         )} is on its way to your bank account automatically — no invoicing needed.\n\n— Musician Gallery`,
         html: layout({
@@ -562,7 +590,7 @@ export async function sendBookingPaidEmail(b: BookingPaidEmailInput) {
           heading: "You've been paid",
           intro: `Hi ${escapeHtml(firstName)}, ${escapeHtml(b.clientName)} just paid for your booking (${escapeHtml(
             b.occasion
-          )} on ${escapeHtml(b.eventDate)}). $${b.amount.toFixed(
+          )} on ${escapeHtml(b.eventDate)})${escapeHtml(progress)}. $${b.amount.toFixed(
             2
           )} is on its way to your bank account automatically — no invoicing needed.`,
           footerNote: "You're receiving this because you have a live profile on Musician Gallery.",
@@ -578,10 +606,12 @@ export async function sendBookingPaidEmail(b: BookingPaidEmailInput) {
       resend.emails.send({
         from: FROM,
         to: b.clientEmail,
-        subject: "Payment received — thank you",
+        subject: `Payment received — thank you${progress}`,
         text: `Hi ${b.clientName},\n\nYour payment of $${total.toFixed(2)} for ${b.occasion} on ${b.eventDate} with ${
           b.musicianName
-        } has gone through. ${b.musicianName} has been notified and is all set.\n\n— Musician Gallery`,
+        }${progress} has gone through. ${b.musicianName} has been notified and is all set.${
+          isRecurring ? ` The next lesson will bill automatically.` : ""
+        }\n\n— Musician Gallery`,
         html: layout({
           eyebrow: "Payment received",
           heading: "Thank you — you're all set",
@@ -589,7 +619,9 @@ export async function sendBookingPaidEmail(b: BookingPaidEmailInput) {
             b.occasion
           )} on ${escapeHtml(b.eventDate)} with ${escapeHtml(
             b.musicianName
-          )} has gone through. ${escapeHtml(b.musicianName)} has been notified and is all set.`,
+          )}${escapeHtml(progress)} has gone through. ${escapeHtml(b.musicianName)} has been notified and is all set.${
+            isRecurring ? " The next lesson will bill automatically." : ""
+          }`,
           footerNote: "Payment was handled securely by Stripe — Musician Gallery never sees your card details.",
         }),
       })
@@ -599,5 +631,117 @@ export async function sendBookingPaidEmail(b: BookingPaidEmailInput) {
   const results = await Promise.allSettled(sends);
   results.forEach((r) => {
     if (r.status === "rejected") console.error("Booking paid email failed to send:", r.reason);
+  });
+}
+
+type LessonPaymentFailedEmailInput = {
+  musicianName: string;
+  clientName: string;
+  clientEmail: string;
+  occasion: string;
+};
+
+/** Sent to the client if a recurring lesson charge fails (expired card,
+ * insufficient funds, etc.) — Stripe's own Smart Retries will attempt the
+ * charge again automatically, but the client should know to check their card
+ * rather than be surprised later. No self-service "update card" link exists
+ * yet, so this points them to get in touch directly. Fail-quiet, matching
+ * the other booking emails. */
+export async function sendLessonPaymentFailedEmail(b: LessonPaymentFailedEmailInput) {
+  if (!resend) {
+    console.warn("RESEND_API_KEY not set — skipping lesson payment failed email.");
+    return;
+  }
+
+  try {
+    await resend.emails.send({
+      from: FROM,
+      to: b.clientEmail,
+      subject: `A payment for your lessons with ${b.musicianName} didn't go through`,
+      text: `Hi ${b.clientName},\n\nYour latest payment for ${b.occasion} with ${b.musicianName} didn't go through — usually an expired card or insufficient funds. Stripe will automatically retry, but if it keeps failing, reply to this email and we'll sort it out.\n\n— Musician Gallery`,
+      html: layout({
+        eyebrow: "Payment issue",
+        heading: "A payment didn't go through",
+        intro: `Hi ${escapeHtml(b.clientName)}, your latest payment for ${escapeHtml(
+          b.occasion
+        )} with ${escapeHtml(
+          b.musicianName
+        )} didn't go through — usually an expired card or insufficient funds. Stripe will automatically retry, but if it keeps failing, reply to this email and we'll sort it out.`,
+        footerNote: "You're receiving this because you have an active lesson arrangement through Musician Gallery.",
+      }),
+    });
+  } catch (err) {
+    console.error("Lesson payment failed email failed to send:", err);
+  }
+}
+
+type LessonsCompleteEmailInput = {
+  musicianName: string;
+  musicianEmail?: string;
+  clientName: string;
+  clientEmail?: string;
+  occasion: string;
+  sessions: number;
+};
+
+/** Sent once a recurring lesson subscription reaches its agreed end (all N
+ * sessions paid) and Stripe auto-cancels it — lets both sides know the
+ * arrangement has wrapped up rather than them wondering why billing quietly
+ * stopped. Fail-quiet, matching the other booking emails. */
+export async function sendLessonsCompleteEmail(b: LessonsCompleteEmailInput) {
+  if (!resend) {
+    console.warn("RESEND_API_KEY not set — skipping lessons complete email.");
+    return;
+  }
+
+  const sends: Promise<unknown>[] = [];
+
+  if (b.clientEmail) {
+    sends.push(
+      resend.emails.send({
+        from: FROM,
+        to: b.clientEmail,
+        subject: `Your lessons with ${b.musicianName} are complete`,
+        text: `Hi ${b.clientName},\n\nAll ${b.sessions} lessons for ${b.occasion} with ${b.musicianName} have been paid, and billing has stopped automatically. If you'd like to book another block of lessons, just head back to ${SITE_URL}.\n\n— Musician Gallery`,
+        html: layout({
+          eyebrow: "Lessons complete",
+          heading: "That's all your lessons paid",
+          intro: `Hi ${escapeHtml(b.clientName)}, all ${b.sessions} lessons for ${escapeHtml(
+            b.occasion
+          )} with ${escapeHtml(
+            b.musicianName
+          )} have been paid, and billing has stopped automatically. If you'd like to book another block of lessons, just head back to the gallery.`,
+          ctaHtml: primaryButton("Browse the gallery", `${SITE_URL}/gallery`),
+          footerNote: "You're receiving this because you had an active lesson arrangement through Musician Gallery.",
+        }),
+      })
+    );
+  }
+
+  if (b.musicianEmail) {
+    const firstName = b.musicianName.split(" ")[0];
+    sends.push(
+      resend.emails.send({
+        from: FROM,
+        to: b.musicianEmail,
+        subject: `Lessons with ${b.clientName} are complete`,
+        text: `Hi ${firstName},\n\nAll ${b.sessions} lessons for ${b.occasion} with ${b.clientName} have been paid, and billing has stopped automatically. Nothing more to do here unless you agree to a new block together.\n\n— Musician Gallery`,
+        html: layout({
+          eyebrow: "Lessons complete",
+          heading: "That's all lessons paid",
+          intro: `Hi ${escapeHtml(firstName)}, all ${b.sessions} lessons for ${escapeHtml(
+            b.occasion
+          )} with ${escapeHtml(
+            b.clientName
+          )} have been paid, and billing has stopped automatically. Nothing more to do here unless you agree to a new block together.`,
+          footerNote: "You're receiving this because you have a live profile on Musician Gallery.",
+        }),
+      })
+    );
+  }
+
+  const results = await Promise.allSettled(sends);
+  results.forEach((r) => {
+    if (r.status === "rejected") console.error("Lessons complete email failed to send:", r.reason);
   });
 }

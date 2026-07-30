@@ -27,7 +27,9 @@ export default function MusicianCard({ m }: { m: Musician }) {
         <p className="text-sm leading-relaxed mb-4">{m.bio}</p>
         <div className="flex items-center justify-between text-xs text-mid border-t border-rule pt-3">
           <span>
-            From ${m.rateFrom} {m.rateUnit}
+            {m.rateUnit === "By enquiry" || m.rateFrom == null
+              ? "Rate by enquiry"
+              : `From $${m.rateFrom} ${m.rateUnit}`}
           </span>
           <span className="text-blk">View profile &rarr;</span>
         </div>

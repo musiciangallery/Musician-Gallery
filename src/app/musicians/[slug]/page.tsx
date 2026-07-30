@@ -177,9 +177,18 @@ export default async function MusicianProfile({
         </div>
 
         <div className="border border-rule bg-off/40 p-6 h-fit">
-          <p className="text-xs text-mid mb-1">Starting from</p>
-          <p className="font-serif text-3xl mb-1">${m.rateFrom}</p>
-          <p className="text-xs text-mid mb-6">{m.rateUnit}</p>
+          {m.rateUnit === "By enquiry" || m.rateFrom == null ? (
+            <>
+              <p className="text-xs text-mid mb-1">Rate</p>
+              <p className="font-serif text-2xl mb-6">By enquiry</p>
+            </>
+          ) : (
+            <>
+              <p className="text-xs text-mid mb-1">Starting from</p>
+              <p className="font-serif text-3xl mb-1">${m.rateFrom}</p>
+              <p className="text-xs text-mid mb-6">{m.rateUnit}</p>
+            </>
+          )}
           <p className="text-xs text-mid mb-6">
             {m.yearsExperience} years experience
           </p>

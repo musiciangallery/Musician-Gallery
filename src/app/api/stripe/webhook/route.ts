@@ -265,6 +265,7 @@ export async function POST(req: NextRequest) {
           await sendLessonsCompleteEmail({
             musicianName: (musician?.name as string | undefined) ?? booking.musician_slug,
             musicianEmail: musician?.email as string | undefined,
+            musicianSlug: booking.musician_slug,
             clientName: booking.client_name,
             clientEmail: booking.client_email as string | undefined,
             occasion: booking.occasion,

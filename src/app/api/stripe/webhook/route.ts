@@ -131,6 +131,7 @@ export async function POST(req: NextRequest) {
             occasion: booking.occasion,
             eventDate: booking.event_date,
             amount: booking.amount ? booking.amount / 100 : 0,
+            bookingId: booking.id,
           });
         } catch (emailErr) {
           console.error("Booking paid email failed:", emailErr);
@@ -196,6 +197,7 @@ export async function POST(req: NextRequest) {
               amount: booking.amount ? booking.amount / 100 : 0,
               sessionsPaid: newSessionsPaid,
               sessions: booking.sessions ? Number(booking.sessions) : undefined,
+              bookingId: booking.id,
             });
           } catch (emailErr) {
             console.error("Lesson paid email failed:", emailErr);
@@ -267,6 +269,7 @@ export async function POST(req: NextRequest) {
             clientEmail: booking.client_email as string | undefined,
             occasion: booking.occasion,
             sessions: booking.sessions ? Number(booking.sessions) : 0,
+            bookingId: booking.id,
           });
         } catch (emailErr) {
           console.error("Lessons complete email failed:", emailErr);

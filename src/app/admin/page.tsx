@@ -36,6 +36,17 @@ type Booking = {
   amount: number | null;
 };
 
+type BookingMessage = {
+  id: string;
+  booking_id: string;
+  direction: string;
+  from_email: string;
+  to_email: string;
+  subject: string | null;
+  body_text: string | null;
+  created_at: string;
+};
+
 type Review = {
   id: string;
   musician_slug: string;
@@ -84,13 +95,19 @@ async function getData() {
     const applications = (await sql`SELECT * FROM musician_applications ORDER BY created_at DESC`) as unknown as Application[];
     const liveMusicians = (await sql`SELECT id, slug, name, instrument, region, type, vetted, photo, featured, stripe_onboarded, created_at FROM musicians ORDER BY created_at DESC`) as unknown as LiveMusician[];
     const reviews = (await sql`SELECT * FROM reviews ORDER BY created_at DESC`) as unknown as Review[];
-    return { bookings, applications, liveMusicians, reviews, error: null };
+    // Messages relayed through bookings' masked reply addresses — quietly
+    // logged, reactive admin-only visibility only (not an actively
+    // monitored inbox). Capped at the most recent 200 so this page stays
+    // fast as the log grows. See lib/reply-mask.ts.
+    const bookingMessages = (await sql`SELECT * FROM booking_messages ORDER BY created_at DESC LIMIT 200`) as unknown as BookingMessage[];
+    return { bookings, applications, liveMusicians, reviews, bookingMessages, error: null };
   } catch (err) {
     return {
       bookings: [] as Booking[],
       applications: [] as Application[],
       liveMusicians: [] as LiveMusician[],
       reviews: [] as Review[],
+      bookingMessages: [] as BookingMessage[],
       error: err instanceof Error ? err.message : "Could not connect to the database.",
     };
   }
@@ -113,12 +130,27 @@ function statusLabel(status: string, amountCents: number | null) {
   }
 }
 
+function directionLabel(direction: string) {
+  switch (direction) {
+    case "to_musician":
+      return "Client → Musician";
+    case "to_client":
+      return "Musician → Client";
+    default:
+      return "Unmatched sender";
+  }
+}
+
 export default async function AdminPage() {
-  const { bookings, applications, liveMusicians, reviews, error } = await getData();
+  const { bookings, applications, liveMusicians, reviews, bookingMessages, error } = await getData();
   const pending = applications.filter((a) => a.status === "pending_review");
   const decided = applications.filter((a) => a.status !== "pending_review");
   const pendingReviews = reviews.filter((r) => r.status === "pending");
   const approvedReviews = reviews.filter((r) => r.status === "approved");
+  const messageCountByBooking = new Map<string, number>();
+  for (const m of bookingMessages) {
+    messageCountByBooking.set(m.booking_id, (messageCountByBooking.get(m.booking_id) ?? 0) + 1);
+  }
 
   return (
     <div className="max-w-6xl mx-auto px-6 md:px-[52px] py-16">
@@ -153,12 +185,13 @@ export default async function AdminPage() {
               <th className={th}>Phone</th>
               <th className={th}>Notes</th>
               <th className={th}>Status</th>
+              <th className={th}>Messages</th>
             </tr>
           </thead>
           <tbody>
             {bookings.length === 0 ? (
               <tr>
-                <td className={td} colSpan={10}>
+                <td className={td} colSpan={11}>
                   No booking requests yet.
                 </td>
               </tr>
@@ -175,12 +208,56 @@ export default async function AdminPage() {
                   <td className={td}>{b.client_phone || "—"}</td>
                   <td className={td}>{b.details || "—"}</td>
                   <td className={td}>{statusLabel(b.status, b.amount)}</td>
+                  <td className={td}>{messageCountByBooking.get(b.id) ?? 0}</td>
                 </tr>
               ))
             )}
           </tbody>
         </table>
       </div>
+
+      <h2 className="font-serif text-2xl mb-4">
+        Relayed messages ({bookingMessages.length})
+      </h2>
+      <p className="text-sm text-mid mb-4 max-w-2xl">
+        Every reply sent through a booking&rsquo;s private masked address is logged
+        here for reference — this isn&rsquo;t an actively monitored inbox, but it&rsquo;s
+        available if a dispute or question comes up. Showing the most recent 200.
+      </p>
+      {bookingMessages.length === 0 ? (
+        <p className="text-sm text-mid border border-rule p-4 mb-16">
+          No messages relayed yet.
+        </p>
+      ) : (
+        <div className="overflow-x-auto mb-16">
+          <table className="w-full border border-rule">
+            <thead>
+              <tr className="bg-off/60">
+                <th className={th}>Date</th>
+                <th className={th}>Booking</th>
+                <th className={th}>Direction</th>
+                <th className={th}>Subject</th>
+                <th className={th}>Message</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bookingMessages.map((m) => (
+                <tr key={m.id}>
+                  <td className={td}>{new Date(m.created_at).toLocaleString()}</td>
+                  <td className={td} title={m.booking_id}>
+                    {m.booking_id.slice(0, 8)}…
+                  </td>
+                  <td className={td}>{directionLabel(m.direction)}</td>
+                  <td className={td}>{m.subject || "—"}</td>
+                  <td className={td} style={{ maxWidth: 360, whiteSpace: "pre-wrap" }}>
+                    {m.body_text || "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       <h2 className="font-serif text-2xl mb-4">
         Pending applications ({pending.length})

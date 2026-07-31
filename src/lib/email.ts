@@ -523,8 +523,12 @@ export async function sendBookingDeclinedEmail(b: BookingDeclinedEmailInput) {
     await resend.emails.send({
       from: FROM,
       to: b.clientEmail,
+      // No masked reply-to here, deliberately — the reply window for this
+      // booking closes the moment it's declined (see
+      // lib/reply-mask.ts), so there's no live conversation left to route
+      // a reply into.
       subject: `${b.musicianName} isn't available for your booking`,
-      text: `Hi ${b.clientName},\n\nUnfortunately ${b.musicianName} isn't able to take your booking for ${b.occasion} on ${b.eventDate}. No payment has been taken.\n\nBrowse other musicians: ${SITE_URL}/gallery\n\n— Musician Gallery`,
+      text: `Hi ${b.clientName},\n\nUnfortunately ${b.musicianName} isn't able to take your booking for ${b.occasion} on ${b.eventDate}. This means this request through Musician Gallery will now be closed, but there are plenty of other musicians in the gallery who'd love to help with ${b.occasion}.\n\nBrowse other musicians: ${SITE_URL}/gallery\n\n— Musician Gallery`,
       html: layout({
         eyebrow: "Booking declined",
         heading: `${b.musicianName} isn't available`,
@@ -532,7 +536,9 @@ export async function sendBookingDeclinedEmail(b: BookingDeclinedEmailInput) {
           b.musicianName
         )} isn't able to take your booking for ${escapeHtml(b.occasion)} on ${escapeHtml(
           b.eventDate
-        )}. No payment has been taken.`,
+        )}. This means this request through Musician Gallery will now be closed, but there are plenty of other musicians in the gallery who'd love to help with ${escapeHtml(
+          b.occasion
+        )}.`,
         ctaHtml: primaryButton("Browse other musicians", `${SITE_URL}/gallery`),
         footerNote: "You're receiving this because you made a booking request through Musician Gallery.",
       }),

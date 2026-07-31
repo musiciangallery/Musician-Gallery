@@ -95,6 +95,34 @@ export async function ensureTables() {
   // duplicate "you've been paid" email.
   await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS last_paid_invoice_id text`;
 
+  // Marks when a recurring lesson arrangement (subscription) reaches its
+  // natural end — set by the Stripe webhook when it flips status to
+  // 'completed'. Needed alongside event_date to work out when a booking's
+  // masked reply address should stop working (see lib/reply-mask.ts):
+  // event_date for one-off bookings, completed_at for recurring ones,
+  // since event_date holds "Weekly"/"Fortnightly" rather than a real date
+  // for those.
+  await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS completed_at timestamptz`;
+
+  // Every message relayed through a booking's masked reply address
+  // (booking-<id>@reply.musiciangallery.co.nz) is logged here — quietly,
+  // for reactive admin-only visibility (e.g. if a dispute arises), not as
+  // an actively monitored inbox. direction is 'to_musician', 'to_client',
+  // or 'unmatched' (sender didn't match either known party on the
+  // booking). See lib/reply-mask.ts and app/api/email/inbound/route.ts.
+  await sql`
+    CREATE TABLE IF NOT EXISTS booking_messages (
+      id uuid PRIMARY KEY,
+      booking_id uuid NOT NULL,
+      direction text NOT NULL,
+      from_email text NOT NULL,
+      to_email text NOT NULL,
+      subject text,
+      body_text text,
+      created_at timestamptz NOT NULL DEFAULT now()
+    )
+  `;
+
   await sql`
     CREATE TABLE IF NOT EXISTS musician_applications (
       id uuid PRIMARY KEY,

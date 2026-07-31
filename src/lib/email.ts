@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { maskedAddressForBooking } from "@/lib/reply-mask";
 
 // Booking-request emails — sent to Emily (the site owner), the musician
 // (if we have their email on file), and a confirmation to the client.
@@ -237,11 +238,15 @@ export async function sendBookingEmails(b: BookingEmailInput) {
 
   if (b.musicianEmail) {
     const respondUrl = `${SITE_URL}/respond/${b.bookingId}?token=${b.confirmToken}`;
+    // Reply-to is the booking's masked address, not the client's real
+    // email — replies still reach the client (relayed through the inbound
+    // webhook, see app/api/email/inbound/route.ts), but neither side ever
+    // sees the other's actual address. See lib/reply-mask.ts.
     sends.push(
       resend.emails.send({
         from: FROM,
         to: b.musicianEmail,
-        replyTo: b.clientEmail,
+        replyTo: maskedAddressForBooking(b.bookingId),
         subject: `${b.clientName} is looking for a musician for ${b.occasion}`,
         text: `${b.clientName} is looking for a musician for ${b.occasion} on ${
           b.eventDate
@@ -249,7 +254,7 @@ export async function sendBookingEmails(b: BookingEmailInput) {
           b
         )}\n\nHave a read of the details above, then reply to this email if you'd like to ask anything or say hello before deciding — ${
           b.clientName
-        } will see your reply directly.\n\nOnce you're ready, confirm or decline here: ${respondUrl}\n\n— Musician Gallery`,
+        } will see your reply (your email addresses stay private on both sides).\n\nOnce you're ready, confirm or decline here: ${respondUrl}\n\n— Musician Gallery`,
         html: layout({
           eyebrow: "New booking request",
           heading: `${b.clientName} would like to book you`,
@@ -259,10 +264,11 @@ export async function sendBookingEmails(b: BookingEmailInput) {
             b.eventDate
           )}. Have a read of the details below, then reply to this email if you'd like to ask anything or say hello before deciding — ${escapeHtml(
             b.clientName
-          )} will see your reply directly. Once you're ready, confirm or decline using the button below.`,
+          )} will see your reply, and your email addresses stay private on both sides. Once you're ready, confirm or decline using the button below.`,
           rowsHtml,
           ctaHtml: primaryButton("Confirm or decline", respondUrl),
-          footerNote: "You're receiving this because you have a live profile on Musician Gallery.",
+          footerNote:
+            "You're receiving this because you have a live profile on Musician Gallery. Replies are relayed privately — your email address is never shared with the client.",
         }),
       })
     );
@@ -744,4 +750,63 @@ export async function sendLessonsCompleteEmail(b: LessonsCompleteEmailInput) {
   results.forEach((r) => {
     if (r.status === "rejected") console.error("Lessons complete email failed to send:", r.reason);
   });
+}
+
+type RelayedMessageEmailInput = {
+  bookingId: string;
+  toEmail: string;
+  toFirstName?: string;
+  /** Who the message is from, for display only (e.g. "Sarah Thompson") —
+   * never an email address, so the recipient never sees the other side's
+   * real contact details. */
+  fromLabel: string;
+  subject: string;
+  bodyText: string;
+};
+
+/** Relays a reply sent to a booking's masked address on to the other side
+ * of the conversation, through the same branded template as every other
+ * booking email (not a raw forward) — so it reads as a normal Musician
+ * Gallery email rather than exposing anything about the underlying inbound
+ * message. Sent from the normal FROM address, but with replyTo set back to
+ * the masked address, so a reply to this email loops through the relay
+ * again rather than going anywhere directly. Fail-quiet, matching the rest
+ * of this feature's best-effort design — see
+ * app/api/email/inbound/route.ts, the only caller. */
+export async function sendRelayedMessageEmail(m: RelayedMessageEmailInput) {
+  if (!resend) {
+    console.warn("RESEND_API_KEY not set — skipping relayed message email.");
+    return;
+  }
+
+  const maskedFrom = maskedAddressForBooking(m.bookingId);
+  const greeting = m.toFirstName ? `Hi ${m.toFirstName},` : "Hi,";
+  const messageRowHtml = `
+    <tr>
+      <td style="padding:20px 24px; font-family:${SANS_STACK}; font-size:14px; line-height:1.7; color:#181510; white-space:pre-wrap;">${escapeHtml(
+        m.bodyText
+      )}</td>
+    </tr>`;
+
+  try {
+    await resend.emails.send({
+      from: FROM,
+      to: m.toEmail,
+      replyTo: maskedFrom,
+      subject: m.subject,
+      text: `${greeting}\n\nNew message from ${m.fromLabel}:\n\n${m.bodyText}\n\n— Reply directly to this email to keep the conversation going through Musician Gallery.`,
+      html: layout({
+        eyebrow: "New message",
+        heading: `Message from ${m.fromLabel}`,
+        intro: `${escapeHtml(
+          greeting
+        )} you have a new message about your booking. Reply directly to this email to keep the conversation going — your email address stays private.`,
+        rowsHtml: messageRowHtml,
+        footerNote:
+          "Messages sent through Musician Gallery keep your email address private from the other side.",
+      }),
+    });
+  } catch (err) {
+    console.error("Relayed message email failed to send:", err);
+  }
 }

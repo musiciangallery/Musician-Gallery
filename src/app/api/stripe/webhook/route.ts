@@ -249,7 +249,12 @@ export async function POST(req: NextRequest) {
       const booking = bookingRows[0];
 
       if (booking && booking.status !== "completed") {
-        await sql`UPDATE bookings SET status = 'completed' WHERE id = ${booking.id}`;
+        // completed_at anchors the 1-week grace period on the booking's
+        // masked reply address (see lib/reply-mask.ts) — recurring
+        // bookings don't have a real date in event_date to fall back on
+        // (it holds "Weekly"/"Fortnightly" instead), so this is their
+        // equivalent of a one-off booking's event_date.
+        await sql`UPDATE bookings SET status = 'completed', completed_at = now() WHERE id = ${booking.id}`;
 
         const musicianRows = await sql`SELECT name, email FROM musicians WHERE slug = ${booking.musician_slug}`;
         const musician = musicianRows[0];

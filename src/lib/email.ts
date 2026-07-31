@@ -242,6 +242,12 @@ export async function sendBookingEmails(b: BookingEmailInput) {
     // email — replies still reach the client (relayed through the inbound
     // webhook, see app/api/email/inbound/route.ts), but neither side ever
     // sees the other's actual address. See lib/reply-mask.ts.
+    //
+    // Copy is deliberately conversation-first rather than decision-first —
+    // the heading and intro lead with "no rush, have a chat first" and only
+    // mention the confirm/decline button once that's been said, instead of
+    // opening with "would like to book you" and treating the reply option
+    // as a footnote to a decision that's already expected.
     sends.push(
       resend.emails.send({
         from: FROM,
@@ -252,23 +258,19 @@ export async function sendBookingEmails(b: BookingEmailInput) {
           b.eventDate
         }.\n\n${summaryLines(
           b
-        )}\n\nHave a read of the details above, then reply to this email if you'd like to ask anything or say hello before deciding — ${
-          b.clientName
-        } will see your reply (your email addresses stay private on both sides).\n\nOnce you're ready, confirm or decline here: ${respondUrl}\n\n— Musician Gallery`,
+        )}\n\nHave a read of the details above, and feel free to reply first if you'd like to ask a question or say hello — there's no rush, and your email addresses stay private on both sides.\n\nWhen you're ready to decide, confirm or decline here: ${respondUrl}\n\n— Musician Gallery`,
         html: layout({
           eyebrow: "New booking request",
-          heading: `${b.clientName} would like to book you`,
+          heading: `${b.clientName} has a request for you`,
           intro: `${escapeHtml(b.clientName)} is looking for a musician for ${escapeHtml(
             b.occasion
           )} on ${escapeHtml(
             b.eventDate
-          )}. Have a read of the details below, then reply to this email if you'd like to ask anything or say hello before deciding — ${escapeHtml(
-            b.clientName
-          )} will see your reply, and your email addresses stay private on both sides. Once you're ready, confirm or decline using the button below.`,
+          )}. Have a read of the details below, and feel free to reply first if you'd like to ask a question or say hello — there's no rush, and your email addresses stay private on both sides. When you're ready to decide, use the button below.`,
           rowsHtml,
           ctaHtml: primaryButton("Confirm or decline", respondUrl),
           footerNote:
-            "You're receiving this because you have a live profile on Musician Gallery. Replies are relayed privately — your email address is never shared with the client.",
+            "You're receiving this because you have a live profile on Musician Gallery. Replies are relayed privately — your email address is never shared with the client. Replies only reach the other person when sent from the email address you gave us. A different inbox won't connect.",
         }),
       })
     );
@@ -435,6 +437,10 @@ type BookingConfirmedEmailInput = {
   /** Set only for recurring lesson bookings — switches the copy from "pay
    * this once" to "this sets up automatic weekly/fortnightly billing". */
   sessions?: number;
+  /** Used to generate this booking's masked reply address — the booking is
+   * still very much "live" at this stage (not yet paid), so conversation
+   * should stay open. See lib/reply-mask.ts. */
+  bookingId: string;
 };
 
 /** Sent to the client once the musician confirms a booking and enters their
@@ -462,10 +468,19 @@ export async function sendBookingConfirmedEmail(b: BookingConfirmedEmailInput) {
         2
       )} plus a 10% platform fee.`;
 
+  // The booking's masked address, not the musician's real email — the
+  // conversation stays open through payment and beyond (see
+  // lib/reply-mask.ts for exactly how long), so replies here keep routing
+  // through the same relay as the original request email.
+  const replyTo = maskedAddressForBooking(b.bookingId);
+  const addressNote =
+    " Replies only reach the other person when sent from the email address you gave us. A different inbox won't connect.";
+
   try {
     await resend.emails.send({
       from: FROM,
       to: b.clientEmail,
+      replyTo,
       subject,
       text: `Hi ${b.clientName},\n\n${bodyText}\n\nSet up payment securely here: ${b.checkoutUrl}\n\n— Musician Gallery`,
       html: layout({
@@ -476,9 +491,11 @@ export async function sendBookingConfirmedEmail(b: BookingConfirmedEmailInput) {
           isRecurring ? "Set up payment" : `Pay $${b.amount.toFixed(2)} now`,
           b.checkoutUrl
         ),
-        footerNote: isRecurring
-          ? "Payment is handled securely by Stripe — Musician Gallery never sees your card details. You can stop anytime by getting in touch."
-          : "Payment is handled securely by Stripe — Musician Gallery never sees your card details.",
+        footerNote:
+          (isRecurring
+            ? "Payment is handled securely by Stripe — Musician Gallery never sees your card details. You can stop anytime by getting in touch."
+            : "Payment is handled securely by Stripe — Musician Gallery never sees your card details.") +
+          addressNote,
       }),
     });
   } catch (err) {
@@ -539,6 +556,11 @@ type BookingPaidEmailInput = {
    * than once. */
   sessionsPaid?: number;
   sessions?: number;
+  /** Used to generate this booking's masked reply address — see
+   * lib/reply-mask.ts. The booking's still "live" at this point (event
+   * hasn't happened yet / lessons aren't done), so conversation stays
+   * open. */
+  bookingId: string;
 };
 
 /** Sent once the Stripe webhook confirms a client's payment went through —
@@ -557,6 +579,9 @@ export async function sendBookingPaidEmail(b: BookingPaidEmailInput) {
 
   const isRecurring = !!b.sessions && b.sessions > 0;
   const progress = isRecurring ? ` (lesson ${b.sessionsPaid} of ${b.sessions})` : "";
+  const replyTo = maskedAddressForBooking(b.bookingId);
+  const addressNote =
+    " Replies only reach the other person when sent from the email address you gave us. A different inbox won't connect.";
 
   const sends: Promise<unknown>[] = [];
 
@@ -587,6 +612,7 @@ export async function sendBookingPaidEmail(b: BookingPaidEmailInput) {
       resend.emails.send({
         from: FROM,
         to: b.musicianEmail,
+        replyTo,
         subject: `You've been paid for ${b.occasion}${progress}`,
         text: `Hi ${firstName},\n\n${b.clientName} just paid for your booking (${b.occasion} on ${b.eventDate})${progress}. $${b.amount.toFixed(
           2
@@ -599,7 +625,7 @@ export async function sendBookingPaidEmail(b: BookingPaidEmailInput) {
           )} on ${escapeHtml(b.eventDate)})${escapeHtml(progress)}. $${b.amount.toFixed(
             2
           )} is on its way to your bank account automatically — no invoicing needed.`,
-          footerNote: "You're receiving this because you have a live profile on Musician Gallery.",
+          footerNote: "You're receiving this because you have a live profile on Musician Gallery." + addressNote,
         }),
       })
     );
@@ -612,6 +638,7 @@ export async function sendBookingPaidEmail(b: BookingPaidEmailInput) {
       resend.emails.send({
         from: FROM,
         to: b.clientEmail,
+        replyTo,
         subject: `Payment received — thank you${progress}`,
         text: `Hi ${b.clientName},\n\nYour payment of $${total.toFixed(2)} for ${b.occasion} on ${b.eventDate} with ${
           b.musicianName
@@ -628,7 +655,8 @@ export async function sendBookingPaidEmail(b: BookingPaidEmailInput) {
           )}${escapeHtml(progress)} has gone through. ${escapeHtml(b.musicianName)} has been notified and is all set.${
             isRecurring ? " The next lesson will bill automatically." : ""
           }`,
-          footerNote: "Payment was handled securely by Stripe — Musician Gallery never sees your card details.",
+          footerNote:
+            "Payment was handled securely by Stripe — Musician Gallery never sees your card details." + addressNote,
         }),
       })
     );
@@ -663,6 +691,13 @@ export async function sendLessonPaymentFailedEmail(b: LessonPaymentFailedEmailIn
     await resend.emails.send({
       from: FROM,
       to: b.clientEmail,
+      // This one deliberately goes to Emily directly, not through the
+      // masked relay — the copy below asks the client to reply if the
+      // charge keeps failing, which is a "we'll sort it out" offer of
+      // human help with a payment problem, not a message meant for the
+      // musician. Previously this had no reply-to at all, so a reply would
+      // have silently gone nowhere.
+      replyTo: OWNER_EMAIL,
       subject: `A payment for your lessons with ${b.musicianName} didn't go through`,
       text: `Hi ${b.clientName},\n\nYour latest payment for ${b.occasion} with ${b.musicianName} didn't go through — usually an expired card or insufficient funds. Stripe will automatically retry, but if it keeps failing, reply to this email and we'll sort it out.\n\n— Musician Gallery`,
       html: layout({
@@ -688,6 +723,10 @@ type LessonsCompleteEmailInput = {
   clientEmail?: string;
   occasion: string;
   sessions: number;
+  /** Used to generate this booking's masked reply address — the reply
+   * window stays open for a 1-week grace period from this point (see
+   * lib/reply-mask.ts), for a last thank-you or question. */
+  bookingId: string;
 };
 
 /** Sent once a recurring lesson subscription reaches its agreed end (all N
@@ -701,12 +740,16 @@ export async function sendLessonsCompleteEmail(b: LessonsCompleteEmailInput) {
   }
 
   const sends: Promise<unknown>[] = [];
+  const replyTo = maskedAddressForBooking(b.bookingId);
+  const addressNote =
+    " Replies only reach the other person when sent from the email address you gave us. A different inbox won't connect.";
 
   if (b.clientEmail) {
     sends.push(
       resend.emails.send({
         from: FROM,
         to: b.clientEmail,
+        replyTo,
         subject: `Your lessons with ${b.musicianName} are complete`,
         text: `Hi ${b.clientName},\n\nAll ${b.sessions} lessons for ${b.occasion} with ${b.musicianName} have been paid, and billing has stopped automatically. If you'd like to book another block of lessons, just head back to ${SITE_URL}.\n\n— Musician Gallery`,
         html: layout({
@@ -718,7 +761,9 @@ export async function sendLessonsCompleteEmail(b: LessonsCompleteEmailInput) {
             b.musicianName
           )} have been paid, and billing has stopped automatically. If you'd like to book another block of lessons, just head back to the gallery.`,
           ctaHtml: primaryButton("Browse the gallery", `${SITE_URL}/gallery`),
-          footerNote: "You're receiving this because you had an active lesson arrangement through Musician Gallery.",
+          footerNote:
+            "You're receiving this because you had an active lesson arrangement through Musician Gallery." +
+            addressNote,
         }),
       })
     );
@@ -730,6 +775,7 @@ export async function sendLessonsCompleteEmail(b: LessonsCompleteEmailInput) {
       resend.emails.send({
         from: FROM,
         to: b.musicianEmail,
+        replyTo,
         subject: `Lessons with ${b.clientName} are complete`,
         text: `Hi ${firstName},\n\nAll ${b.sessions} lessons for ${b.occasion} with ${b.clientName} have been paid, and billing has stopped automatically. Nothing more to do here unless you agree to a new block together.\n\n— Musician Gallery`,
         html: layout({
@@ -740,7 +786,7 @@ export async function sendLessonsCompleteEmail(b: LessonsCompleteEmailInput) {
           )} with ${escapeHtml(
             b.clientName
           )} have been paid, and billing has stopped automatically. Nothing more to do here unless you agree to a new block together.`,
-          footerNote: "You're receiving this because you have a live profile on Musician Gallery.",
+          footerNote: "You're receiving this because you have a live profile on Musician Gallery." + addressNote,
         }),
       })
     );

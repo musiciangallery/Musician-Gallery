@@ -37,7 +37,7 @@ export type ApplicationForReview = {
   rate_unit: string | null;
 };
 
-const ALL_OCCASIONS = ["Weddings", "Corporate Events", "Private Functions", "Lessons"];
+const ALL_OCCASIONS = ["Wedding", "Corporate Events", "Private Functions", "Lessons"];
 
 function slugify(input: string) {
   return input
@@ -72,7 +72,7 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
       ? ALL_OCCASIONS
       : isTeacher
       ? ["Lessons"]
-      : ["Weddings", "Corporate Events", "Private Functions"]
+      : ["Wedding", "Corporate Events", "Private Functions"]
   );
   const [photo, setPhoto] = useState<File | null>(null);
   // Lets an admin reuse one of the applicant's own uploaded files as the

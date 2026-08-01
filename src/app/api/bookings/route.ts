@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import { getSql, ensureTables } from "@/lib/db";
 import { getMusicianBySlugAsync } from "@/lib/musicians-live";
 import { sendBookingEmails } from "@/lib/email";
+import { generateReplyCode } from "@/lib/reply-mask";
 
 export const dynamic = "force-dynamic";
 
@@ -55,11 +56,12 @@ export async function POST(req: NextRequest) {
     const sql = getSql();
     const id = randomUUID();
     const confirmToken = randomUUID();
+    const replyCode = generateReplyCode();
     await sql`
       INSERT INTO bookings
-        (id, musician_slug, occasion, event_date, sessions, location, details, client_name, client_email, client_phone, confirm_token)
+        (id, musician_slug, occasion, event_date, sessions, location, details, client_name, client_email, client_phone, confirm_token, reply_code)
       VALUES
-        (${id}, ${musicianSlug}, ${occasion}, ${eventDate}, ${sessionsCount}, ${location ?? ""}, ${details ?? ""}, ${clientName}, ${clientEmail}, ${clientPhone ?? ""}, ${confirmToken})
+        (${id}, ${musicianSlug}, ${occasion}, ${eventDate}, ${sessionsCount}, ${location ?? ""}, ${details ?? ""}, ${clientName}, ${clientEmail}, ${clientPhone ?? ""}, ${confirmToken}, ${replyCode})
     `;
 
     // Best-effort — a failed or unconfigured email send should never stop
@@ -76,6 +78,7 @@ export async function POST(req: NextRequest) {
         clientEmail,
         clientPhone,
         bookingId: id,
+        replyCode,
         confirmToken,
       });
     } catch (emailErr) {

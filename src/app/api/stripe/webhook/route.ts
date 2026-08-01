@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
       const bookingRows = await sql`
-        SELECT id, musician_slug, client_name, client_email, occasion, event_date, amount, status, sessions
+        SELECT id, musician_slug, client_name, client_email, occasion, event_date, amount, status, sessions, reply_code
         FROM bookings WHERE stripe_checkout_session_id = ${session.id}
       `;
       const booking = bookingRows[0];
@@ -131,7 +131,7 @@ export async function POST(req: NextRequest) {
             occasion: booking.occasion,
             eventDate: booking.event_date,
             amount: booking.amount ? booking.amount / 100 : 0,
-            bookingId: booking.id,
+            replyCode: booking.reply_code,
           });
         } catch (emailErr) {
           console.error("Booking paid email failed:", emailErr);
@@ -150,7 +150,7 @@ export async function POST(req: NextRequest) {
 
       if (subscriptionId) {
         let bookingRows = await sql`
-          SELECT id, musician_slug, client_name, client_email, occasion, event_date, amount, sessions, sessions_paid, last_paid_invoice_id
+          SELECT id, musician_slug, client_name, client_email, occasion, event_date, amount, sessions, sessions_paid, last_paid_invoice_id, reply_code
           FROM bookings WHERE stripe_subscription_id = ${subscriptionId}
         `;
         let booking = bookingRows[0];
@@ -164,7 +164,7 @@ export async function POST(req: NextRequest) {
           const originatingSessionId = sessionsList.data[0]?.id;
           if (originatingSessionId) {
             bookingRows = await sql`
-              SELECT id, musician_slug, client_name, client_email, occasion, event_date, amount, sessions, sessions_paid, last_paid_invoice_id
+              SELECT id, musician_slug, client_name, client_email, occasion, event_date, amount, sessions, sessions_paid, last_paid_invoice_id, reply_code
               FROM bookings WHERE stripe_checkout_session_id = ${originatingSessionId}
             `;
             booking = bookingRows[0];
@@ -197,7 +197,7 @@ export async function POST(req: NextRequest) {
               amount: booking.amount ? booking.amount / 100 : 0,
               sessionsPaid: newSessionsPaid,
               sessions: booking.sessions ? Number(booking.sessions) : undefined,
-              bookingId: booking.id,
+              replyCode: booking.reply_code,
             });
           } catch (emailErr) {
             console.error("Lesson paid email failed:", emailErr);
@@ -245,7 +245,7 @@ export async function POST(req: NextRequest) {
     if (event.type === "customer.subscription.deleted") {
       const subscription = event.data.object as Stripe.Subscription;
       const bookingRows = await sql`
-        SELECT id, musician_slug, client_name, client_email, occasion, sessions, status
+        SELECT id, musician_slug, client_name, client_email, occasion, sessions, status, reply_code
         FROM bookings WHERE stripe_subscription_id = ${subscription.id}
       `;
       const booking = bookingRows[0];
@@ -270,7 +270,7 @@ export async function POST(req: NextRequest) {
             clientEmail: booking.client_email as string | undefined,
             occasion: booking.occasion,
             sessions: booking.sessions ? Number(booking.sessions) : 0,
-            bookingId: booking.id,
+            replyCode: booking.reply_code,
           });
         } catch (emailErr) {
           console.error("Lessons complete email failed:", emailErr);

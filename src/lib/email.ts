@@ -35,11 +35,30 @@ function escapeHtml(value: string) {
     .replace(/'/g, "&#39;");
 }
 
+/** Formats a booking's event date for display in emails. One-off bookings
+ * store an actual date string ("2026-08-20"); recurring lesson bookings
+ * store the literal "Weekly" or "Fortnightly" instead, which pass through
+ * unchanged. Falls back to the raw value if it can't be parsed, matching
+ * the fail-open pattern used elsewhere in the booking emails — better to
+ * show something than crash on an unexpected format. Formats in UTC so the
+ * date-only input can't shift a day depending on the server's timezone. */
+function formatEventDate(eventDate: string): string {
+  if (eventDate === "Weekly" || eventDate === "Fortnightly") return eventDate;
+  const parsed = new Date(eventDate);
+  if (Number.isNaN(parsed.getTime())) return eventDate;
+  return parsed.toLocaleDateString("en-NZ", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 function summaryLines(b: BookingEmailInput) {
   return [
     `Musician: ${b.musicianName}`,
     `Occasion: ${b.occasion}`,
-    `Date / frequency: ${b.eventDate}`,
+    `Date / frequency: ${formatEventDate(b.eventDate)}`,
     `Location: ${b.location || "—"}`,
     `Notes: ${b.details || "—"}`,
     `Client: ${b.clientName}`,
@@ -50,17 +69,26 @@ function summaryLines(b: BookingEmailInput) {
 
 /** A bordered key/value table matching the site's ".rule"-bordered detail
  * lists (e.g. the booking review step). Every value is user-submitted, so
- * everything is HTML-escaped before being inlined. */
-function detailRowsHtml(b: BookingEmailInput) {
+ * everything is HTML-escaped before being inlined. Set
+ * includeClientContact: false to drop the Client/Client email/Client phone
+ * rows — used for the musician's copy, since printing the client's real
+ * contact details there would defeat the point of the masked reply
+ * address. The owner's copy keeps them, since Emily still needs a way to
+ * reach the client directly if something comes up. */
+function detailRowsHtml(b: BookingEmailInput, includeClientContact = true) {
   const rows: [string, string][] = [
     ["Musician", b.musicianName],
     ["Occasion", b.occasion],
-    ["Date / frequency", b.eventDate],
+    ["Date / frequency", formatEventDate(b.eventDate)],
     ["Location", b.location || "—"],
     ["Notes", b.details || "—"],
-    ["Client", b.clientName],
-    ["Client email", b.clientEmail],
-    ["Client phone", b.clientPhone || "—"],
+    ...(includeClientContact
+      ? ([
+          ["Client", b.clientName],
+          ["Client email", b.clientEmail],
+          ["Client phone", b.clientPhone || "—"],
+        ] as [string, string][])
+      : []),
   ];
   return rows
     .map(([label, value], i) => {
@@ -217,6 +245,7 @@ export async function sendBookingEmails(b: BookingEmailInput) {
   }
 
   const rowsHtml = detailRowsHtml(b);
+  const musicianRowsHtml = detailRowsHtml(b, false);
   const sends: Promise<unknown>[] = [];
 
   sends.push(
@@ -254,23 +283,27 @@ export async function sendBookingEmails(b: BookingEmailInput) {
         to: b.musicianEmail,
         replyTo: maskedAddressForBooking(b.bookingId),
         subject: `${b.clientName} is looking for a musician for ${b.occasion}`,
-        text: `${b.clientName} is looking for a musician for ${b.occasion} on ${
+        text: `${b.clientName} is looking to book you for ${b.occasion} on ${formatEventDate(
           b.eventDate
-        }.\n\n${summaryLines(
+        )}.\n\n${summaryLines(
           b
-        )}\n\nHave a read of the details above, and feel free to reply first if you'd like to ask a question or say hello — there's no rush, and your email addresses stay private on both sides.\n\nWhen you're ready to decide, confirm or decline here: ${respondUrl}\n\n— Musician Gallery`,
+        )}\n\nHave a read of the details above, and reply to this email directly to reach ${
+          b.clientName
+        } with any questions or details requiring clarification.\n\nWhen you're ready to confirm the booking, use the button below and let us handle the rest: ${respondUrl}\n\nMusician Gallery`,
         html: layout({
           eyebrow: "New booking request",
           heading: `${b.clientName} has a request for you`,
-          intro: `${escapeHtml(b.clientName)} is looking for a musician for ${escapeHtml(
+          intro: `${escapeHtml(b.clientName)} is looking to book you for ${escapeHtml(
             b.occasion
           )} on ${escapeHtml(
-            b.eventDate
-          )}. Have a read of the details below, and feel free to reply first if you'd like to ask a question or say hello — there's no rush, and your email addresses stay private on both sides. When you're ready to decide, use the button below.`,
-          rowsHtml,
+            formatEventDate(b.eventDate)
+          )}. Have a read of the details below, and reply to this email directly to reach ${escapeHtml(
+            b.clientName
+          )} with any questions or details requiring clarification. When you're ready to confirm the booking, simply use the button below and let us handle the rest.`,
+          rowsHtml: musicianRowsHtml,
           ctaHtml: primaryButton("Confirm or decline", respondUrl),
           footerNote:
-            "You're receiving this because you have a live profile on Musician Gallery. Replies are relayed privately — your email address is never shared with the client. Replies only reach the other person when sent from the email address you gave us. A different inbox won't connect.",
+            "You're receiving this because you have a live profile on Musician Gallery. Replies are relayed privately. Your email address is never shared with the client. Replies only reach the other person when sent from the email address you gave us. A different inbox won't connect.",
         }),
       })
     );
@@ -280,21 +313,26 @@ export async function sendBookingEmails(b: BookingEmailInput) {
     resend.emails.send({
       from: FROM,
       to: b.clientEmail,
+      // Reply-to is the booking's masked address, matching the musician's
+      // copy — the intro below tells the client they can reach the
+      // musician by replying directly, so this has to route through the
+      // relay for that to actually be true. See lib/reply-mask.ts.
+      replyTo: maskedAddressForBooking(b.bookingId),
       subject: `We've sent your request to ${b.musicianName}`,
       text: `Hi ${b.clientName},\n\nYour request has been sent to ${
         b.musicianName
-      }. They may reply directly with a question or two before confirming, or confirm the booking right away — either way, you'll hear from them here.\n\nYour request:\n${summaryLines(
+      }. You'll hear back from them through here, perhaps with a question or two, or to confirm your booking. Either way, you can contact them directly by replying to this email. The conversation window will remain open until a week after the lesson or event date. If the booking is respectfully declined, this conversation closes right away.\n\nYour request:\n${summaryLines(
         b
-      )}\n\n— Musician Gallery`,
+      )}\n\nMusician Gallery`,
       html: layout({
         eyebrow: "Request sent",
         heading: `${b.musicianName} will be in touch`,
         intro: `Hi ${escapeHtml(b.clientName)}, your request has been sent to ${escapeHtml(
           b.musicianName
-        )}. They may reply directly with a question or two before confirming, or confirm the booking right away — either way, you'll hear from them here.`,
-        rowsHtml,
+        )}. You'll hear back from them through here, perhaps with a question or two, or to confirm your booking. Either way, you can contact them directly by replying to this email. The conversation window will remain open until a week after the lesson or event date. If the booking is respectfully declined, this conversation closes right away.`,
+        rowsHtml: musicianRowsHtml,
         footerNote:
-          "This is a confirmation only — no payment has been taken. A booking is only confirmed once the musician responds.",
+          "This message only confirms your request was sent. The booking isn't official until you receive a confirmation. Please ensure the email address given is the one used to send replies. A different inbox won't connect.",
       }),
     })
   );
@@ -876,13 +914,13 @@ export async function sendRelayedMessageEmail(m: RelayedMessageEmailInput) {
       to: m.toEmail,
       replyTo: maskedFrom,
       subject: m.subject,
-      text: `${greeting}\n\nNew message from ${m.fromLabel}:\n\n${m.bodyText}\n\n— Reply directly to this email to keep the conversation going through Musician Gallery.`,
+      text: `${greeting}\n\nNew message from ${m.fromLabel}:\n\n${m.bodyText}\n\nReply directly to this email to keep the conversation going through Musician Gallery.`,
       html: layout({
         eyebrow: "New message",
-        heading: `Message from ${m.fromLabel}`,
+        heading: `A note from ${m.fromLabel}`,
         intro: `${escapeHtml(
           greeting
-        )} you have a new message about your booking. Reply directly to this email to keep the conversation going — your email address stays private.`,
+        )} you have a new message about your booking. Reply directly to this email to keep the conversation going.`,
         rowsHtml: messageRowHtml,
         footerNote:
           "Messages sent through Musician Gallery keep your email address private from the other side.",

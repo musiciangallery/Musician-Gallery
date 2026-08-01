@@ -1,26 +1,37 @@
-// Masked reply addresses — one per booking, derived directly from the
-// booking's own UUID (no separate lookup table needed). Used as the
-// replyTo on outbound booking emails so clients and musicians can keep
-// talking before a booking is confirmed/paid, without ever seeing each
-// other's real email address. See app/api/email/inbound/route.ts for the
-// webhook that receives replies sent to these addresses and relays them
-// on, and lib/email.ts for where they're used — starting with the "new
-// booking request" email to the musician, the highest-risk one, since
-// it's the first point a musician's real inbox would otherwise be exposed
-// to a stranger.
+// Masked reply addresses — one per booking, built from a short random
+// reply code (see generateReplyCode below and the bookings.reply_code
+// column) rather than the booking's own UUID, purely so the address itself
+// reads shorter and cleaner. No separate lookup table needed beyond that
+// one column. Used as the replyTo on outbound booking emails so clients
+// and musicians can keep talking before a booking is confirmed/paid,
+// without ever seeing each other's real email address. See
+// app/api/email/inbound/route.ts for the webhook that receives replies
+// sent to these addresses and relays them on, and lib/email.ts for where
+// they're used — starting with the "new booking request" email to the
+// musician, the highest-risk one, since it's the first point a musician's
+// real inbox would otherwise be exposed to a stranger.
+import { randomBytes } from "crypto";
+
 const REPLY_DOMAIN = process.env.REPLY_DOMAIN || "reply.musiciangallery.co.nz";
 
-export function maskedAddressForBooking(bookingId: string): string {
-  return `booking-${bookingId}@${REPLY_DOMAIN}`;
+/** 16 hex characters (64 bits of randomness) — short enough to look clean
+ * in an email address, still far too large to guess or brute-force,
+ * especially combined with the sender-match check in the inbound webhook. */
+export function generateReplyCode(): string {
+  return randomBytes(8).toString("hex");
 }
 
-const MASKED_ADDRESS_RE = /^booking-([0-9a-f-]{36})@/i;
+export function maskedReplyAddress(replyCode: string): string {
+  return `booking-${replyCode}@${REPLY_DOMAIN}`;
+}
 
-/** Pulls the booking id back out of a masked address the inbound webhook
+const MASKED_ADDRESS_RE = /^booking-([0-9a-f]{16})@/i;
+
+/** Pulls the reply code back out of a masked address the inbound webhook
  * received a reply at (e.g. the "to" address of an email sent to
- * booking-<uuid>@reply.musiciangallery.co.nz). Returns null if the address
+ * booking-<code>@reply.musiciangallery.co.nz). Returns null if the address
  * doesn't match the expected shape. */
-export function bookingIdFromMaskedAddress(address: string): string | null {
+export function replyCodeFromMaskedAddress(address: string): string | null {
   const match = address.match(MASKED_ADDRESS_RE);
   return match ? match[1] : null;
 }

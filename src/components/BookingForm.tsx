@@ -259,7 +259,7 @@ export default function BookingForm({ musician }: { musician: Musician }) {
           <h2 className="font-serif text-3xl mb-4">
             {musician.name.split(" ")[0]} will be in touch shortly.
           </h2>
-          <p className="text-sm text-mid max-w-sm mx-auto">{`Your request is on its way to ${musician.name.split(" ")[0]}. Most musicians reply within 48 hours, so keep an eye on ${form.clientEmail}.`}</p>
+          <p className="text-sm text-mid max-w-sm mx-auto">{`Your request is on its way to ${musician.name.split(" ")[0]}. Musicians reply to bookings directly, so keep an eye on ${form.clientEmail}.`}</p>
         </div>
       )}
     </div>

@@ -258,11 +258,13 @@ export async function sendBookingEmails(b: BookingEmailInput) {
       to: OWNER_EMAIL,
       replyTo: b.clientEmail,
       subject: `New booking request: ${b.musicianName}`,
-      text: `A new booking request came in.\n\n${summaryLines(b)}`,
+      text: `A new booking request has come in from ${b.clientName} to ${b.musicianName}.\n\n${summaryLines(b)}`,
       html: layout({
         eyebrow: "New booking request",
-        heading: b.musicianName,
-        intro: "A new booking request just came in through the site. Reply directly to this email to reach the client.",
+        heading: `${b.clientName} to ${b.musicianName}`,
+        intro: `A new booking request has come in from ${escapeHtml(b.clientName)} to ${escapeHtml(
+          b.musicianName
+        )}. Reply directly to this email to reach the client.`,
         rowsHtml,
         footerNote: "You're receiving this because you're the site owner at Musician Gallery.",
       }),

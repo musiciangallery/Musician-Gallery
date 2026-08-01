@@ -373,6 +373,9 @@ export async function sendWelcomeEmail(w: WelcomeEmailInput) {
   const ctaHtml = `<span style="display:inline-block; margin-right:12px; margin-bottom:12px;">${primaryButton(
     "Set up payouts",
     payoutsUrl
+  )}</span><span style="display:inline-block; margin-right:12px; margin-bottom:12px;">${secondaryButton(
+    "View your profile",
+    profileUrl
   )}</span><span style="display:inline-block; margin-bottom:12px;">${secondaryButton("View the toolkit", toolkitUrl)}</span>`;
 
   try {
@@ -380,12 +383,12 @@ export async function sendWelcomeEmail(w: WelcomeEmailInput) {
       from: FROM,
       to: w.musicianEmail,
       subject: "Your Musician Gallery profile is live",
-      text: `Hi ${firstName},\n\nWelcome to the Gallery — your profile is now live: ${profileUrl}\n\nBefore your first booking, set up automatic payouts so you get paid the moment a client pays: ${payoutsUrl}\n\nWe've also put together a short toolkit of things worth having ready for your first booking or student: ${toolkitUrl}\n\nWhen a client reaches out, you'll have a chance to talk directly before confirming anything — no pressure to decide on the spot.\n\n— Musician Gallery`,
+      text: `Hi ${firstName},\n\nYour curated profile is now live on Musician Gallery: ${profileUrl}\n\nSet up your Stripe payouts below so we can send payments directly to your account: ${payoutsUrl}\n\nTake a peek at the Musician Toolkit so you're ahead of the game: ${toolkitUrl}\n\nYou'll have a chance to talk to any potential client directly once a booking comes through. Prompt communication is a great sign of professionalism for those seeking your talent.\n\nMusician Gallery`,
       html: layout({
         eyebrow: "You're live",
-        heading: `Welcome, ${firstName}`,
+        heading: `${firstName}, you're in the gallery`,
         intro:
-          "Your profile is now live on Musician Gallery. Set up automatic payouts so you're ready to get paid the moment a client confirms a booking, and take a look at a short toolkit of things worth having ready for your first booking or student. When a client reaches out, you'll have a chance to talk directly before confirming anything — no pressure to decide on the spot.",
+          "Your curated profile is now live on Musician Gallery. Set up your Stripe payouts below so we can send payments directly to your account, and take a peek at the Musician Toolkit so you're ahead of the game. You'll have a chance to talk to any potential client directly once a booking comes through. Prompt communication is a great sign of professionalism for those seeking your talent.",
         ctaHtml,
         footerNote: "You're receiving this because your profile just went live on Musician Gallery.",
       }),
@@ -417,12 +420,12 @@ export async function sendApplicationReceivedEmail(a: ApplicationReceivedEmailIn
       from: FROM,
       to: a.email,
       subject: "We've received your application",
-      text: `Hi ${firstName},\n\nYour application to join Musician Gallery has been received. Thank you for your patience, as we personally review your application.\n\n— Musician Gallery`,
+      text: `Hi ${firstName},\n\nYour application to join Musician Gallery has been received. We appreciate your patience whilst we personally review it. We're glad you found us, and we can't wait to see your talent in the gallery.\n\nMusician Gallery`,
       html: layout({
         eyebrow: "Application received",
-        heading: `Thanks for applying, ${firstName}`,
+        heading: `Thank you, ${firstName}`,
         intro:
-          "Your application to join Musician Gallery has been received. Thank you for your patience, as we personally review your application.",
+          "Your application to join Musician Gallery has been received. We appreciate your patience whilst we personally review it. We're glad you found us, and we can't wait to see your talent in the gallery.",
         footerNote: "You're receiving this because you applied to join Musician Gallery.",
       }),
     });

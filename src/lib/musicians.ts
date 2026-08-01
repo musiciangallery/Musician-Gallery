@@ -1,4 +1,4 @@
-export type Occasion = "Weddings" | "Corporate Events" | "Private Functions" | "Lessons";
+export type Occasion = "Wedding" | "Corporate Events" | "Private Functions" | "Lessons";
 
 export type Musician = {
   slug: string;
@@ -62,7 +62,7 @@ export const musicians: Musician[] = [
     instrument: "Violin",
     region: "Auckland",
     type: "Event Musician",
-    occasions: ["Weddings", "Corporate Events", "Private Functions"],
+    occasions: ["Wedding", "Corporate Events", "Private Functions"],
     vetted: false,
     rateFrom: 350,
     rateUnit: "per event",
@@ -78,7 +78,7 @@ export const musicians: Musician[] = [
     instrument: "Piano",
     region: "Wellington",
     type: "Teacher & Events",
-    occasions: ["Weddings", "Lessons", "Private Functions"],
+    occasions: ["Wedding", "Lessons", "Private Functions"],
     vetted: false,
     rateFrom: 60,
     rateUnit: "per lesson",
@@ -110,7 +110,7 @@ export const musicians: Musician[] = [
     instrument: "Saxophone",
     region: "Auckland",
     type: "Event Musician",
-    occasions: ["Weddings", "Corporate Events"],
+    occasions: ["Wedding", "Corporate Events"],
     vetted: false,
     rateFrom: 400,
     rateUnit: "per event",
@@ -126,7 +126,7 @@ export const musicians: Musician[] = [
     instrument: "Cello",
     region: "Wellington",
     type: "Event Musician",
-    occasions: ["Weddings", "Private Functions"],
+    occasions: ["Wedding", "Private Functions"],
     vetted: false,
     rateFrom: 380,
     rateUnit: "per event",
@@ -142,7 +142,7 @@ export const musicians: Musician[] = [
     instrument: "Vocals",
     region: "Christchurch",
     type: "Teacher & Events",
-    occasions: ["Lessons", "Weddings", "Corporate Events"],
+    occasions: ["Lessons", "Wedding", "Corporate Events"],
     vetted: false,
     rateFrom: 50,
     rateUnit: "per lesson",
@@ -158,7 +158,7 @@ export const musicians: Musician[] = [
     instrument: "Harp",
     region: "Auckland",
     type: "Event Musician",
-    occasions: ["Weddings", "Private Functions"],
+    occasions: ["Wedding", "Private Functions"],
     vetted: false,
     rateFrom: 420,
     rateUnit: "per event",
@@ -190,7 +190,7 @@ export const musicians: Musician[] = [
     instrument: "Flute",
     region: "Dunedin",
     type: "Teacher & Events",
-    occasions: ["Lessons", "Weddings"],
+    occasions: ["Lessons", "Wedding"],
     vetted: false,
     rateFrom: 45,
     rateUnit: "per lesson",
@@ -204,7 +204,7 @@ export const musicians: Musician[] = [
 
 export const instruments = Array.from(new Set(musicians.map((m) => m.instrument))).sort();
 export const regions = Array.from(new Set(musicians.map((m) => m.region))).sort();
-export const occasionsList: Occasion[] = ["Weddings", "Corporate Events", "Private Functions", "Lessons"];
+export const occasionsList: Occasion[] = ["Wedding", "Corporate Events", "Private Functions", "Lessons"];
 
 // The full canonical lists (matching the Join application form) — used for
 // browse/search filters so people can filter by an instrument or region

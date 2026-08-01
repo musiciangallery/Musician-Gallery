@@ -15,6 +15,7 @@ type BookingRow = {
   status: string;
   confirm_token: string | null;
   sessions: number | null;
+  reply_code: string;
 };
 
 type MusicianRow = {
@@ -151,7 +152,7 @@ export async function POST(
         amount: amountDollars,
         checkoutUrl: session.url || `${SITE_URL}/pay/${booking.id}`,
         sessions: isRecurring ? sessions ?? undefined : undefined,
-        bookingId: booking.id,
+        replyCode: booking.reply_code,
       });
     } catch (emailErr) {
       console.error("Booking confirmed email failed:", emailErr);

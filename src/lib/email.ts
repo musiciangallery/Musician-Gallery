@@ -1,5 +1,5 @@
 import { Resend } from "resend";
-import { maskedAddressForBooking } from "@/lib/reply-mask";
+import { maskedReplyAddress } from "@/lib/reply-mask";
 
 // Booking-request emails — sent to Emily (the site owner), the musician
 // (if we have their email on file), and a confirmation to the client.
@@ -23,6 +23,10 @@ type BookingEmailInput = {
   clientEmail: string;
   clientPhone?: string;
   bookingId: string;
+  /** The booking's short reply code (see lib/reply-mask.ts), used to build
+   * its masked reply address. Separate from bookingId, which is the real
+   * booking id used for the confirm/decline link. */
+  replyCode: string;
   confirmToken: string;
 };
 
@@ -281,7 +285,7 @@ export async function sendBookingEmails(b: BookingEmailInput) {
       resend.emails.send({
         from: FROM,
         to: b.musicianEmail,
-        replyTo: maskedAddressForBooking(b.bookingId),
+        replyTo: maskedReplyAddress(b.replyCode),
         subject: `${b.clientName} is looking for a musician for ${b.occasion}`,
         text: `${b.clientName} is looking to book you for ${b.occasion} on ${formatEventDate(
           b.eventDate
@@ -317,7 +321,7 @@ export async function sendBookingEmails(b: BookingEmailInput) {
       // copy — the intro below tells the client they can reach the
       // musician by replying directly, so this has to route through the
       // relay for that to actually be true. See lib/reply-mask.ts.
-      replyTo: maskedAddressForBooking(b.bookingId),
+      replyTo: maskedReplyAddress(b.replyCode),
       subject: `We've sent your request to ${b.musicianName}`,
       text: `Hi ${b.clientName},\n\nYour request has been sent to ${
         b.musicianName
@@ -478,7 +482,7 @@ type BookingConfirmedEmailInput = {
   /** Used to generate this booking's masked reply address — the booking is
    * still very much "live" at this stage (not yet paid), so conversation
    * should stay open. See lib/reply-mask.ts. */
-  bookingId: string;
+  replyCode: string;
 };
 
 /** Sent to the client once the musician confirms a booking and enters their
@@ -521,7 +525,7 @@ export async function sendBookingConfirmedEmail(b: BookingConfirmedEmailInput) {
   // conversation stays open through payment and beyond (see
   // lib/reply-mask.ts for exactly how long), so replies here keep routing
   // through the same relay as the original request email.
-  const replyTo = maskedAddressForBooking(b.bookingId);
+  const replyTo = maskedReplyAddress(b.replyCode);
   const addressNote =
     " Replies only reach the other person when sent from the email address you gave us. A different inbox won't connect.";
 
@@ -615,7 +619,7 @@ type BookingPaidEmailInput = {
    * lib/reply-mask.ts. The booking's still "live" at this point (event
    * hasn't happened yet / lessons aren't done), so conversation stays
    * open. */
-  bookingId: string;
+  replyCode: string;
 };
 
 /** Sent once the Stripe webhook confirms a client's payment went through —
@@ -634,7 +638,7 @@ export async function sendBookingPaidEmail(b: BookingPaidEmailInput) {
 
   const isRecurring = !!b.sessions && b.sessions > 0;
   const progress = isRecurring ? ` (lesson ${b.sessionsPaid} of ${b.sessions})` : "";
-  const replyTo = maskedAddressForBooking(b.bookingId);
+  const replyTo = maskedReplyAddress(b.replyCode);
   const addressNote =
     " Replies only reach the other person when sent from the email address you gave us. A different inbox won't connect.";
 
@@ -788,7 +792,7 @@ type LessonsCompleteEmailInput = {
   /** Used to generate this booking's masked reply address — the reply
    * window stays open for a 1-week grace period from this point (see
    * lib/reply-mask.ts), for a last thank-you or question. */
-  bookingId: string;
+  replyCode: string;
 };
 
 /** Sent once a recurring lesson subscription reaches its agreed end (all N
@@ -802,7 +806,7 @@ export async function sendLessonsCompleteEmail(b: LessonsCompleteEmailInput) {
   }
 
   const sends: Promise<unknown>[] = [];
-  const replyTo = maskedAddressForBooking(b.bookingId);
+  const replyTo = maskedReplyAddress(b.replyCode);
   const addressNote =
     " Replies only reach the other person when sent from the email address you gave us. A different inbox won't connect.";
 
@@ -873,7 +877,10 @@ export async function sendLessonsCompleteEmail(b: LessonsCompleteEmailInput) {
 }
 
 type RelayedMessageEmailInput = {
-  bookingId: string;
+  /** Used to generate the masked address this relayed message appears to
+   * come from, so a reply to it loops back through the relay. See
+   * lib/reply-mask.ts. */
+  replyCode: string;
   toEmail: string;
   toFirstName?: string;
   /** Who the message is from, for display only (e.g. "Sarah Thompson") —
@@ -899,7 +906,7 @@ export async function sendRelayedMessageEmail(m: RelayedMessageEmailInput) {
     return;
   }
 
-  const maskedFrom = maskedAddressForBooking(m.bookingId);
+  const maskedFrom = maskedReplyAddress(m.replyCode);
   const greeting = m.toFirstName ? `Hi ${m.toFirstName},` : "Hi,";
   const messageRowHtml = `
     <tr>

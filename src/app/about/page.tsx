@@ -15,7 +15,7 @@ const clientSteps = [
   {
     n: "II",
     t: "Send a booking request",
-    b: "Reach out directly through the platform. Your musician gets the details and responds directly to you.",
+    b: "Reach out directly through the platform. Ask questions, share details, and get to know your musician before anything is confirmed, all while your email addresses stay private.",
   },
   {
     n: "III",
@@ -33,7 +33,7 @@ const musicianPillars = [
   {
     n: "I",
     t: "A portfolio, ready to go",
-    b: "Your curated profile acts as a professional portfolio: bio, experience, rates, and photos in one place. Share it directly with people you know, or be discovered by instrument, region, and occasion. Either way, you're accessible and ready to book.",
+    b: "Your curated profile acts as a professional portfolio: bio, experience, rates, and photos in one place. Share it directly with people you know, or be discovered by instrument, region, and occasion. Either way, you're accessible and ready to book, with every message delivered through the platform.",
   },
   {
     n: "II",

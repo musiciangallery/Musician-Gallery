@@ -458,13 +458,13 @@ export async function sendApplicationDeclinedReminderEmail(a: ApplicationDecline
       to: OWNER_EMAIL,
       replyTo: a.email,
       subject: `Reminder: you declined ${a.name}'s application`,
-      text: `You declined ${a.name}'s application (${a.email}). No email was sent to them — reply directly to this email to follow up personally if you'd like to.\n\n— Musician Gallery`,
+      text: `You declined ${a.name}'s application. Remember to follow up personally via this email, ${a.email}.\n\nMusician Gallery`,
       html: layout({
         eyebrow: "Application declined",
         heading: `You declined ${a.name}`,
-        intro: `You declined ${escapeHtml(a.name)}'s application (${escapeHtml(
+        intro: `You declined ${escapeHtml(a.name)}'s application. Remember to follow up personally via this email, ${escapeHtml(
           a.email
-        )}). No email was sent to them — reply directly to this email to follow up personally if you'd like to.`,
+        )}.`,
         footerNote: "You're receiving this because you're the site owner at Musician Gallery.",
       }),
     });
@@ -503,15 +503,15 @@ export async function sendBookingConfirmedEmail(b: BookingConfirmedEmailInput) {
   const isRecurring = !!b.sessions && b.sessions > 0;
   const frequency = b.eventDate === "Fortnightly" ? "fortnightly" : "weekly";
   const subject = isRecurring
-    ? `${b.musicianName} confirmed your lessons — set up payment`
-    : `${b.musicianName} confirmed your booking — payment requested`;
+    ? `${b.musicianName} has confirmed your lessons`
+    : `Good news, ${b.musicianName} confirmed your booking`;
   // Copy deliberately leads with the good news, not the invoice, and
   // explains the platform fee as the thing that made finding and booking
-  // this musician possible in the first place — reframing it from "cost
-  // tacked on" to "what connected you" — rather than leaving it as an
+  // this musician possible in the first place, reframing it from "cost
+  // tacked on" to "what connected you" rather than leaving it as an
   // unexplained line-item.
   const bodyText = isRecurring
-    ? `Good news. After chatting, ${b.musicianName} has confirmed your ${frequency} lessons together. It's $${b.amount.toFixed(
+    ? `Good news. ${b.musicianName} has confirmed your ${frequency} lessons together. It's $${b.amount.toFixed(
         2
       )} per lesson plus a 10% platform fee, for ${
         b.sessions
@@ -519,12 +519,12 @@ export async function sendBookingConfirmedEmail(b: BookingConfirmedEmailInput) {
         b.musicianName
       } in the first place, and it goes toward supporting them and the wider community of musicians on the gallery. Set up payment once below and you're all set. It bills automatically each ${
         frequency === "fortnightly" ? "fortnight" : "week"
-      } until all ${b.sessions} are complete, so there's no need to pay each time separately.`
-    : `Good news. After chatting, ${b.musicianName} has confirmed your booking for ${b.occasion} on ${b.eventDate}. The total comes to $${b.amount.toFixed(
+      } until all ${b.sessions} are complete, so there's no need to pay each time separately. Reply to this email anytime to reach ${b.musicianName} directly.`
+    : `Good news. ${b.musicianName} has confirmed your booking for ${b.occasion} on ${b.eventDate}. The total comes to $${b.amount.toFixed(
         2
       )}, plus a 10% platform fee. That fee's what makes it possible to find and book musicians like ${
         b.musicianName
-      } in the first place, and it goes toward supporting them and the wider community of musicians on the gallery.`;
+      } in the first place, and it goes toward supporting them and the wider community of musicians on the gallery. Reply to this email anytime to reach ${b.musicianName} directly.`;
 
   // The booking's masked address, not the musician's real email — the
   // conversation stays open through payment and beyond (see
@@ -540,7 +540,7 @@ export async function sendBookingConfirmedEmail(b: BookingConfirmedEmailInput) {
       to: b.clientEmail,
       replyTo,
       subject,
-      text: `Hi ${b.clientName},\n\n${bodyText}\n\nSet up payment securely here: ${b.checkoutUrl}\n\n— Musician Gallery`,
+      text: `Hi ${b.clientName},\n\n${bodyText}\n\nSet up payment securely here: ${b.checkoutUrl}\n\nMusician Gallery`,
       html: layout({
         eyebrow: isRecurring ? "Lessons confirmed" : "Booking confirmed",
         heading: `${b.musicianName} is confirmed`,
@@ -551,8 +551,8 @@ export async function sendBookingConfirmedEmail(b: BookingConfirmedEmailInput) {
         ),
         footerNote:
           (isRecurring
-            ? "Payment is handled securely by Stripe — Musician Gallery never sees your card details. You can stop anytime by getting in touch."
-            : "Payment is handled securely by Stripe — Musician Gallery never sees your card details.") +
+            ? "Payment is handled securely by Stripe. Musician Gallery never sees your card details. You can stop anytime by getting in touch."
+            : "Payment is handled securely by Stripe. Musician Gallery never sees your card details.") +
           addressNote,
       }),
     });
@@ -586,10 +586,10 @@ export async function sendBookingDeclinedEmail(b: BookingDeclinedEmailInput) {
       // lib/reply-mask.ts), so there's no live conversation left to route
       // a reply into.
       subject: `${b.musicianName} isn't available for your booking`,
-      text: `Hi ${b.clientName},\n\nUnfortunately ${b.musicianName} isn't able to take your booking for ${b.occasion} on ${b.eventDate}. This means this request through Musician Gallery will now be closed, but there are plenty of other musicians in the gallery who'd love to help with ${b.occasion}.\n\nBrowse other musicians: ${SITE_URL}/gallery\n\n— Musician Gallery`,
+      text: `Hi ${b.clientName},\n\nUnfortunately ${b.musicianName} isn't able to take your booking for ${b.occasion} on ${b.eventDate}. This means this request through Musician Gallery will now be closed, but there are plenty of other musicians in the gallery who'd love to help with ${b.occasion}.\n\nBrowse other musicians: ${SITE_URL}/gallery\n\nMusician Gallery`,
       html: layout({
         eyebrow: "Booking declined",
-        heading: `${b.musicianName} isn't available`,
+        heading: `${b.musicianName} isn't able to help this time`,
         intro: `Hi ${escapeHtml(b.clientName)}, unfortunately ${escapeHtml(
           b.musicianName
         )} isn't able to take your booking for ${escapeHtml(b.occasion)} on ${escapeHtml(
@@ -659,7 +659,7 @@ export async function sendBookingPaidEmail(b: BookingPaidEmailInput) {
       )} (musician's share, paid out automatically).`,
       html: layout({
         eyebrow: "Payment received",
-        heading: `${b.musicianName} — booking paid${progress}`,
+        heading: `${b.musicianName}: booking paid${progress}`,
         intro: `${escapeHtml(b.clientName)} paid for ${escapeHtml(b.occasion)} on ${escapeHtml(
           b.eventDate
         )} with ${escapeHtml(b.musicianName)}${escapeHtml(progress)}. A payout of $${b.amount.toFixed(
@@ -680,7 +680,7 @@ export async function sendBookingPaidEmail(b: BookingPaidEmailInput) {
         subject: `You've been paid for ${b.occasion}${progress}`,
         text: `Hi ${firstName},\n\nGreat news. ${b.clientName} just paid for your booking (${b.occasion} on ${b.eventDate})${progress}. $${b.amount.toFixed(
           2
-        )} is already on its way to your account, no invoicing or chasing needed on your end.\n\n— Musician Gallery`,
+        )} is already on its way to your account, no invoicing or chasing needed on your end. Nice work.\n\nMusician Gallery`,
         html: layout({
           eyebrow: "Payment received",
           heading: "You've been paid",
@@ -688,7 +688,7 @@ export async function sendBookingPaidEmail(b: BookingPaidEmailInput) {
             b.occasion
           )} on ${escapeHtml(b.eventDate)})${escapeHtml(progress)}. $${b.amount.toFixed(
             2
-          )} is already on its way to your account, no invoicing or chasing needed on your end.`,
+          )} is already on its way to your account, no invoicing or chasing needed on your end. Nice work.`,
           footerNote: "You're receiving this because you have a live profile on Musician Gallery." + addressNote,
         }),
       })
@@ -703,17 +703,17 @@ export async function sendBookingPaidEmail(b: BookingPaidEmailInput) {
         from: FROM,
         to: b.clientEmail,
         replyTo,
-        subject: `Payment received — thank you${progress}`,
+        subject: `Payment received, thank you${progress}`,
         text: `Hi ${b.clientName},\n\nYour payment of $${total.toFixed(2)} for ${b.occasion} on ${b.eventDate} with ${
           b.musicianName
         }${progress} is all sorted. Thank you for supporting ${
           b.musicianName
         }, and for being part of what we're building for musicians at Musician Gallery.${
           isRecurring ? ` Your next lesson will bill automatically, so there's nothing else to do.` : ""
-        }\n\n— Musician Gallery`,
+        }\n\nMusician Gallery`,
         html: layout({
           eyebrow: "Payment received",
-          heading: "Thank you — you're all set",
+          heading: "Thank you, you're all set",
           intro: `Hi ${escapeHtml(b.clientName)}, your payment of $${total.toFixed(2)} for ${escapeHtml(
             b.occasion
           )} on ${escapeHtml(b.eventDate)} with ${escapeHtml(
@@ -724,7 +724,7 @@ export async function sendBookingPaidEmail(b: BookingPaidEmailInput) {
             isRecurring ? " Your next lesson will bill automatically, so there's nothing else to do." : ""
           }`,
           footerNote:
-            "Payment was handled securely by Stripe — Musician Gallery never sees your card details." + addressNote,
+            "Payment was handled securely by Stripe. Musician Gallery never sees your card details." + addressNote,
         }),
       })
     );
@@ -766,16 +766,16 @@ export async function sendLessonPaymentFailedEmail(b: LessonPaymentFailedEmailIn
       // musician. Previously this had no reply-to at all, so a reply would
       // have silently gone nowhere.
       replyTo: OWNER_EMAIL,
-      subject: `A payment for your lessons with ${b.musicianName} didn't go through`,
-      text: `Hi ${b.clientName},\n\nYour latest payment for ${b.occasion} with ${b.musicianName} didn't go through — usually an expired card or insufficient funds. Stripe will automatically retry, but if it keeps failing, reply to this email and we'll sort it out.\n\n— Musician Gallery`,
+      subject: `We had trouble with your last lesson payment`,
+      text: `Hi ${b.clientName},\n\nWe weren't able to process your latest payment for ${b.occasion} with ${b.musicianName}. This sometimes happens with an expired card or a temporary issue with funds, nothing to worry about. Stripe will automatically try again, but if there are any issues, please reply to this email and we'll help sort it out.\n\nMusician Gallery`,
       html: layout({
         eyebrow: "Payment issue",
-        heading: "A payment didn't go through",
-        intro: `Hi ${escapeHtml(b.clientName)}, your latest payment for ${escapeHtml(
+        heading: "A quick payment hiccup",
+        intro: `Hi ${escapeHtml(b.clientName)}, we weren't able to process your latest payment for ${escapeHtml(
           b.occasion
         )} with ${escapeHtml(
           b.musicianName
-        )} didn't go through — usually an expired card or insufficient funds. Stripe will automatically retry, but if it keeps failing, reply to this email and we'll sort it out.`,
+        )}. This sometimes happens with an expired card or a temporary issue with funds, nothing to worry about. Stripe will automatically try again, but if there are any issues, please reply to this email and we'll help sort it out.`,
         footerNote: "You're receiving this because you have an active lesson arrangement through Musician Gallery.",
       }),
     });
@@ -830,7 +830,7 @@ export async function sendLessonsCompleteEmail(b: LessonsCompleteEmailInput) {
         to: b.clientEmail,
         replyTo,
         subject: `Your lessons with ${b.musicianName} are complete`,
-        text: `Hi ${b.clientName},\n\nThat's a wrap. All ${b.sessions} lessons for ${b.occasion} with ${b.musicianName} are complete, and billing has stopped automatically. If you'd like to keep the momentum going, book ${b.musicianName} again here: ${musicianUrl}\n\nOr take a look at other musicians in the gallery: ${SITE_URL}/gallery\n\n— Musician Gallery`,
+        text: `Hi ${b.clientName},\n\nThat's a wrap. All ${b.sessions} lessons for ${b.occasion} with ${b.musicianName} are complete, and billing has stopped automatically. If you'd like to keep the momentum going, book ${b.musicianName} again here: ${musicianUrl}\n\nOr take a look at other musicians in the gallery: ${SITE_URL}/gallery\n\nMusician Gallery`,
         html: layout({
           eyebrow: "Lessons complete",
           heading: "That's a wrap",
@@ -858,7 +858,7 @@ export async function sendLessonsCompleteEmail(b: LessonsCompleteEmailInput) {
         to: b.musicianEmail,
         replyTo,
         subject: `Lessons with ${b.clientName} are complete`,
-        text: `Hi ${firstName},\n\nThat's a wrap. All ${b.sessions} lessons for ${b.occasion} with ${b.clientName} are complete, and billing has stopped automatically. We've also emailed ${b.clientName} on your behalf to thank them for their support and open the door for booking again in future. Nothing more to do on your end unless you two agree to another block together.\n\n— Musician Gallery`,
+        text: `Hi ${firstName},\n\nThat's a wrap. All ${b.sessions} lessons for ${b.occasion} with ${b.clientName} are complete, and billing has stopped automatically. We've also emailed ${b.clientName} on your behalf to thank them for their support and open the door for booking again in future. Nothing more to do on your end unless you two agree to another block together.\n\nMusician Gallery`,
         html: layout({
           eyebrow: "Lessons complete",
           heading: "That's a wrap",

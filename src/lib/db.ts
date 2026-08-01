@@ -104,8 +104,21 @@ export async function ensureTables() {
   // for those.
   await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS completed_at timestamptz`;
 
+  // A short random code (16 hex characters, see lib/reply-mask.ts) used to
+  // build this booking's masked reply address instead of its own id — the
+  // id is a full UUID, which makes for a long, messy-looking email address.
+  // Generated once at booking creation time. The partial unique index (not
+  // a plain UNIQUE constraint) is so existing rows created before this
+  // column existed, which have no code, don't clash on the shared NULL
+  // value.
+  await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS reply_code text`;
+  await sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS bookings_reply_code_idx
+    ON bookings (reply_code) WHERE reply_code IS NOT NULL
+  `;
+
   // Every message relayed through a booking's masked reply address
-  // (booking-<id>@reply.musiciangallery.co.nz) is logged here — quietly,
+  // (booking-<code>@reply.musiciangallery.co.nz) is logged here — quietly,
   // for reactive admin-only visibility (e.g. if a dispute arises), not as
   // an actively monitored inbox. direction is 'to_musician', 'to_client',
   // or 'unmatched' (sender didn't match either known party on the

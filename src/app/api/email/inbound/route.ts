@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { Resend } from "resend";
 import { getSql, ensureTables } from "@/lib/db";
-import { bookingIdFromMaskedAddress, isBookingReplyWindowOpen } from "@/lib/reply-mask";
+import { replyCodeFromMaskedAddress, isBookingReplyWindowOpen } from "@/lib/reply-mask";
 import { sendRelayedMessageEmail } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
@@ -18,6 +18,7 @@ type BookingRow = {
   event_date: string;
   sessions: number | null;
   completed_at: string | null;
+  reply_code: string;
 };
 
 type InboundEvent = {
@@ -31,7 +32,7 @@ type InboundEvent = {
 };
 
 /** Receives replies sent to a booking's masked address
- * (booking-<id>@reply.musiciangallery.co.nz) and relays them on to the
+ * (booking-<code>@reply.musiciangallery.co.nz) and relays them on to the
  * other side of the conversation, so clients and musicians can keep
  * talking without ever seeing each other's real email address. Verifies
  * the request actually came from Resend (Svix signature), fetches the
@@ -87,15 +88,15 @@ export async function POST(req: NextRequest) {
     const sql = getSql();
 
     const toAddress = event.data.to?.[0] ?? "";
-    const bookingId = bookingIdFromMaskedAddress(toAddress);
-    if (!bookingId) {
+    const replyCode = replyCodeFromMaskedAddress(toAddress);
+    if (!replyCode) {
       // Not addressed to a masked booking address — nothing to relay.
       return NextResponse.json({ received: true });
     }
 
     const bookingRows = (await sql`
-      SELECT id, musician_slug, client_name, client_email, status, event_date, sessions, completed_at
-      FROM bookings WHERE id = ${bookingId}
+      SELECT id, musician_slug, client_name, client_email, status, event_date, sessions, completed_at, reply_code
+      FROM bookings WHERE reply_code = ${replyCode}
     `) as unknown as BookingRow[];
     const booking = bookingRows[0];
     if (!booking) {
@@ -159,7 +160,7 @@ export async function POST(req: NextRequest) {
 
     if (recipientEmail) {
       await sendRelayedMessageEmail({
-        bookingId: booking.id,
+        replyCode: booking.reply_code,
         toEmail: recipientEmail,
         toFirstName: recipientFirstName,
         fromLabel,

@@ -6,10 +6,10 @@ export default function MusicianCard({ m }: { m: Musician }) {
   return (
     <Link
       href={`/musicians/${m.slug}`}
-      className="group block border border-rule bg-off/40 hover:bg-off transition-colors"
+      className="group flex flex-col h-full border border-rule bg-off/40 hover:bg-off transition-colors"
     >
       <MusicianPhoto m={m} />
-      <div className="p-6">
+      <div className="p-6 flex flex-col flex-1">
         <div className="flex items-start justify-between mb-4">
           <span className="eyebrow">{m.region}</span>
           {m.vetted && m.type !== "Event Musician" && (
@@ -25,7 +25,7 @@ export default function MusicianCard({ m }: { m: Musician }) {
           {m.instrument} &middot; {m.type}
         </p>
         <p className="text-sm leading-relaxed mb-4">{m.bio}</p>
-        <div className="flex items-center justify-between text-xs text-mid border-t border-rule pt-3">
+        <div className="flex items-center justify-between text-xs text-mid border-t border-rule pt-3 mt-auto">
           <span>
             {m.rateUnit === "By enquiry" || m.rateFrom == null
               ? "Rate by enquiry"

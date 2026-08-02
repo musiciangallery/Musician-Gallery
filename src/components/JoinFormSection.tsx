@@ -16,21 +16,19 @@ export default function JoinFormSection() {
     <>
       {!submitted && (
         <>
-          <p className="text-sm text-mid mb-2 md:mb-0">
+          <p className="text-sm text-mid mb-2">
             Free to list, no commission. Fill in your details below to create
-            your profile.
+            your profile. Applying only takes a few minutes.
           </p>
           <p className="text-sm text-mid mb-12">
-            Applying only takes a few minutes. If you&rsquo;re a teacher, our{" "}
-            <span className="block md:inline mt-1 md:mt-0">
-              <Link
-                href="/toolkit"
-                className="underline underline-offset-4 hover:text-accent"
-              >
-                Musician Toolkit &rarr;
-              </Link>{" "}
-              has more detail on the Police Vetting process.
-            </span>
+            If you&rsquo;re a teacher, more detail on the Police Vetting
+            process is in our{" "}
+            <Link
+              href="/toolkit"
+              className="underline underline-offset-4 hover:text-accent"
+            >
+              Musician Toolkit &rarr;
+            </Link>
           </p>
         </>
       )}

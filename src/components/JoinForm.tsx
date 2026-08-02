@@ -7,7 +7,7 @@ import { ALL_INSTRUMENTS as INSTRUMENTS, ALL_REGIONS as REGIONS } from "@/lib/mu
 const inputClass =
   "w-full border border-rule bg-w px-4 py-3 text-sm focus:outline-none focus:border-accent";
 const labelClass = "text-xs tracking-[0.08em] uppercase text-mid block mb-2";
-const hintClass = "text-[11px] text-mid mt-2";
+const hintClass = "text-xs text-mid mt-2";
 
 const YEARS_EXPERIENCE = [
   "Less than 1 year",
@@ -661,7 +661,7 @@ export default function JoinForm({
       >
         {submitting ? "Submitting..." : "Submit application"}
       </button>
-      <p className="text-[11px] text-mid leading-relaxed">
+      <p className="text-xs text-mid leading-relaxed">
         Free to list, zero commission. Submit your details to get started.
       </p>
     </form>

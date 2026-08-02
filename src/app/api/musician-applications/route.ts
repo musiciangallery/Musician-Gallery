@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse, after } from "next/server";
 import { randomUUID } from "crypto";
 import { getSql, ensureTables } from "@/lib/db";
-import { sendApplicationReceivedEmail } from "@/lib/email";
+import { sendApplicationReceivedEmail, sendNewApplicationOwnerEmail } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -60,6 +60,13 @@ export async function POST(req: NextRequest) {
     // never the file bytes — that keeps large files well clear of the
     // ~4.5MB request body limit serverless functions enforce.
     const fileUrls = parseJsonArray(form.get("previousWorkFileUrls"));
+    // Sent separately from previousWorkFileUrls (which also includes any
+    // uploaded videos) so this route can confirm at least one photo came
+    // through, without needing to guess which URLs are photos vs videos.
+    // Enforced here too, not just in JoinForm.tsx, in case that check is
+    // ever bypassed.
+    const photoCountRaw = form.get("photoCount");
+    const photoCount = typeof photoCountRaw === "string" ? parseInt(photoCountRaw, 10) : 0;
     // Teacher applicants only, both optional — the CVCheck Police Vetting
     // Check can take weeks, so applicants aren't blocked from applying
     // while they wait on it.
@@ -73,6 +80,13 @@ export async function POST(req: NextRequest) {
       instrumentList.length === 0
     ) {
       return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
+    }
+
+    if (!photoCount || photoCount < 1) {
+      return NextResponse.json(
+        { error: "Please upload at least one photo before submitting your application." },
+        { status: 400 }
+      );
     }
 
     const rateFrom =
@@ -114,6 +128,16 @@ export async function POST(req: NextRequest) {
         await sendApplicationReceivedEmail({ name, email });
       } catch (emailErr) {
         console.error("Application received email failed:", emailErr);
+      }
+      try {
+        await sendNewApplicationOwnerEmail({
+          name,
+          email,
+          type: typeof type === "string" ? type : "Event Musician",
+          instrument: instrumentList.join(", "),
+        });
+      } catch (emailErr) {
+        console.error("New application owner email failed:", emailErr);
       }
     });
 

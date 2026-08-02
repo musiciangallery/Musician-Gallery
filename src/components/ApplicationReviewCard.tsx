@@ -61,7 +61,7 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
   const [longBio, setLongBio] = useState(a.bio || "");
   const [rateFrom, setRateFrom] = useState(a.rate_from != null ? String(a.rate_from) : "");
   const [rateUnit, setRateUnit] = useState(
-    a.rate_unit || (isTeacher ? "per hour of lesson" : "per event")
+    a.rate_unit || (isTeacher ? "per 60min lesson" : "per event")
   );
   const [availability, setAvailability] = useState(a.availability || "");
   const [audioLink, setAudioLink] = useState(a.audio_link || "");
@@ -375,7 +375,7 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
                 onChange={(e) => setRateUnit(e.target.value)}
               >
                 <option value="per event">Per event</option>
-                <option value="per hour of lesson">Per hour of lesson</option>
+                <option value="per 60min lesson">Per 60min lesson</option>
                 <option value="By enquiry">By enquiry (no public number)</option>
               </select>
             </div>

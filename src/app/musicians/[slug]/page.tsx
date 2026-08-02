@@ -182,10 +182,20 @@ export default async function MusicianProfile({
               <p className="text-xs text-mid mb-1">Rate</p>
               <p className="font-serif text-2xl mb-6">By enquiry</p>
             </>
-          ) : (
+          ) : m.rateUnit === "per event" ? (
             <>
               <p className="text-xs text-mid mb-1">Starting from</p>
-              <p className="font-serif text-3xl mb-1">${m.rateFrom}</p>
+              <p className="font-serif text-3xl mb-1">${m.rateFrom.toFixed(2)}</p>
+              <p className="text-xs text-mid mb-1">per event</p>
+              <p className="text-[11px] text-mid mb-6">
+                This is a starting point, informational for you as a
+                potential client, not a fixed quote.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-xs text-mid mb-1">Rate</p>
+              <p className="font-serif text-3xl mb-1">${m.rateFrom.toFixed(2)}</p>
               <p className="text-xs text-mid mb-1">{m.rateUnit}</p>
               <p className="text-[11px] text-mid mb-6">
                 This is a starting point, informational for you as a

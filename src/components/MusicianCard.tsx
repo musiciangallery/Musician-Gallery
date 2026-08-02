@@ -29,7 +29,9 @@ export default function MusicianCard({ m }: { m: Musician }) {
           <span>
             {m.rateUnit === "By enquiry" || m.rateFrom == null
               ? "Rate by enquiry"
-              : `From $${m.rateFrom} ${m.rateUnit}`}
+              : m.rateUnit === "per event"
+              ? `From $${m.rateFrom.toFixed(2)} per event`
+              : `$${m.rateFrom.toFixed(2)} ${m.rateUnit}`}
           </span>
           <span className="text-blk">View profile &rarr;</span>
         </div>

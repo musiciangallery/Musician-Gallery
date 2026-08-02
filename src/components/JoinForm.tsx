@@ -267,15 +267,12 @@ export default function JoinForm({
   }
 
   if (submitted) {
-    const needsVetting = form.type !== "Event Musician";
     return (
       <div className="text-center py-16 border border-rule">
         <p className="eyebrow mb-4">Application received</p>
         <h2 className="font-serif text-3xl mb-4">Welcome to the gallery.</h2>
         <p className="text-sm text-mid max-w-sm mx-auto">
-          {needsVetting
-            ? "We'll be in touch once your application review is complete, then your profile goes live."
-            : "We'll review your application and be in touch shortly to get your profile live."}
+          We&rsquo;ll review your application and be in touch shortly.
         </p>
       </div>
     );

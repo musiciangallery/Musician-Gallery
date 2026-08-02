@@ -233,7 +233,7 @@ export default function BookingForm({ musician }: { musician: Musician }) {
               </div>
             ))}
           </dl>
-          <p className="text-xs text-mid">{`Sending this puts your request straight in front of ${musician.name}. Nothing is charged today. A 10% platform fee only applies once the booking is confirmed and payment goes through.`}</p>
+          <p className="text-xs text-mid">{`Sending this puts your request straight in front of ${musician.name}.`}</p>
           {error && <p className="text-xs text-accent">{error}</p>}
           <div className="flex gap-4">
             <button

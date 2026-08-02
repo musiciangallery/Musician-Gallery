@@ -25,7 +25,7 @@ const clientSteps = [
   {
     n: "IV",
     t: "Enjoy the music",
-    b: "Your musician gets paid automatically once you complete payment. Whether it's a musician for an event or a teacher to expand your musical language, your booking supports them directly.",
+    b: "The moment your payment goes through, your musician is paid too, instantly and in full. Whether it's a musician for an event or a teacher to expand your musical language, your booking supports them directly.",
   },
 ];
 

@@ -21,15 +21,15 @@ export default function JoinFormSection() {
             your profile.
           </p>
           <p className="text-sm text-mid mb-12">
-            Not sure what to have ready?{" "}
+            Applying only takes a few minutes. If you&rsquo;re a teacher, our{" "}
             <span className="block md:inline mt-1 md:mt-0">
-              See the{" "}
               <Link
                 href="/toolkit"
                 className="underline underline-offset-4 hover:text-accent"
               >
                 Musician Toolkit &rarr;
-              </Link>
+              </Link>{" "}
+              has more detail on the Police Vetting process.
             </span>
           </p>
         </>

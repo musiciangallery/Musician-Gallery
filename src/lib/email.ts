@@ -434,6 +434,46 @@ export async function sendApplicationReceivedEmail(a: ApplicationReceivedEmailIn
   }
 }
 
+type NewApplicationOwnerEmailInput = {
+  name: string;
+  email: string;
+  type: string;
+  instrument: string;
+};
+
+/** Notifies Emily the moment a new musician application comes in, so
+ * review doesn't rely on remembering to check /admin. Reply-to is set to
+ * the applicant so she can follow up directly if needed. Fail-quiet,
+ * matching the other emails — a failed send should never stop the
+ * application itself from saving. */
+export async function sendNewApplicationOwnerEmail(a: NewApplicationOwnerEmailInput) {
+  if (!resend) {
+    console.warn("RESEND_API_KEY not set — skipping new application owner email.");
+    return;
+  }
+
+  try {
+    await resend.emails.send({
+      from: FROM,
+      to: OWNER_EMAIL,
+      replyTo: a.email,
+      subject: `New application: ${a.name}`,
+      text: `${a.name} has applied to join Musician Gallery as a ${a.type} (${a.instrument}).\n\nReview it in /admin: ${SITE_URL}/admin\n\nMusician Gallery`,
+      html: layout({
+        eyebrow: "New application",
+        heading: `${a.name} applied to join`,
+        intro: `${escapeHtml(a.name)} has applied to join Musician Gallery as a ${escapeHtml(
+          a.type
+        )} (${escapeHtml(a.instrument)}). Review the application in /admin.`,
+        ctaHtml: primaryButton("Review application", `${SITE_URL}/admin`),
+        footerNote: "You're receiving this because you're the site owner at Musician Gallery.",
+      }),
+    });
+  } catch (err) {
+    console.error("New application owner email failed to send:", err);
+  }
+}
+
 type ApplicationDeclinedReminderInput = {
   name: string;
   email: string;

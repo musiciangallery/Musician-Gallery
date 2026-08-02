@@ -11,7 +11,7 @@ export type Musician = {
   /** Null when the musician has chosen to keep their rate private — see
    * rateUnit below. */
   rateFrom: number | null;
-  rateUnit: "per event" | "per hour of lesson" | "By enquiry";
+  rateUnit: "per event" | "per 60min lesson" | "By enquiry";
   bio: string;
   longBio: string;
   /** A number of years (the original mock profiles) or a range like
@@ -81,7 +81,7 @@ export const musicians: Musician[] = [
     occasions: ["Wedding", "Lessons", "Private Functions"],
     vetted: false,
     rateFrom: 60,
-    rateUnit: "per hour of lesson",
+    rateUnit: "per 60min lesson",
     bio: "Piano teacher and event pianist, available for lessons from beginner to advanced.",
     longBio:
       "James teaches piano from his Wellington studio to students of all ages and levels, and performs as an event pianist on weekends. He brings a patient, structured teaching style suited to beginners through to advanced players preparing for exams.",
@@ -97,7 +97,7 @@ export const musicians: Musician[] = [
     occasions: ["Lessons"],
     vetted: false,
     rateFrom: 55,
-    rateUnit: "per hour of lesson",
+    rateUnit: "per 60min lesson",
     bio: "Acoustic and fingerstyle guitar teacher welcoming students of all ages. Lessons in-home or online.",
     longBio:
       "Aroha specialises in acoustic and fingerstyle guitar, teaching students from age 7 through to adult beginners. Lessons are available in-home across Christchurch or online, with a focus on building strong fundamentals and a love of playing.",
@@ -145,7 +145,7 @@ export const musicians: Musician[] = [
     occasions: ["Lessons", "Wedding", "Corporate Events"],
     vetted: false,
     rateFrom: 50,
-    rateUnit: "per hour of lesson",
+    rateUnit: "per 60min lesson",
     bio: "Vocal coach and event vocalist, teaching contemporary and musical theatre technique.",
     longBio:
       "Tama teaches contemporary and musical theatre vocal technique to students preparing for exams, auditions, or simply learning to sing with confidence, and performs as an event vocalist on weekends across Canterbury.",
@@ -177,7 +177,7 @@ export const musicians: Musician[] = [
     occasions: ["Lessons"],
     vetted: false,
     rateFrom: 55,
-    rateUnit: "per hour of lesson",
+    rateUnit: "per 60min lesson",
     bio: "Drum teacher for beginners through to intermediate players, in a relaxed, encouraging studio.",
     longBio:
       "Daniel teaches drums to students from age 8 through to adult beginners in his Wellington studio, with a focus on rhythm fundamentals, reading, and building the confidence to eventually play in a band setting.",
@@ -193,7 +193,7 @@ export const musicians: Musician[] = [
     occasions: ["Lessons", "Wedding"],
     vetted: false,
     rateFrom: 45,
-    rateUnit: "per hour of lesson",
+    rateUnit: "per 60min lesson",
     bio: "Flute teacher and ceremony musician, welcoming students of all ages across Dunedin.",
     longBio:
       "Priya teaches flute to students of all ages across Dunedin and performs at wedding ceremonies on weekends, with a repertoire spanning classical, folk, and contemporary arrangements.",

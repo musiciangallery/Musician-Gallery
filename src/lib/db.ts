@@ -194,7 +194,7 @@ export async function ensureTables() {
 
   // The applicant's self-set starting rate — a starting point for an admin
   // to review and adjust during approval, not published as-is. rate_unit
-  // is either "per event" / "per lesson", or "By enquiry" when the
+  // is either "per event" / "per hour of lesson", or "By enquiry" when the
   // applicant chose to keep their rate private rather than list a number
   // (rate_from is left null in that case).
   await sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS rate_from integer`;

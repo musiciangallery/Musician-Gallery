@@ -25,6 +25,7 @@ type DbMusicianRow = {
   email: string | null;
   featured: boolean;
   availability: string | null;
+  availability_tags: string[] | null;
   audio_link: string | null;
 };
 
@@ -48,6 +49,7 @@ function fromDbRow(row: DbMusicianRow): Musician {
     email: row.email ?? undefined,
     featured: row.featured,
     availability: row.availability ?? undefined,
+    availabilityTags: row.availability_tags ?? undefined,
     audioLink: row.audio_link ?? undefined,
     isLive: true,
   };

@@ -194,6 +194,16 @@ export async function ensureTables() {
     // — the id is a full UUID, which makes for a long, messy-looking email
     // address. Generated once at booking creation time.
     sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS reply_code text`,
+    // Full-term-upfront lesson billing, added alongside the original
+    // per-lesson subscription option. pay_upfront_requested is the
+    // client's stated preference at request time (informational only,
+    // shown to the musician); pay_upfront is the musician's actual
+    // decision at confirm time, which determines whether the Stripe
+    // Checkout Session created is a one-time payment for the full term
+    // or a recurring subscription. Both default false so existing
+    // per-lesson bookings are unaffected.
+    sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS pay_upfront_requested boolean NOT NULL DEFAULT false`,
+    sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS pay_upfront boolean NOT NULL DEFAULT false`,
 
     // Additional listing fields, added after the initial launch. Using
     // ADD COLUMN IF NOT EXISTS (rather than altering the existing

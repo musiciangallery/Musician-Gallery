@@ -36,10 +36,13 @@ export type Musician = {
   /** Manually curated in /admin — featured musicians are the ones shown in
    * the homepage "From the gallery" section. */
   featured?: boolean;
-  /** Free-text availability signal (e.g. "Weekday evenings, most
-   * weekends"), stated by the applicant and editable by an admin — a
-   * lightweight alternative to a real calendar, shown on the profile page
-   * when set. */
+  /** General availability, picked from AVAILABILITY_TAGS below — shown as
+   * small tags on the profile page, a lightweight alternative to a real
+   * calendar. */
+  availabilityTags?: string[];
+  /** Optional free-text note alongside the tags above (e.g. "not
+   * available in December"), stated by the applicant and editable by an
+   * admin. */
   availability?: string;
   /** A link to hear the musician play — a Spotify share link (embedded as
    * a player on the profile) or any other music link (shown as a plain
@@ -234,6 +237,19 @@ export const ALL_INSTRUMENTS = [
   "Violin",
   "Vocals",
   "Other",
+];
+
+// Shown as small tags on a profile instead of the old free-text-only
+// availability sentence — shared across event musicians and teachers
+// rather than split into two lists, to keep the Join form and admin
+// screens simple.
+export const AVAILABILITY_TAGS = [
+  "Weekday mornings",
+  "Weekday afternoons",
+  "Weekday evenings",
+  "Weekends",
+  "Public holidays",
+  "Short notice",
 ];
 
 export const ALL_REGIONS = [

@@ -204,6 +204,21 @@ export async function ensureTables() {
     // per-lesson bookings are unaffected.
     sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS pay_upfront_requested boolean NOT NULL DEFAULT false`,
     sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS pay_upfront boolean NOT NULL DEFAULT false`,
+    // Delayed payout for one-off event bookings only (recurring/upfront
+    // lesson bookings keep their existing instant destination-charge
+    // payout, unaffected by any of this). The client's payment still lands
+    // on the platform's own Stripe balance at checkout, same as before, but
+    // the musician's share is no longer transferred automatically — it's
+    // moved with a separate Stripe Transfer the day after event_date, via
+    // the /api/cron/release-payouts job. stripe_charge_id is captured by
+    // the webhook right after payment succeeds (a Transfer needs the
+    // Charge id, not the PaymentIntent id, as its source_transaction).
+    // stripe_transfer_id and payout_transferred_at are set once that
+    // Transfer succeeds, and double as the "already paid out" guard so the
+    // cron job never transfers the same booking twice.
+    sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS stripe_charge_id text`,
+    sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS stripe_transfer_id text`,
+    sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS payout_transferred_at timestamptz`,
 
     // Additional listing fields, added after the initial launch. Using
     // ADD COLUMN IF NOT EXISTS (rather than altering the existing

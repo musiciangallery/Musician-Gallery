@@ -130,6 +130,8 @@ function statusLabel(status: string, amountCents: number | null) {
   switch (status) {
     case "paid":
       return `Paid${amount}`;
+    case "completed":
+      return `Completed${amount}`;
     case "confirmed":
       return `Confirmed, awaiting payment${amount}`;
     case "declined":

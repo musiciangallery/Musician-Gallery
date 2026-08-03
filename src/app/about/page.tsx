@@ -20,7 +20,7 @@ const clientSteps = [
   {
     n: "III",
     t: "Pay securely, once confirmed",
-    b: "You and your musician or teacher confirm the details that matter: set list or lesson structure, capability, availability, and rate. Once your musician confirms, your booking is secured with a payment link sent directly to your email. For lessons, agree on a set number of sessions together. A full term is a good amount to start with, and payments then run automatically for that whole term.",
+    b: "You and your musician or teacher confirm the details that matter: set list or lesson structure, capability, availability, and rate. Once your musician confirms, your booking is secured with a payment link sent directly to your email. For lessons, agree on a set number of sessions together. A full term is a good amount to start with, and choose whether that's billed per lesson or paid upfront in one go.",
   },
   {
     n: "IV",
@@ -43,7 +43,7 @@ const musicianPillars = [
   {
     n: "III",
     t: "Backend, handled",
-    b: "Payment collection and payout are handled automatically once your client pays. No invoicing, no chasing clients for payment, and every transaction is logged in your own Stripe dashboard, ready for tax time. For lessons, agree on a set number of lessons upfront, and the whole run bills itself automatically from there, no invoicing week to week.",
+    b: "Payment collection and payout are handled automatically once your client pays. No invoicing, no chasing clients for payment, and every transaction is logged in your own Stripe dashboard, ready for tax time. For lessons, agree on a set number of lessons upfront, then bill it automatically per lesson or take the whole term as one payment.",
   },
   {
     n: "IV",
@@ -196,10 +196,11 @@ export default function AboutPage() {
             nothing withheld, deducted, or charged as commission.
           </p>
           <p className="text-sm text-mid leading-relaxed">
-            For ongoing lessons, agree on a quantity upfront. A school
-            term is a sensible starting point, and billing then runs
-            automatically for the length of that term, no invoicing
-            lesson by lesson.
+            For ongoing lessons, agree on a quantity upfront (a school
+            term is a sensible starting point), and then choose how
+            it&rsquo;s billed. Automatically each week or fortnight, or
+            as one upfront payment for the whole term. Once set up,
+            you&rsquo;re good to go.
           </p>
         </div>
       </section>

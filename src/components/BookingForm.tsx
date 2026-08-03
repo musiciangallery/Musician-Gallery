@@ -25,9 +25,10 @@ export default function BookingForm({ musician }: { musician: Musician }) {
     clientName: "",
     clientEmail: "",
     clientPhone: "",
+    payUpfrontRequested: false,
   });
 
-  const update = (field: keyof typeof form, value: string) =>
+  const update = <K extends keyof typeof form>(field: K, value: (typeof form)[K]) =>
     setForm((f) => ({ ...f, [field]: value }));
 
   const isLessons = form.occasion === "Lessons";
@@ -84,7 +85,7 @@ export default function BookingForm({ musician }: { musician: Musician }) {
             <select
               className={inputClass}
               value={form.occasion}
-              onChange={(e) => update("occasion", e.target.value)}
+              onChange={(e) => update("occasion", e.target.value as Occasion)}
             >
               {musician.occasions.map((o) => (
                 <option key={o} value={o}>
@@ -132,6 +133,20 @@ export default function BookingForm({ musician }: { musician: Musician }) {
                 A rough number is fine &mdash; e.g. a school term is usually
                 8&ndash;10 weeks. {musician.name.split(" ")[0]} will confirm
                 the exact count and rate with you.
+              </p>
+              <label className="flex items-center gap-2 text-sm cursor-pointer mt-3">
+                <input
+                  type="checkbox"
+                  checked={form.payUpfrontRequested}
+                  onChange={(e) => update("payUpfrontRequested", e.target.checked)}
+                  className="accent-accent"
+                />
+                I&rsquo;d prefer to pay for the whole term upfront, rather
+                than billed per lesson
+              </label>
+              <p className="text-xs text-mid mt-2">
+                {musician.name.split(" ")[0]} will confirm which way this
+                is billed along with the rest of the details.
               </p>
             </div>
           )}
@@ -221,6 +236,9 @@ export default function BookingForm({ musician }: { musician: Musician }) {
               ["Occasion", form.occasion],
               [isLessons ? "Frequency" : "Date", form.eventDate],
               ...(isRecurring ? [["Number of lessons", form.sessions]] : []),
+              ...(isRecurring
+                ? [["Payment", form.payUpfrontRequested ? "Whole term upfront" : "Per lesson"]]
+                : []),
               ["Location", form.location || "—"],
               ["Notes", form.details || "—"],
               ["Name", form.clientName],

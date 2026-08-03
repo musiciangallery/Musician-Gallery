@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
     clientName,
     clientEmail,
     clientPhone,
+    payUpfrontRequested,
   } = body;
 
   const sessionsCount =
@@ -59,9 +60,9 @@ export async function POST(req: NextRequest) {
     const replyCode = generateReplyCode();
     await sql`
       INSERT INTO bookings
-        (id, musician_slug, occasion, event_date, sessions, location, details, client_name, client_email, client_phone, confirm_token, reply_code)
+        (id, musician_slug, occasion, event_date, sessions, location, details, client_name, client_email, client_phone, confirm_token, reply_code, pay_upfront_requested)
       VALUES
-        (${id}, ${musicianSlug}, ${occasion}, ${eventDate}, ${sessionsCount}, ${location ?? ""}, ${details ?? ""}, ${clientName}, ${clientEmail}, ${clientPhone ?? ""}, ${confirmToken}, ${replyCode})
+        (${id}, ${musicianSlug}, ${occasion}, ${eventDate}, ${sessionsCount}, ${location ?? ""}, ${details ?? ""}, ${clientName}, ${clientEmail}, ${clientPhone ?? ""}, ${confirmToken}, ${replyCode}, ${Boolean(payUpfrontRequested)})
     `;
 
     // Best-effort — a failed or unconfigured email send should never stop

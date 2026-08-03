@@ -20,7 +20,7 @@ const clientSteps = [
   {
     n: "III",
     t: "Pay securely, once confirmed",
-    b: "You and your musician or teacher confirm the details that matter: set list or lesson structure, capability, availability, and rate. Once your musician confirms, your booking is secured with a payment link sent directly to your email.",
+    b: "You and your musician or teacher confirm the details that matter: set list or lesson structure, capability, availability, and rate. Once your musician confirms, your booking is secured with a payment link sent directly to your email. For lessons, agree on a set number of sessions together. A full term is a good amount to start with, and payments then run automatically for that whole term.",
   },
   {
     n: "IV",
@@ -43,7 +43,7 @@ const musicianPillars = [
   {
     n: "III",
     t: "Backend, handled",
-    b: "Payment collection and payout are handled automatically once your client pays. No invoicing, no chasing clients for payment, and every transaction is logged in your own Stripe dashboard, ready for tax time.",
+    b: "Payment collection and payout are handled automatically once your client pays. No invoicing, no chasing clients for payment, and every transaction is logged in your own Stripe dashboard, ready for tax time. For lessons, agree on a set number of lessons upfront, and the whole run bills itself automatically from there, no invoicing week to week.",
   },
   {
     n: "IV",
@@ -194,6 +194,12 @@ export default function AboutPage() {
             Stripe account linked directly to your bank account. From
             there, every payment lands automatically, in full, with
             nothing withheld, deducted, or charged as commission.
+          </p>
+          <p className="text-sm text-mid leading-relaxed">
+            For ongoing lessons, agree on a quantity upfront. A school
+            term is a sensible starting point, and billing then runs
+            automatically for the length of that term, no invoicing
+            lesson by lesson.
           </p>
         </div>
       </section>

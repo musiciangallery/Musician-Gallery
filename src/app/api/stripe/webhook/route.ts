@@ -4,6 +4,7 @@ import { getSql, ensureTables } from "@/lib/db";
 import { getStripe } from "@/lib/stripe";
 import {
   sendBookingPaidEmail,
+  sendEventBookingPaidEmail,
   sendLessonPaymentFailedEmail,
   sendLessonsCompleteEmail,
   sendLessonsPaidUpfrontEmail,
@@ -160,19 +161,38 @@ export async function POST(req: NextRequest) {
           console.error("Lessons paid upfront email failed:", emailErr);
         }
       } else if (booking && booking.status !== "paid" && booking.status !== "completed") {
-        // One-off booking — the existing single-payment flow, unchanged.
-        // Guards against "completed" too, not just "paid" — a retried
-        // webhook delivery for an upfront lesson booking (which jumps
-        // straight to "completed", skipping "paid" entirely) would
+        // One-off booking. Guards against "completed" too, not just "paid"
+        // — a retried webhook delivery for an upfront lesson booking (which
+        // jumps straight to "completed", skipping "paid" entirely) would
         // otherwise fall through to here, overwrite status back to
         // "paid", and undo the completed_at that lib/reply-mask.ts
         // depends on to ever close that booking's reply address.
+        //
+        // Payment succeeding here is deliberately not the same moment the
+        // musician gets paid — see the confirm route, which no longer sets
+        // transfer_data on this Checkout Session. The charge lands on
+        // Musician Gallery's own Stripe balance, and stripe_charge_id is
+        // captured below so /api/cron/release-payouts can create a
+        // separate Transfer for the musician's share the day after the
+        // event, once it's actually safe to say the money is theirs.
         const paymentIntentId =
           typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id ?? null;
 
+        let chargeId: string | null = null;
+        if (paymentIntentId) {
+          try {
+            const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+            const latestCharge = paymentIntent.latest_charge;
+            chargeId = typeof latestCharge === "string" ? latestCharge : latestCharge?.id ?? null;
+          } catch (err) {
+            console.error("Failed to retrieve payment intent for charge id:", err);
+          }
+        }
+
         await sql`
           UPDATE bookings
-          SET status = 'paid', paid_at = now(), stripe_payment_intent_id = ${paymentIntentId}
+          SET status = 'paid', paid_at = now(), stripe_payment_intent_id = ${paymentIntentId},
+              stripe_charge_id = ${chargeId}
           WHERE id = ${booking.id}
         `;
 
@@ -180,7 +200,7 @@ export async function POST(req: NextRequest) {
         const musician = musicianRows[0];
 
         try {
-          await sendBookingPaidEmail({
+          await sendEventBookingPaidEmail({
             musicianName: (musician?.name as string | undefined) ?? booking.musician_slug,
             musicianEmail: musician?.email as string | undefined,
             clientName: booking.client_name,
@@ -191,7 +211,7 @@ export async function POST(req: NextRequest) {
             replyCode: booking.reply_code,
           });
         } catch (emailErr) {
-          console.error("Booking paid email failed:", emailErr);
+          console.error("Event booking paid email failed:", emailErr);
         }
       }
     }

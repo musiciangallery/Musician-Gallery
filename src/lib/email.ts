@@ -797,6 +797,196 @@ export async function sendBookingPaidEmail(b: BookingPaidEmailInput) {
   });
 }
 
+type EventBookingPaidEmailInput = {
+  musicianName: string;
+  musicianEmail?: string;
+  clientName: string;
+  clientEmail?: string;
+  occasion: string;
+  eventDate: string;
+  /** The musician's quoted rate in dollars — what they'll actually
+   * receive, once paid out. */
+  amount: number;
+  /** Used to generate this booking's masked reply address — see
+   * lib/reply-mask.ts. The booking's still "live" at this point (the event
+   * hasn't happened yet), so conversation stays open. */
+  replyCode: string;
+};
+
+/** Sent once the Stripe webhook confirms a client's payment for a one-off
+ * event booking has gone through. Unlike sendBookingPaidEmail (still used
+ * for recurring lesson billing, where payout stays instant), the money
+ * here doesn't move to the musician's account straight away — it's held on
+ * Musician Gallery's own Stripe balance and paid out automatically the day
+ * after the event via /api/cron/release-payouts, so the musician's copy
+ * explains that delay rather than saying it's already on its way. A copy
+ * to the site owner for visibility, one to the musician, and one to the
+ * client confirming their payment (the /pay/[id]/success page tells them
+ * to expect this). Fail-quiet, matching the other booking emails. */
+export async function sendEventBookingPaidEmail(b: EventBookingPaidEmailInput) {
+  if (!resend) {
+    console.warn("RESEND_API_KEY not set — skipping event booking paid email.");
+    return;
+  }
+
+  const replyTo = maskedReplyAddress(b.replyCode);
+  const addressNote =
+    " Replies only reach the other person when sent from the email address you gave us. A different inbox won't connect.";
+
+  const sends: Promise<unknown>[] = [];
+
+  sends.push(
+    resend.emails.send({
+      from: FROM,
+      to: OWNER_EMAIL,
+      subject: `Booking paid: ${b.musicianName} (payout scheduled)`,
+      text: `${b.clientName} paid for ${b.occasion} on ${b.eventDate} with ${b.musicianName}. Amount: $${b.amount.toFixed(
+        2
+      )} (musician's share). Payout is scheduled to go out automatically the day after the event.`,
+      html: layout({
+        eyebrow: "Payment received",
+        heading: `${b.musicianName}: booking paid`,
+        intro: `${escapeHtml(b.clientName)} paid for ${escapeHtml(b.occasion)} on ${escapeHtml(
+          b.eventDate
+        )} with ${escapeHtml(b.musicianName)}. A payout of $${b.amount.toFixed(
+          2
+        )} is scheduled to go out automatically the day after the event.`,
+        footerNote: "You're receiving this because you're the site owner at Musician Gallery.",
+      }),
+    })
+  );
+
+  if (b.musicianEmail) {
+    const firstName = b.musicianName.split(" ")[0];
+    sends.push(
+      resend.emails.send({
+        from: FROM,
+        to: b.musicianEmail,
+        replyTo,
+        subject: `Payment received for ${b.occasion}, payout follows the event`,
+        text: `Hi ${firstName},\n\nGreat news. ${b.clientName} just paid for your booking (${b.occasion} on ${b.eventDate}). Your $${b.amount.toFixed(
+          2
+        )} is confirmed and will be paid out automatically to your account the day after the event, rather than right now. That short delay is there to protect you too: if anything changes before the event, it can be sorted out from our side rather than needing money back from your account afterwards. No invoicing or chasing needed either way.\n\nMusician Gallery`,
+        html: layout({
+          eyebrow: "Payment received",
+          heading: "Payment received",
+          intro: `Hi ${escapeHtml(firstName)}, great news. ${escapeHtml(b.clientName)} just paid for your booking (${escapeHtml(
+            b.occasion
+          )} on ${escapeHtml(b.eventDate)}). Your $${b.amount.toFixed(
+            2
+          )} is confirmed and will be paid out automatically to your account the day after the event, rather than right now. That short delay is there to protect you too: if anything changes before the event, it can be sorted out from our side rather than needing money back from your account afterwards. No invoicing or chasing needed either way.`,
+          footerNote: "You're receiving this because you have a live profile on Musician Gallery." + addressNote,
+        }),
+      })
+    );
+  }
+
+  if (b.clientEmail) {
+    const totalCents = Math.round(b.amount * 100 * 1.1);
+    const total = totalCents / 100;
+    sends.push(
+      resend.emails.send({
+        from: FROM,
+        to: b.clientEmail,
+        replyTo,
+        subject: "Payment received, thank you",
+        text: `Hi ${b.clientName},\n\nYour payment of $${total.toFixed(2)} for ${b.occasion} on ${b.eventDate} with ${
+          b.musicianName
+        } is all sorted. Thank you for supporting ${
+          b.musicianName
+        }, and for being part of what we're building for musicians at Musician Gallery.\n\nMusician Gallery`,
+        html: layout({
+          eyebrow: "Payment received",
+          heading: "Thank you, you're all set",
+          intro: `Hi ${escapeHtml(b.clientName)}, your payment of $${total.toFixed(2)} for ${escapeHtml(
+            b.occasion
+          )} on ${escapeHtml(b.eventDate)} with ${escapeHtml(
+            b.musicianName
+          )} is all sorted. Thank you for supporting ${escapeHtml(
+            b.musicianName
+          )}, and for being part of what we're building for musicians at Musician Gallery.`,
+          footerNote:
+            "Payment was handled securely by Stripe. Musician Gallery never sees your card details." + addressNote,
+        }),
+      })
+    );
+  }
+
+  const results = await Promise.allSettled(sends);
+  results.forEach((r) => {
+    if (r.status === "rejected") console.error("Event booking paid email failed to send:", r.reason);
+  });
+}
+
+type EventPayoutSentEmailInput = {
+  musicianName: string;
+  musicianEmail?: string;
+  occasion: string;
+  eventDate: string;
+  amount: number;
+};
+
+/** Sent by /api/cron/release-payouts once the delayed Stripe Transfer for a
+ * one-off event booking actually succeeds, the day after the event. The
+ * client already got their payment confirmation via
+ * sendEventBookingPaidEmail at checkout time, so this one only goes to the
+ * musician (the payout is what's new to them) and the site owner (for
+ * visibility). Fail-quiet, matching the other booking emails. */
+export async function sendEventPayoutSentEmail(b: EventPayoutSentEmailInput) {
+  if (!resend) {
+    console.warn("RESEND_API_KEY not set — skipping event payout sent email.");
+    return;
+  }
+
+  const sends: Promise<unknown>[] = [];
+
+  sends.push(
+    resend.emails.send({
+      from: FROM,
+      to: OWNER_EMAIL,
+      subject: `Payout sent: ${b.musicianName} (${b.occasion})`,
+      text: `Payout sent to ${b.musicianName} for ${b.occasion} on ${b.eventDate}. Amount: $${b.amount.toFixed(2)}.`,
+      html: layout({
+        eyebrow: "Payout sent",
+        heading: `${b.musicianName}: payout sent`,
+        intro: `A payout of $${b.amount.toFixed(2)} has been sent to ${escapeHtml(
+          b.musicianName
+        )} for ${escapeHtml(b.occasion)} on ${escapeHtml(b.eventDate)}.`,
+        footerNote: "You're receiving this because you're the site owner at Musician Gallery.",
+      }),
+    })
+  );
+
+  if (b.musicianEmail) {
+    const firstName = b.musicianName.split(" ")[0];
+    sends.push(
+      resend.emails.send({
+        from: FROM,
+        to: b.musicianEmail,
+        subject: `You've been paid for ${b.occasion}`,
+        text: `Hi ${firstName},\n\nYour payout for ${b.occasion} on ${b.eventDate} is on its way, $${b.amount.toFixed(
+          2
+        )}, sent automatically to your account now that the event's been and gone. Nice work.\n\nMusician Gallery`,
+        html: layout({
+          eyebrow: "Payout sent",
+          heading: "You've been paid",
+          intro: `Hi ${escapeHtml(firstName)}, your payout for ${escapeHtml(b.occasion)} on ${escapeHtml(
+            b.eventDate
+          )} is on its way, $${b.amount.toFixed(
+            2
+          )}, sent automatically to your account now that the event's been and gone. Nice work.`,
+          footerNote: "You're receiving this because you have a live profile on Musician Gallery.",
+        }),
+      })
+    );
+  }
+
+  const results = await Promise.allSettled(sends);
+  results.forEach((r) => {
+    if (r.status === "rejected") console.error("Event payout sent email failed to send:", r.reason);
+  });
+}
+
 type LessonsPaidUpfrontEmailInput = {
   musicianName: string;
   musicianEmail?: string;

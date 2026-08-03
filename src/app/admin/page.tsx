@@ -1,7 +1,6 @@
 import { getSql, ensureTables } from "@/lib/db";
 import ApplicationReviewCard from "@/components/ApplicationReviewCard";
-import RemoveMusicianButton from "@/components/RemoveMusicianButton";
-import FeatureMusicianButton from "@/components/FeatureMusicianButton";
+import MusicianEditCard from "@/components/MusicianEditCard";
 import { PendingReviewActions, ApprovedReviewActions } from "@/components/ReviewActionButtons";
 
 export const dynamic = "force-dynamic";
@@ -14,9 +13,19 @@ type LiveMusician = {
   instrument: string;
   region: string;
   type: string;
+  occasions: string[] | null;
   vetted: boolean;
+  rate_from: number | null;
+  rate_unit: string | null;
+  bio: string | null;
+  long_bio: string | null;
+  years_experience: string | null;
   photo: string | null;
+  photos: string[] | null;
+  video: string | null;
   featured: boolean;
+  availability: string | null;
+  audio_link: string | null;
   stripe_onboarded: boolean;
   created_at: string;
 };
@@ -93,7 +102,7 @@ async function getData() {
     const sql = getSql();
     const bookings = (await sql`SELECT * FROM bookings ORDER BY created_at DESC`) as unknown as Booking[];
     const applications = (await sql`SELECT * FROM musician_applications ORDER BY created_at DESC`) as unknown as Application[];
-    const liveMusicians = (await sql`SELECT id, slug, name, instrument, region, type, vetted, photo, featured, stripe_onboarded, created_at FROM musicians ORDER BY created_at DESC`) as unknown as LiveMusician[];
+    const liveMusicians = (await sql`SELECT id, slug, name, instrument, region, type, occasions, vetted, rate_from, rate_unit, bio, long_bio, years_experience, photo, photos, video, featured, availability, audio_link, stripe_onboarded, created_at FROM musicians ORDER BY created_at DESC`) as unknown as LiveMusician[];
     const reviews = (await sql`SELECT * FROM reviews ORDER BY created_at DESC`) as unknown as Review[];
     // Messages relayed through bookings' masked reply addresses — quietly
     // logged, reactive admin-only visibility only (not an actively
@@ -299,25 +308,7 @@ export default async function AdminPage() {
             </thead>
             <tbody>
               {liveMusicians.map((m) => (
-                <tr key={m.slug}>
-                  <td className={td}>{m.name}</td>
-                  <td className={td}>{m.instrument}</td>
-                  <td className={td}>{m.region}</td>
-                  <td className={td}>{m.type}</td>
-                  <td className={td}>{m.vetted ? "Yes" : "No"}</td>
-                  <td className={td}>
-                    <FeatureMusicianButton id={m.id} featured={m.featured} />
-                  </td>
-                  <td className={td}>{m.stripe_onboarded ? "Connected" : "Not connected"}</td>
-                  <td className={td}>
-                    <a href={`/musicians/${m.slug}`} target="_blank" className="text-accent hover:underline">
-                      View &rarr;
-                    </a>
-                  </td>
-                  <td className={td}>
-                    <RemoveMusicianButton id={m.id} name={m.name} />
-                  </td>
-                </tr>
+                <MusicianEditCard key={m.slug} m={m} />
               ))}
             </tbody>
           </table>

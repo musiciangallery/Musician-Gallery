@@ -206,12 +206,24 @@ export default async function MusicianProfile({
           <p className="text-xs text-mid mb-6">
             {m.yearsExperience} years experience
           </p>
-          {m.availability && (
+          {((m.availabilityTags && m.availabilityTags.length > 0) || m.availability) && (
             <div className="mb-6">
               <p className="text-[10px] tracking-[0.08em] uppercase text-mid mb-1">
                 Availability
               </p>
-              <p className="text-xs text-mid">{m.availability}</p>
+              {m.availabilityTags && m.availabilityTags.length > 0 && (
+                <ul className="flex flex-wrap gap-2 mb-2">
+                  {m.availabilityTags.map((t) => (
+                    <li
+                      key={t}
+                      className="text-[11px] border border-rule px-2.5 py-1 text-mid"
+                    >
+                      {t}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {m.availability && <p className="text-xs text-mid">{m.availability}</p>}
             </div>
           )}
           <Link

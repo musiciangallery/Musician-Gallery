@@ -6,6 +6,7 @@ import {
   sendBookingPaidEmail,
   sendLessonPaymentFailedEmail,
   sendLessonsCompleteEmail,
+  sendLessonsPaidUpfrontEmail,
 } from "@/lib/email";
 
 /** Stripe invoices carry their subscription reference differently across
@@ -75,7 +76,7 @@ export async function POST(req: NextRequest) {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
       const bookingRows = await sql`
-        SELECT id, musician_slug, client_name, client_email, occasion, event_date, amount, status, sessions, reply_code
+        SELECT id, musician_slug, client_name, client_email, occasion, event_date, amount, status, sessions, pay_upfront, reply_code
         FROM bookings WHERE stripe_checkout_session_id = ${session.id}
       `;
       const booking = bookingRows[0];
@@ -97,10 +98,10 @@ export async function POST(req: NextRequest) {
 
         if (booking.sessions && Number(booking.sessions) > 0) {
           const cadenceDays = booking.event_date === "Fortnightly" ? 14 : 7;
-          // A 3-day buffer after the expected final charge date, so the
+          // A 10-day buffer after the expected final charge date, so the
           // last invoice has time to be generated and paid before the
           // subscription cancels itself.
-          const lastChargeOffsetDays = cadenceDays * (Number(booking.sessions) - 1) + 3;
+          const lastChargeOffsetDays = cadenceDays * (Number(booking.sessions) - 1) + 10;
           const cancelAtSeconds = Math.floor(Date.now() / 1000) + lastChargeOffsetDays * 86400;
           try {
             await stripe.subscriptions.update(subscriptionId, { cancel_at: cancelAtSeconds });
@@ -108,8 +109,64 @@ export async function POST(req: NextRequest) {
             console.error("Failed to set subscription cancel_at:", err);
           }
         }
-      } else if (booking && booking.status !== "paid") {
+      } else if (booking && session.mode === "payment" && booking.sessions && Number(booking.sessions) > 0 && booking.status !== "completed") {
+        // Whole-term-upfront lesson booking — one payment covers every
+        // agreed lesson at once, so all sessions are marked paid together
+        // here rather than incrementing one at a time via invoice.paid
+        // (there's no subscription, so that event never fires for these).
+        // Goes straight to 'completed' (skipping 'paid') rather than
+        // waiting on a later event, since there's no further billing left
+        // to do — matching the recurring path's own end state below
+        // (customer.subscription.deleted), which is what
+        // isBookingReplyWindowOpen (lib/reply-mask.ts) actually checks
+        // against. Without this, a "paid" status would leave the masked
+        // reply address open indefinitely, since that check only starts
+        // honouring completed_at once status is 'completed'. The lessons
+        // themselves still play out over the following weeks even though
+        // billing is done, so completed_at is estimated the same way a
+        // subscription's own cancel_at is above, keeping the reply
+        // address open for that long rather than closing the instant
+        // payment clears.
+        const paymentIntentId =
+          typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id ?? null;
+        const cadenceDays = booking.event_date === "Fortnightly" ? 14 : 7;
+        const lastLessonOffsetDays = cadenceDays * (Number(booking.sessions) - 1) + 10;
+        const sessionsTotal = Number(booking.sessions);
+
+        await sql`
+          UPDATE bookings
+          SET status = 'completed', paid_at = now(), sessions_paid = ${sessionsTotal},
+              stripe_payment_intent_id = ${paymentIntentId},
+              completed_at = now() + (${lastLessonOffsetDays} || ' days')::interval
+          WHERE id = ${booking.id}
+        `;
+
+        const musicianRows = await sql`SELECT name, email FROM musicians WHERE slug = ${booking.musician_slug}`;
+        const musician = musicianRows[0];
+
+        try {
+          await sendLessonsPaidUpfrontEmail({
+            musicianName: (musician?.name as string | undefined) ?? booking.musician_slug,
+            musicianEmail: musician?.email as string | undefined,
+            clientName: booking.client_name,
+            clientEmail: booking.client_email as string | undefined,
+            occasion: booking.occasion,
+            eventDate: booking.event_date,
+            amount: booking.amount ? booking.amount / 100 : 0,
+            sessions: sessionsTotal,
+            replyCode: booking.reply_code,
+          });
+        } catch (emailErr) {
+          console.error("Lessons paid upfront email failed:", emailErr);
+        }
+      } else if (booking && booking.status !== "paid" && booking.status !== "completed") {
         // One-off booking — the existing single-payment flow, unchanged.
+        // Guards against "completed" too, not just "paid" — a retried
+        // webhook delivery for an upfront lesson booking (which jumps
+        // straight to "completed", skipping "paid" entirely) would
+        // otherwise fall through to here, overwrite status back to
+        // "paid", and undo the completed_at that lib/reply-mask.ts
+        // depends on to ever close that booking's reply address.
         const paymentIntentId =
           typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id ?? null;
 

@@ -524,6 +524,9 @@ type BookingConfirmedEmailInput = {
   /** Set only for recurring lesson bookings — switches the copy from "pay
    * this once" to "this sets up automatic weekly/fortnightly billing". */
   sessions?: number;
+  /** Only meaningful when sessions is set — true if the musician chose to
+   * bill the whole term as one payment instead of per lesson. */
+  payUpfront?: boolean;
   /** Used to generate this booking's masked reply address — the booking is
    * still very much "live" at this stage (not yet paid), so conversation
    * should stay open. See lib/reply-mask.ts. */
@@ -541,6 +544,7 @@ export async function sendBookingConfirmedEmail(b: BookingConfirmedEmailInput) {
   }
 
   const isRecurring = !!b.sessions && b.sessions > 0;
+  const isUpfront = isRecurring && !!b.payUpfront;
   const frequency = b.eventDate === "Fortnightly" ? "fortnightly" : "weekly";
   const subject = isRecurring
     ? `${b.musicianName} has confirmed your lessons`
@@ -550,7 +554,18 @@ export async function sendBookingConfirmedEmail(b: BookingConfirmedEmailInput) {
   // this musician possible in the first place, reframing it from "cost
   // tacked on" to "what connected you" rather than leaving it as an
   // unexplained line-item.
-  const bodyText = isRecurring
+  const termTotal = b.amount * (b.sessions ?? 0);
+  const bodyText = isUpfront
+    ? `Good news. ${b.musicianName} has confirmed your ${frequency} lessons together, ${
+        b.sessions
+      } lessons in total. It's $${b.amount.toFixed(2)} per lesson plus a 10% platform fee, paid as one upfront payment of $${(
+        termTotal * 1.1
+      ).toFixed(
+        2
+      )} for the whole term. That fee's what makes it possible to find and book musicians like ${
+        b.musicianName
+      } in the first place, and it goes toward supporting them and the wider community of musicians on the gallery. Set up payment once below and every lesson is covered, no further charges. Reply to this email anytime to reach ${b.musicianName} directly.`
+    : isRecurring
     ? `Good news. ${b.musicianName} has confirmed your ${frequency} lessons together. It's $${b.amount.toFixed(
         2
       )} per lesson plus a 10% platform fee, for ${
@@ -586,11 +601,17 @@ export async function sendBookingConfirmedEmail(b: BookingConfirmedEmailInput) {
         heading: `${b.musicianName} is confirmed`,
         intro: `Hi ${escapeHtml(b.clientName)}, ${escapeHtml(bodyText)}`,
         ctaHtml: primaryButton(
-          isRecurring ? "Set up payment" : `Pay $${b.amount.toFixed(2)} now`,
+          isUpfront
+            ? `Pay $${(termTotal * 1.1).toFixed(2)} now`
+            : isRecurring
+            ? "Set up payment"
+            : `Pay $${b.amount.toFixed(2)} now`,
           b.checkoutUrl
         ),
         footerNote:
-          (isRecurring
+          (isUpfront
+            ? "Payment is handled securely by Stripe. Musician Gallery never sees your card details."
+            : isRecurring
             ? "Payment is handled securely by Stripe. Musician Gallery never sees your card details. You can stop anytime by getting in touch."
             : "Payment is handled securely by Stripe. Musician Gallery never sees your card details.") +
           addressNote,
@@ -773,6 +794,133 @@ export async function sendBookingPaidEmail(b: BookingPaidEmailInput) {
   const results = await Promise.allSettled(sends);
   results.forEach((r) => {
     if (r.status === "rejected") console.error("Booking paid email failed to send:", r.reason);
+  });
+}
+
+type LessonsPaidUpfrontEmailInput = {
+  musicianName: string;
+  musicianEmail?: string;
+  clientName: string;
+  clientEmail?: string;
+  occasion: string;
+  eventDate: string;
+  /** The musician's quoted rate per lesson, in dollars — booking.amount
+   * always stores the per-lesson rate regardless of billing mode, so this
+   * gets multiplied by sessions below for the actual amounts shown. */
+  amount: number;
+  sessions: number;
+  /** Used to generate this booking's masked reply address — see
+   * lib/reply-mask.ts. Lessons are still ongoing at this point even
+   * though billing is done, so conversation stays open. */
+  replyCode: string;
+};
+
+/** Sent once, the moment a whole-term-upfront lesson booking is paid in a
+ * single Stripe Checkout payment — the upfront counterpart to
+ * sendBookingPaidEmail, which instead fires once per cycle for per-lesson
+ * billing. A copy to the site owner for visibility, one to the musician
+ * confirming the full term is already on its way to their account, and one
+ * to the client confirming their payment covers every lesson agreed on.
+ * Fail-quiet, matching the other booking emails. */
+export async function sendLessonsPaidUpfrontEmail(b: LessonsPaidUpfrontEmailInput) {
+  if (!resend) {
+    console.warn("RESEND_API_KEY not set — skipping lessons paid upfront email.");
+    return;
+  }
+
+  const musicianShare = b.amount * b.sessions;
+  const replyTo = maskedReplyAddress(b.replyCode);
+  const addressNote =
+    " Replies only reach the other person when sent from the email address you gave us. A different inbox won't connect.";
+
+  const sends: Promise<unknown>[] = [];
+
+  sends.push(
+    resend.emails.send({
+      from: FROM,
+      to: OWNER_EMAIL,
+      subject: `Term paid in full: ${b.musicianName} (${b.sessions} lessons)`,
+      text: `${b.clientName} paid for the whole term (${b.sessions} lessons) with ${b.musicianName}, ${b.occasion}. Amount: $${musicianShare.toFixed(
+        2
+      )} (musician's share, paid out automatically).`,
+      html: layout({
+        eyebrow: "Payment received",
+        heading: `${b.musicianName}: term paid in full`,
+        intro: `${escapeHtml(b.clientName)} paid for the whole term (${b.sessions} lessons) with ${escapeHtml(
+          b.musicianName
+        )}, ${escapeHtml(b.occasion)}. A payout of $${musicianShare.toFixed(
+          2
+        )} is on its way to the musician automatically.`,
+        footerNote: "You're receiving this because you're the site owner at Musician Gallery.",
+      }),
+    })
+  );
+
+  if (b.musicianEmail) {
+    const firstName = b.musicianName.split(" ")[0];
+    sends.push(
+      resend.emails.send({
+        from: FROM,
+        to: b.musicianEmail,
+        replyTo,
+        subject: `You've been paid for the whole term (${b.occasion})`,
+        text: `Hi ${firstName},\n\nGreat news. ${b.clientName} just paid for the whole term in one payment, all ${b.sessions} lessons (${b.occasion}). $${musicianShare.toFixed(
+          2
+        )} is already on its way to your account, no invoicing or chasing needed for any of these lessons. Nice work.\n\nMusician Gallery`,
+        html: layout({
+          eyebrow: "Payment received",
+          heading: "You've been paid for the whole term",
+          intro: `Hi ${escapeHtml(firstName)}, great news. ${escapeHtml(
+            b.clientName
+          )} just paid for the whole term in one payment, all ${b.sessions} lessons (${escapeHtml(
+            b.occasion
+          )}). $${musicianShare.toFixed(
+            2
+          )} is already on its way to your account, no invoicing or chasing needed for any of these lessons. Nice work.`,
+          footerNote: "You're receiving this because you have a live profile on Musician Gallery." + addressNote,
+        }),
+      })
+    );
+  }
+
+  if (b.clientEmail) {
+    const totalCents = Math.round(musicianShare * 100 * 1.1);
+    const total = totalCents / 100;
+    sends.push(
+      resend.emails.send({
+        from: FROM,
+        to: b.clientEmail,
+        replyTo,
+        subject: "Payment received, your term is all set",
+        text: `Hi ${b.clientName},\n\nYour payment of $${total.toFixed(2)} for the whole term with ${
+          b.musicianName
+        } (${b.sessions} ${b.occasion} lessons) is all sorted. Thank you for supporting ${
+          b.musicianName
+        }, and for being part of what we're building for musicians at Musician Gallery. All ${
+          b.sessions
+        } lessons are covered, nothing more to pay.\n\nMusician Gallery`,
+        html: layout({
+          eyebrow: "Payment received",
+          heading: "Thank you, your term is all set",
+          intro: `Hi ${escapeHtml(b.clientName)}, your payment of $${total.toFixed(
+            2
+          )} for the whole term with ${escapeHtml(b.musicianName)} (${b.sessions} ${escapeHtml(
+            b.occasion
+          )} lessons) is all sorted. Thank you for supporting ${escapeHtml(
+            b.musicianName
+          )}, and for being part of what we're building for musicians at Musician Gallery. All ${
+            b.sessions
+          } lessons are covered, nothing more to pay.`,
+          footerNote:
+            "Payment was handled securely by Stripe. Musician Gallery never sees your card details." + addressNote,
+        }),
+      })
+    );
+  }
+
+  const results = await Promise.allSettled(sends);
+  results.forEach((r) => {
+    if (r.status === "rejected") console.error("Lessons paid upfront email failed to send:", r.reason);
   });
 }
 

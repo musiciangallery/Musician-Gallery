@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { upload } from "@vercel/blob/client";
 import FeatureMusicianButton from "@/components/FeatureMusicianButton";
 import RemoveMusicianButton from "@/components/RemoveMusicianButton";
+import { AVAILABILITY_TAGS } from "@/lib/musicians";
 
 const inputClass =
   "w-full border border-rule bg-w px-3 py-2 text-sm focus:outline-none focus:border-accent";
@@ -30,6 +31,7 @@ export type LiveMusicianForEdit = {
   video: string | null;
   featured: boolean;
   availability: string | null;
+  availability_tags: string[] | null;
   audio_link: string | null;
   stripe_onboarded: boolean;
 };
@@ -57,6 +59,7 @@ export default function MusicianEditCard({ m }: { m: LiveMusicianForEdit }) {
   const [rateUnit, setRateUnit] = useState(m.rate_unit || "per event");
   const [yearsExperience, setYearsExperience] = useState(m.years_experience || "");
   const [availability, setAvailability] = useState(m.availability || "");
+  const [availabilityTags, setAvailabilityTags] = useState<string[]>(m.availability_tags || []);
   const [audioLink, setAudioLink] = useState(m.audio_link || "");
   const [vetted, setVetted] = useState(m.vetted);
   const [occasions, setOccasions] = useState<string[]>(m.occasions || []);
@@ -66,6 +69,9 @@ export default function MusicianEditCard({ m }: { m: LiveMusicianForEdit }) {
 
   const toggleOccasion = (o: string) =>
     setOccasions((cur) => (cur.includes(o) ? cur.filter((x) => x !== o) : [...cur, o]));
+
+  const toggleAvailabilityTag = (t: string) =>
+    setAvailabilityTags((cur) => (cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t]));
 
   async function save() {
     setError(null);
@@ -121,6 +127,7 @@ export default function MusicianEditCard({ m }: { m: LiveMusicianForEdit }) {
           longBio,
           yearsExperience,
           availability,
+          availabilityTags,
           audioLink,
           photoUrl,
           galleryUrls,
@@ -235,10 +242,27 @@ export default function MusicianEditCard({ m }: { m: LiveMusicianForEdit }) {
               </div>
 
               <div>
-                <label className={labelClass}>Availability (shown on public profile, optional)</label>
+                <label className={labelClass}>Availability tags (shown on public profile)</label>
+                <div className="flex flex-wrap gap-4">
+                  {AVAILABILITY_TAGS.map((t) => (
+                    <label key={t} className="flex items-center gap-2 text-sm cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={availabilityTags.includes(t)}
+                        onChange={() => toggleAvailabilityTag(t)}
+                        className="accent-accent"
+                      />
+                      {t}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className={labelClass}>Availability note (optional)</label>
                 <input
                   className={inputClass}
-                  placeholder="e.g. Weekday evenings, most weekends"
+                  placeholder="e.g. not available in December"
                   value={availability}
                   onChange={(e) => setAvailability(e.target.value)}
                 />

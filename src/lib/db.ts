@@ -239,6 +239,11 @@ export async function ensureTables() {
     // publishing — a lightweight alternative to a real calendar, so
     // clients get a rough sense of fit before submitting a request.
     sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS availability text`,
+    // Structured availability tags (see AVAILABILITY_TAGS in
+    // lib/musicians.ts), shown as small tags on the profile alongside the
+    // free-text note above — added so availability reads as scannable
+    // information rather than a single sentence.
+    sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS availability_tags text[]`,
     // A link to hear the applicant play — a Spotify share link (embedded
     // as a player on the live profile) or any other music link (shown as
     // a plain "Listen" link instead). Optional, stated by the applicant
@@ -267,6 +272,7 @@ export async function ensureTables() {
     // Carried over from the application (and editable by an admin) at
     // approval time — shown publicly on the profile page.
     sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS availability text`,
+    sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS availability_tags text[]`,
     sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS audio_link text`,
     // Stripe Connect Express account for automatic payouts.
     // stripe_onboarded only flips true once Stripe confirms (via webhook)

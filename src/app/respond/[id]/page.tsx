@@ -20,6 +20,7 @@ type BookingRow = {
   amount: number | null;
   sessions: number | null;
   sessions_paid: number;
+  pay_upfront_requested: boolean;
 };
 
 type MusicianRow = {
@@ -123,6 +124,7 @@ export default async function RespondToBooking({
             canConfirm={canConfirm}
             frequency={booking.event_date}
             initialSessions={booking.sessions}
+            payUpfrontRequested={booking.pay_upfront_requested}
           />
         </>
       )}

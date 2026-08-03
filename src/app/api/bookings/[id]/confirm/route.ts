@@ -25,10 +25,14 @@ type MusicianRow = {
 };
 
 /** Musician confirms a booking and quotes their rate. Creates a Stripe
- * Checkout Session as a destination charge: the client pays the quoted
- * amount plus a 10% platform fee on top, and the musician's connected
- * account receives the full quoted amount via transfer_data — the fee is
- * carved out on the platform's side, never subtracted from the musician. */
+ * Checkout Session — the client always pays the quoted amount plus a 10%
+ * platform fee on top, and the musician always receives their full quoted
+ * amount, never the fee. For recurring lesson bookings (per-lesson or
+ * whole-term-upfront) that's still a destination charge via transfer_data,
+ * paid out instantly. For one-off event bookings it's a plain charge with
+ * no transfer_data at all — the musician's share is paid out separately,
+ * the day after the event, by /api/cron/release-payouts. See the comment
+ * in that branch below for why. */
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -78,7 +82,6 @@ export async function POST(
 
     const amountCents = Math.round(amountDollars * 100);
     const totalCents = Math.round(amountCents * (1 + PLATFORM_FEE_RATE));
-    const feeCents = totalCents - amountCents;
 
     // Recurring lesson booking: booking.sessions was set when the client
     // first requested it. A subscription-mode Checkout Session replaces the
@@ -144,6 +147,17 @@ export async function POST(
         cancel_url: `${SITE_URL}/pay/${booking.id}`,
       });
     } else {
+      // One-off event booking — deliberately no application_fee_amount or
+      // transfer_data here, unlike the recurring branches above. The full
+      // charge (musician's quote plus the 10% fee) lands on Musician
+      // Gallery's own Stripe balance at checkout, and the musician's share
+      // only moves to their connected account the day after event_date,
+      // via a separate Stripe Transfer created by
+      // /api/cron/release-payouts. This protects both sides against a
+      // cancellation or dispute between payment and the event itself —
+      // if something goes wrong before the event, the money's still sitting
+      // on the platform's own balance to refund cleanly, rather than
+      // needing to be clawed back from the musician's account.
       session = await stripe.checkout.sessions.create({
         mode: "payment",
         line_items: [
@@ -158,10 +172,6 @@ export async function POST(
             quantity: 1,
           },
         ],
-        payment_intent_data: {
-          application_fee_amount: feeCents,
-          transfer_data: { destination: musician.stripe_account_id },
-        },
         customer_email: booking.client_email,
         success_url: `${SITE_URL}/pay/${booking.id}/success`,
         cancel_url: `${SITE_URL}/pay/${booking.id}`,

@@ -1,638 +1,680 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { upload } from "@vercel/blob/client";
+import { ALL_INSTRUMENTS as INSTRUMENTS, ALL_REGIONS as REGIONS, AVAILABILITY_TAGS } from "@/lib/musicians";
 
 const inputClass =
-  "w-full border border-rule bg-w px-3 py-2 text-sm focus:outline-none focus:border-accent";
-const labelClass = "text-[10px] tracking-[0.08em] uppercase text-mid block mb-1";
+  "w-full border border-rule bg-w px-4 py-3 text-sm focus:outline-none focus:border-accent";
+const labelClass = "text-xs tracking-[0.08em] uppercase text-mid block mb-2";
+const hintClass = "text-xs text-mid mt-2";
 
-export type ApplicationForReview = {
-  id: string;
-  name: string;
-  email: string;
-  instrument: string;
-  instruments: string[] | null;
-  region: string;
-  type: string;
-  bio: string;
-  status: string;
-  created_at: string;
-  previous_work: string | null;
-  previous_work_files: string[] | null;
-  years_experience: string | null;
-  travel: string | null;
-  availability: string | null;
-  audio_link: string | null;
-  lesson_format: string | null;
-  lesson_length: string[] | null;
-  student_level: string[] | null;
-  available_as: string[] | null;
-  genre: string[] | null;
-  sound_system: string | null;
-  vetting_certificate_url: string | null;
-  vetting_certificate_number: string | null;
-  rate_from: number | null;
-  rate_unit: string | null;
-};
+const YEARS_EXPERIENCE = [
+  "Less than 1 year",
+  "1-3 years",
+  "3-5 years",
+  "5-10 years",
+  "10+ years",
+];
 
-const ALL_OCCASIONS = ["Wedding", "Corporate Events", "Private Functions", "Lessons"];
+const LESSON_FORMATS = ["In-person only", "Online Only", "In-person and online"];
 
-function slugify(input: string) {
-  return input
+const LESSON_LENGTHS = ["30 minutes", "45 minutes", "60 minutes", "75 minutes", "90 minutes"];
+
+const STUDENT_LEVELS = ["Beginner", "Intermediate", "Advanced", "All levels"];
+
+const TRAVEL_OPTIONS = ["Yes - travel costs may apply", "No"];
+
+const AVAILABLE_AS = ["Solo", "Duo", "Trio", "Quartet", "Band"];
+
+const GENRES = [
+  "Classical",
+  "Country",
+  "Folk",
+  "Jazz",
+  "Latin",
+  "Musical Theatre",
+  "Pop",
+  "R&B / Soul",
+  "Rock",
+  "Wedding / Ceremony",
+  "Other",
+];
+
+const SOUND_SYSTEM = ["Yes", "No"];
+
+// Raw filenames from a phone or camera (spaces, brackets, apostrophes,
+// "copy" suffixes, etc.) can fail Blob storage's pathname validation.
+// Strip anything that isn't a safe character before using it as a path.
+function sanitizeFilename(name: string): string {
+  const safe = name
     .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/[^a-z0-9.]+/g, "-")
+    .replace(/-+/g, "-")
     .replace(/(^-|-$)/g, "");
+  return safe || "file";
 }
 
-export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }) {
-  const router = useRouter();
-  const [expanded, setExpanded] = useState(false);
-  const [submitting, setSubmitting] = useState<"approve" | "decline" | null>(null);
+type FormState = {
+  name: string;
+  email: string;
+  region: string;
+  instruments: string[];
+  bio: string;
+  previousWork: string;
+  yearsExperience: string;
+  type: string;
+  travel: string;
+  availabilityTags: string[];
+  availability: string;
+  audioLink: string;
+  rateFrom: string;
+  rateUnit: string;
+  rateByEnquiry: boolean;
+  lessonFormat: string;
+  lessonLength: string[];
+  studentLevel: string[];
+  availableAs: string[];
+  genre: string[];
+  soundSystem: string;
+  vettingCertificateNumber: string;
+};
+
+const initialForm: FormState = {
+  name: "",
+  email: "",
+  region: "",
+  instruments: [],
+  bio: "",
+  previousWork: "",
+  yearsExperience: "",
+  type: "Event Musician",
+  travel: "",
+  availabilityTags: [],
+  availability: "",
+  audioLink: "",
+  rateFrom: "",
+  rateUnit: "per event",
+  rateByEnquiry: false,
+  lessonFormat: "",
+  lessonLength: [],
+  studentLevel: [],
+  availableAs: [],
+  genre: [],
+  soundSystem: "",
+  vettingCertificateNumber: "",
+};
+
+function CheckboxGroup({
+  options,
+  selected,
+  onToggle,
+  columns = 2,
+}: {
+  options: string[];
+  selected: string[];
+  onToggle: (value: string) => void;
+  columns?: 2 | 3;
+}) {
+  return (
+    <div
+      className={`grid gap-x-4 gap-y-2 ${
+        columns === 3 ? "grid-cols-2 md:grid-cols-3" : "grid-cols-2"
+      }`}
+    >
+      {options.map((opt) => (
+        <label key={opt} className="flex items-center gap-2 text-sm cursor-pointer">
+          <input
+            type="checkbox"
+            checked={selected.includes(opt)}
+            onChange={() => onToggle(opt)}
+            className="accent-accent"
+          />
+          {opt}
+        </label>
+      ))}
+    </div>
+  );
+}
+
+export default function JoinForm({
+  onSubmitted,
+}: {
+  onSubmitted?: () => void;
+} = {}) {
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [form, setForm] = useState<FormState>(initialForm);
+  // Split into separate photo/video selections rather than one input
+  // accepting both. iOS Safari's file picker silently drops multi-select
+  // when `accept` spans more than one media category (e.g. "image/*,video/*"
+  // together) — even with the `multiple` attribute set, it only lets you
+  // choose one file. Keeping each input to a single category is the
+  // reliable fix and matches how iOS's own Photos picker behaves.
+  const [previousWorkPhotos, setPreviousWorkPhotos] = useState<File[]>([]);
+  const [previousWorkVideos, setPreviousWorkVideos] = useState<File[]>([]);
+  const [vettingCertificateFile, setVettingCertificateFile] = useState<File | null>(null);
 
-  const isTeacher = a.type === "Teacher" || a.type === "Teacher & Events";
-  const isEvent = a.type === "Event Musician" || a.type === "Teacher & Events";
+  const update = <K extends keyof FormState>(field: K, value: FormState[K]) =>
+    setForm((f) => ({ ...f, [field]: value }));
 
-  const [slug, setSlug] = useState(slugify(a.name));
-  const [bio, setBio] = useState(a.bio || "");
-  const [longBio, setLongBio] = useState(a.bio || "");
-  const [rateFrom, setRateFrom] = useState(a.rate_from != null ? String(a.rate_from) : "");
-  const [rateUnit, setRateUnit] = useState(
-    a.rate_unit || (isTeacher ? "per 60min lesson" : "per event")
-  );
-  const [availability, setAvailability] = useState(a.availability || "");
-  const [audioLink, setAudioLink] = useState(a.audio_link || "");
-  const [vetted, setVetted] = useState(false);
-  const [yearsExperience, setYearsExperience] = useState(a.years_experience || "");
-  const [occasions, setOccasions] = useState<string[]>(
-    isTeacher && isEvent
-      ? ALL_OCCASIONS
-      : isTeacher
-      ? ["Lessons"]
-      : ["Wedding", "Corporate Events", "Private Functions"]
-  );
-  const [photo, setPhoto] = useState<File | null>(null);
-  // Lets an admin reuse one of the applicant's own uploaded files as the
-  // profile photo directly, instead of downloading it and re-uploading it
-  // through the file input below. Holds the already-uploaded Blob URL —
-  // approve() skips a fresh upload and uses this URL as-is when set.
-  const [existingPhotoUrl, setExistingPhotoUrl] = useState<string | null>(null);
-  const [galleryPhotos, setGalleryPhotos] = useState<File[]>([]);
-  const [video, setVideo] = useState<File | null>(null);
-  const [vettingCertUrl, setVettingCertUrl] = useState(a.vetting_certificate_url || "");
-  const [vettingCertNumber, setVettingCertNumber] = useState(a.vetting_certificate_number || "");
-  const [savingVetting, setSavingVetting] = useState(false);
-  const [vettingSaved, setVettingSaved] = useState(false);
+  const toggleMulti = (field: "instruments" | "lessonLength" | "studentLevel" | "availableAs" | "genre" | "availabilityTags", value: string) => {
+    setForm((f) => {
+      const current = f[field];
+      const next = current.includes(value)
+        ? current.filter((v) => v !== value)
+        : [...current, value];
+      return { ...f, [field]: next };
+    });
+  };
 
-  const toggleOccasion = (o: string) =>
-    setOccasions((cur) => (cur.includes(o) ? cur.filter((x) => x !== o) : [...cur, o]));
+  const isTeacher = form.type === "Teacher" || form.type === "Teacher & Events";
+  const isEvent = form.type === "Event Musician" || form.type === "Teacher & Events";
 
-  const instruments = a.instruments?.length ? a.instruments : a.instrument ? [a.instrument] : [];
+  // The confirmation message is much shorter than the full form. Without
+  // this, submitting from partway down the long form leaves the page at
+  // its old scroll position, so the confirmation can land looking cut off
+  // or oddly placed against the nav instead of settling into view.
+  useEffect(() => {
+    if (submitted) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [submitted]);
 
-  // A Teacher listing can only go live once a real certificate is on file —
-  // checked against the saved application record (a.vetting_certificate_*),
-  // not the in-progress text fields, so an admin can't publish on the back
-  // of a number they've typed but not yet saved.
-  const hasCertificate = Boolean(
-    a.vetting_certificate_url?.trim() || a.vetting_certificate_number?.trim()
-  );
-
-  async function approve() {
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (previousWorkPhotos.length === 0) {
+      setError("Please upload at least one photo before submitting your application.");
+      return;
+    }
+    setSubmitting(true);
     setError(null);
-    if (!photo && !existingPhotoUrl) {
-      setError("Please upload a photo before approving.");
-      return;
-    }
-    if (isTeacher && !hasCertificate) {
-      setError(
-        "Save a vetting certificate (link or number) for this applicant before publishing a Teacher profile."
-      );
-      return;
-    }
-    if (isTeacher && !vetted) {
-      setError(
-        "Tick \"Police vetting confirmed\" before publishing a Teacher profile."
-      );
-      return;
-    }
-    setSubmitting("approve");
     try {
       // Upload files straight from the browser to Blob storage first.
-      // Serverless functions reject request bodies over ~4.5MB, which
-      // real camera photos and video easily exceed — going direct to
+      // Serverless functions reject request bodies over ~4.5MB, which a
+      // real phone photo or video easily exceeds — going direct to
       // storage avoids that limit entirely, since only the resulting
-      // URLs get sent to the approve route below.
-      // If an existing uploaded file was chosen as the profile photo, it's
-      // already on Blob storage — reuse that URL instead of re-uploading.
-      let photoUrl: string;
-      if (photo) {
-        const photoBlob = await upload(`musicians/${slug}-${Date.now()}`, photo, {
+      // small URL gets sent through the form submission below. All files
+      // (portfolio photos/videos, plus the vetting certificate if present)
+      // upload in parallel rather than one at a time — a few photos or a
+      // video uploaded sequentially could add up to a long wait before the
+      // applicant sees the confirmation screen.
+      const previousWorkFiles = [...previousWorkPhotos, ...previousWorkVideos];
+      const uploadPromises: Promise<string>[] = previousWorkFiles.map(async (file) => {
+        const blob = await upload(`${Date.now()}-${sanitizeFilename(file.name)}`, file, {
           access: "public",
           handleUploadUrl: "/api/upload",
         });
-        photoUrl = photoBlob.url;
-      } else {
-        photoUrl = existingPhotoUrl!;
-      }
+        return blob.url;
+      });
 
-      const galleryUrls: string[] = [];
-      for (const file of galleryPhotos) {
-        const blob = await upload(`musicians/${slug}-gallery-${Date.now()}`, file, {
-          access: "public",
-          handleUploadUrl: "/api/upload",
-        });
-        galleryUrls.push(blob.url);
-      }
+      // Teacher applicants only, and optional — the CVCheck Police Vetting
+      // Check can take weeks to come back, so applicants shouldn't be
+      // blocked from applying while they wait. They can upload it now if
+      // they already have it, or send it through later.
+      const vettingUploadPromise: Promise<string> | null = vettingCertificateFile
+        ? upload(
+            `vetting-${Date.now()}-${sanitizeFilename(vettingCertificateFile.name)}`,
+            vettingCertificateFile,
+            { access: "public", handleUploadUrl: "/api/upload" }
+          ).then((blob) => blob.url)
+        : null;
 
-      let videoUrl: string | null = null;
-      if (video) {
-        const blob = await upload(`musicians/${slug}-video-${Date.now()}`, video, {
-          access: "public",
-          handleUploadUrl: "/api/upload",
-        });
-        videoUrl = blob.url;
-      }
+      const [previousWorkFileUrls, vettingCertificateUrl] = await Promise.all([
+        Promise.all(uploadPromises),
+        vettingUploadPromise ?? Promise.resolve(""),
+      ]);
 
-      const form = new FormData();
-      form.set("applicationId", a.id);
-      form.set("slug", slug);
-      form.set("name", a.name);
-      form.set("email", a.email);
-      form.set("instruments", JSON.stringify(instruments));
-      form.set("region", a.region);
-      form.set("type", a.type);
-      form.set("occasions", JSON.stringify(occasions));
-      form.set("vetted", String(vetted));
-      form.set("rateFrom", rateUnit === "By enquiry" ? "" : rateFrom);
-      form.set("rateUnit", rateUnit);
-      form.set("bio", bio);
-      form.set("longBio", longBio);
-      form.set("yearsExperience", yearsExperience);
-      form.set("availability", availability);
-      form.set("audioLink", audioLink);
-      form.set("photoUrl", photoUrl);
-      form.set("galleryUrls", JSON.stringify(galleryUrls));
-      if (videoUrl) form.set("videoUrl", videoUrl);
+      const body = new FormData();
+      body.set("name", form.name);
+      body.set("email", form.email);
+      body.set("region", form.region);
+      body.set("type", form.type);
+      body.set("bio", form.bio);
+      body.set("previousWork", form.previousWork);
+      body.set("yearsExperience", form.yearsExperience);
+      body.set("travel", form.travel);
+      body.set("availability", form.availability);
+      body.set("availabilityTags", JSON.stringify(form.availabilityTags));
+      body.set("audioLink", form.audioLink);
+      body.set("rateFrom", form.rateByEnquiry ? "" : form.rateFrom);
+      body.set("rateUnit", form.rateByEnquiry ? "By enquiry" : form.rateUnit);
+      body.set("lessonFormat", form.lessonFormat);
+      body.set("soundSystem", form.soundSystem);
+      body.set("instruments", JSON.stringify(form.instruments));
+      body.set("lessonLength", JSON.stringify(form.lessonLength));
+      body.set("studentLevel", JSON.stringify(form.studentLevel));
+      body.set("availableAs", JSON.stringify(form.availableAs));
+      body.set("genre", JSON.stringify(form.genre));
+      body.set("previousWorkFileUrls", JSON.stringify(previousWorkFileUrls));
+      body.set("photoCount", String(previousWorkPhotos.length));
+      body.set("vettingCertificateNumber", form.vettingCertificateNumber);
+      if (vettingCertificateUrl) body.set("vettingCertificateUrl", vettingCertificateUrl);
 
-      const res = await fetch("/api/admin/approve", { method: "POST", body: form });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error ?? "Something went wrong.");
-      }
-      router.refresh();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
-    } finally {
-      setSubmitting(null);
-    }
-  }
-
-  async function saveVetting() {
-    setSavingVetting(true);
-    setVettingSaved(false);
-    setError(null);
-    try {
-      const res = await fetch("/api/admin/update-vetting", {
+      const res = await fetch("/api/musician-applications", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          applicationId: a.id,
-          vettingCertificateUrl: vettingCertUrl,
-          vettingCertificateNumber: vettingCertNumber,
-        }),
+        body,
       });
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error ?? "Something went wrong.");
       }
-      setVettingSaved(true);
-      router.refresh();
+      setSubmitted(true);
+      onSubmitted?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
-      setSavingVetting(false);
+      setSubmitting(false);
     }
   }
 
-  async function decline() {
-    setError(null);
-    setSubmitting("decline");
-    try {
-      const res = await fetch("/api/admin/decline", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ applicationId: a.id }),
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error ?? "Something went wrong.");
-      }
-      router.refresh();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
-    } finally {
-      setSubmitting(null);
-    }
+  if (submitted) {
+    return (
+      <div className="text-center py-16 border border-rule">
+        <p className="eyebrow mb-4">Application received</p>
+        <h2 className="font-serif text-3xl mb-4">Welcome to the gallery.</h2>
+        <p className="text-sm text-mid max-w-sm mx-auto">
+          We&rsquo;ll review your application and be in touch shortly.
+        </p>
+      </div>
+    );
   }
 
   return (
-    <div className="border border-rule p-5 text-sm">
-      <div className="flex flex-wrap items-baseline justify-between gap-2 mb-3">
-        <h3 className="font-serif text-xl">{a.name}</h3>
-        <span className="text-[10px] tracking-[0.08em] uppercase text-mid">
-          {new Date(a.created_at).toLocaleString()} · {a.status}
-        </span>
-      </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2 text-mid mb-3">
+    <form onSubmit={submit} className="space-y-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <span className="block text-[10px] uppercase tracking-[0.08em]">Email</span>
-          {a.email}
+          <label className={labelClass}>Name</label>
+          <input
+            required
+            className={inputClass}
+            value={form.name}
+            onChange={(e) => update("name", e.target.value)}
+          />
         </div>
         <div>
-          <span className="block text-[10px] uppercase tracking-[0.08em]">Region</span>
-          {a.region}
-        </div>
-        <div>
-          <span className="block text-[10px] uppercase tracking-[0.08em]">Type</span>
-          {a.type}
-        </div>
-        <div>
-          <span className="block text-[10px] uppercase tracking-[0.08em]">Instrument(s)</span>
-          {instruments.join(", ") || "—"}
+          <label className={labelClass}>Email</label>
+          <input
+            required
+            type="email"
+            className={inputClass}
+            value={form.email}
+            onChange={(e) => update("email", e.target.value)}
+          />
         </div>
       </div>
-      {a.bio && <p className="mb-3">{a.bio}</p>}
-      {a.previous_work && (
-        <p className="text-mid mb-3">
-          <span className="block text-[10px] uppercase tracking-[0.08em]">Previous work</span>
-          {a.previous_work}
-        </p>
-      )}
-      {a.availability && (
-        <p className="text-mid mb-3">
-          <span className="block text-[10px] uppercase tracking-[0.08em]">
-            Availability (applicant-stated)
-          </span>
-          {a.availability}
-        </p>
-      )}
-      {a.audio_link && (
-        <p className="text-mid mb-3">
-          <span className="block text-[10px] uppercase tracking-[0.08em]">Music link</span>
-          <a href={a.audio_link} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
-            {a.audio_link}
-          </a>
-        </p>
-      )}
-      {a.previous_work_files && a.previous_work_files.length > 0 && (
-        <div className="text-mid mb-3">
-          <span className="block text-[10px] uppercase tracking-[0.08em] mb-1">Uploaded files</span>
-          <div className="flex flex-wrap gap-3">
-            {a.previous_work_files.map((url, i) => (
-              <span key={url} className="flex items-center gap-2">
-                <a href={url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline text-xs">
-                  File {i + 1} &rarr;
-                </a>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setExistingPhotoUrl(url);
-                    setPhoto(null);
-                    setExpanded(true);
-                  }}
-                  className="text-[10px] tracking-[0.05em] uppercase border border-rule px-2 py-0.5 hover:border-accent hover:text-accent transition-colors"
-                >
-                  Use as profile photo
-                </button>
-              </span>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label className={labelClass}>Region</label>
+          <select
+            required
+            className={inputClass}
+            value={form.region}
+            onChange={(e) => update("region", e.target.value)}
+          >
+            <option value="" disabled>
+              Select your region
+            </option>
+            {REGIONS.map((r) => (
+              <option key={r}>{r}</option>
             ))}
+          </select>
+        </div>
+        <div>
+          <label className={labelClass}>I am a</label>
+          <select
+            className={inputClass}
+            value={form.type}
+            onChange={(e) => update("type", e.target.value)}
+          >
+            <option>Event Musician</option>
+            <option>Teacher</option>
+            <option>Teacher &amp; Events</option>
+          </select>
+        </div>
+      </div>
+
+      {isTeacher && (
+        <div className="bg-off/60 border border-rule p-4 text-sm leading-relaxed">
+          <p className="mb-4">
+            Teacher profiles carry a Police Vetted badge and only go live
+            once vetting is complete. Getting vetted starts with a Police
+            Vetting Check through CVCheck. A one-off cost of $81.40
+            including GST and generally claimable as a business expense.
+            You can{" "}
+            <a href="https://cvcheck.com/nz/police-vetting/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-accent">order one here &rarr;</a>.
+          </p>
+          <p>
+            Don&rsquo;t have it yet? No problem. Submit your application now,
+            and your Teacher profile will go live once your certificate is
+            sent through to contact@musiciangallery.co.nz. There&rsquo;s
+            more on completing this on the Musician Toolkit Page.
+          </p>
+        </div>
+      )}
+
+      {isTeacher && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className={labelClass}>Vetting certificate number (optional, if you have it)</label>
+            <input
+              className={inputClass}
+              placeholder="e.g. the certificate number on your CVCheck report"
+              value={form.vettingCertificateNumber}
+              onChange={(e) => update("vettingCertificateNumber", e.target.value)}
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Upload vetting certificate (optional)</label>
+            <input
+              type="file"
+              accept="application/pdf,image/*"
+              onChange={(e) => setVettingCertificateFile(e.target.files?.[0] ?? null)}
+              className="text-sm"
+            />
+            {vettingCertificateFile && (
+              <p className={hintClass}>{vettingCertificateFile.name}</p>
+            )}
           </div>
         </div>
       )}
 
-      {!expanded ? (
-        <button
-          onClick={() => setExpanded(true)}
-          className="text-xs tracking-[0.08em] uppercase border border-rule px-4 py-2 hover:border-accent hover:text-accent transition-colors"
+      <div>
+        <label className={labelClass}>Instrument(s)</label>
+        <CheckboxGroup
+          options={INSTRUMENTS}
+          selected={form.instruments}
+          onToggle={(v) => toggleMulti("instruments", v)}
+          columns={3}
+        />
+      </div>
+
+      <div>
+        <label className={labelClass}>Years of experience</label>
+        <select
+          required
+          className={inputClass}
+          value={form.yearsExperience}
+          onChange={(e) => update("yearsExperience", e.target.value)}
         >
-          Review &amp; approve
-        </button>
-      ) : (
-        <div className="border-t border-rule pt-4 mt-2 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className={labelClass}>Profile URL slug</label>
-              <input className={inputClass} value={slug} onChange={(e) => setSlug(e.target.value)} />
-            </div>
-            <div>
-              <label className={labelClass}>Years experience</label>
-              <input
-                className={inputClass}
-                value={yearsExperience}
-                onChange={(e) => setYearsExperience(e.target.value)}
-              />
-            </div>
-          </div>
+          <option value="" disabled>
+            Select one
+          </option>
+          {YEARS_EXPERIENCE.map((y) => (
+            <option key={y}>{y}</option>
+          ))}
+        </select>
+      </div>
 
+      {isTeacher && (
+        <div className="border-t border-rule pt-8 space-y-6">
+          <p className="eyebrow">Teaching details</p>
           <div>
-            <label className={labelClass}>Bio (short, shown on gallery card)</label>
-            <textarea
-              rows={2}
+            <label className={labelClass}>Lesson format</label>
+            <select
               className={inputClass}
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className={labelClass}>Long bio (shown on full profile)</label>
-            <textarea
-              rows={4}
-              className={inputClass}
-              value={longBio}
-              onChange={(e) => setLongBio(e.target.value)}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className={labelClass}>Rate from ($)</label>
-              <input
-                type="number"
-                disabled={rateUnit === "By enquiry"}
-                className={`${inputClass} disabled:opacity-40 disabled:bg-off/60`}
-                value={rateFrom}
-                onChange={(e) => setRateFrom(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className={labelClass}>Rate unit</label>
-              <select
-                className={inputClass}
-                value={rateUnit}
-                onChange={(e) => setRateUnit(e.target.value)}
-              >
-                <option value="per event">Per event</option>
-                <option value="per 60min lesson">Per 60min lesson</option>
-                <option value="By enquiry">By enquiry (no public number)</option>
-              </select>
-            </div>
-          </div>
-          {a.rate_from != null || a.rate_unit === "By enquiry" ? (
-            <p className="text-[11px] text-mid -mt-2">
-              Applicant requested:{" "}
-              {a.rate_unit === "By enquiry"
-                ? "by enquiry"
-                : `$${a.rate_from} ${a.rate_unit ?? ""}`}
-            </p>
-          ) : null}
-
-          <div>
-            <label className={labelClass}>Availability (shown on public profile, optional)</label>
-            <input
-              className={inputClass}
-              placeholder="e.g. Weekday evenings, most weekends"
-              value={availability}
-              onChange={(e) => setAvailability(e.target.value)}
-            />
-          </div>
-
-          <div>
-            <label className={labelClass}>Spotify or other music link (optional)</label>
-            <input
-              className={inputClass}
-              placeholder="https://open.spotify.com/..."
-              value={audioLink}
-              onChange={(e) => setAudioLink(e.target.value)}
-            />
-          </div>
-
-          <div>
-            <label className={labelClass}>Available for</label>
-            <div className="flex flex-wrap gap-4">
-              {ALL_OCCASIONS.map((o) => (
-                <label key={o} className="flex items-center gap-2 text-sm cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={occasions.includes(o)}
-                    onChange={() => toggleOccasion(o)}
-                    className="accent-accent"
-                  />
-                  {o}
-                </label>
+              value={form.lessonFormat}
+              onChange={(e) => update("lessonFormat", e.target.value)}
+            >
+              <option value="" disabled>
+                Select one
+              </option>
+              {LESSON_FORMATS.map((f) => (
+                <option key={f}>{f}</option>
               ))}
-            </div>
+            </select>
           </div>
-
-          {isTeacher && (
-            <div className="bg-off/60 border border-rule p-4 space-y-3">
-              <p className="text-[10px] tracking-[0.08em] uppercase text-mid">
-                CVCheck Police Vetting
-              </p>
-
-              {a.vetting_certificate_url && (
-                <a href={a.vetting_certificate_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline text-xs block">View currently saved certificate &rarr;</a>
-              )}
-
-              <p className="text-[11px] text-mid leading-relaxed">
-                Applicants can apply before their CVCheck comes back, since
-                it can take weeks. If they email it to you later, paste the
-                link and certificate number here and save — no need to wait
-                for a full approval to record it.
-              </p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className={labelClass}>Certificate link</label>
-                  <input
-                    className={inputClass}
-                    placeholder="Link to the certificate (upload it somewhere and paste the URL)"
-                    value={vettingCertUrl}
-                    onChange={(e) => setVettingCertUrl(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className={labelClass}>Certificate number</label>
-                  <input
-                    className={inputClass}
-                    placeholder="e.g. the certificate number on the CVCheck report"
-                    value={vettingCertNumber}
-                    onChange={(e) => setVettingCertNumber(e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={saveVetting}
-                  disabled={savingVetting}
-                  className="text-xs tracking-[0.08em] uppercase border border-rule px-4 py-2 hover:border-accent hover:text-accent transition-colors disabled:opacity-50"
-                >
-                  {savingVetting ? "Saving..." : "Save certificate info"}
-                </button>
-                {vettingSaved && <span className="text-xs text-mid">Saved.</span>}
-              </div>
-
-              <a href="https://cvcheck.com/nz/verify-a-cvcheck-certificate/" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline text-xs block">Verify this certificate on CVCheck &rarr;</a>
-              <p className="text-[11px] text-mid leading-relaxed">
-                Confirm the certificate is genuine on CVCheck&rsquo;s free
-                verification tool before ticking the box below — the
-                verification page should be on a cvcheck.com domain with
-                their security seal next to the address bar.
-              </p>
-              <label
-                className={`flex items-center gap-2 text-sm ${
-                  hasCertificate ? "cursor-pointer" : "cursor-not-allowed opacity-50"
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={vetted}
-                  disabled={!hasCertificate}
-                  onChange={(e) => setVetted(e.target.checked)}
-                  className="accent-accent"
-                />
-                Police vetting confirmed
-              </label>
-              {!hasCertificate && (
-                <p className="text-[11px] text-accent leading-relaxed">
-                  Save a certificate link or number above first — a Teacher
-                  profile can&rsquo;t be published without one on file.
-                </p>
-              )}
-            </div>
-          )}
-
           <div>
-            <label className={labelClass}>Profile photo (upload a treated, muted photo)</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                setPhoto(e.target.files?.[0] ?? null);
-                setExistingPhotoUrl(null);
-              }}
-              className="text-sm"
+            <label className={labelClass}>Lesson length</label>
+            <CheckboxGroup
+              options={LESSON_LENGTHS}
+              selected={form.lessonLength}
+              onToggle={(v) => toggleMulti("lessonLength", v)}
             />
-            {photo && (
-              <p className="text-xs text-mid mt-1 flex items-center gap-2">
-                {photo.name}
-                <button
-                  type="button"
-                  onClick={() => setPhoto(null)}
-                  className="text-accent hover:underline"
-                >
-                  Remove
-                </button>
-              </p>
-            )}
-            {existingPhotoUrl && !photo && (
-              <p className="text-xs text-mid mt-1 flex items-center gap-2">
-                Using an uploaded file as the profile photo —{" "}
-                <a
-                  href={existingPhotoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-accent hover:underline"
-                >
-                  preview
-                </a>
-                <button
-                  type="button"
-                  onClick={() => setExistingPhotoUrl(null)}
-                  className="text-accent hover:underline"
-                >
-                  Remove
-                </button>
-              </p>
-            )}
           </div>
-
           <div>
-            <label className={labelClass}>Gallery photos (optional, select multiple)</label>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={(e) => setGalleryPhotos(Array.from(e.target.files ?? []))}
-              className="text-sm"
+            <label className={labelClass}>Student level</label>
+            <CheckboxGroup
+              options={STUDENT_LEVELS}
+              selected={form.studentLevel}
+              onToggle={(v) => toggleMulti("studentLevel", v)}
             />
-            {galleryPhotos.length > 0 && (
-              <ul className="text-xs text-mid mt-1 space-y-1">
-                {galleryPhotos.map((f, i) => (
-                  <li key={`${f.name}-${i}`} className="flex items-center gap-2">
-                    <span>{f.name}</span>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setGalleryPhotos((cur) => cur.filter((_, idx) => idx !== i))
-                      }
-                      className="text-accent hover:underline"
-                    >
-                      Remove
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          <div>
-            <label className={labelClass}>Profile video (optional)</label>
-            <input
-              type="file"
-              accept="video/*"
-              onChange={(e) => setVideo(e.target.files?.[0] ?? null)}
-              className="text-sm"
-            />
-            {video && (
-              <p className="text-xs text-mid mt-1 flex items-center gap-2">
-                {video.name}
-                <button
-                  type="button"
-                  onClick={() => setVideo(null)}
-                  className="text-accent hover:underline"
-                >
-                  Remove
-                </button>
-              </p>
-            )}
-          </div>
-
-          {error && <p className="text-xs text-accent">{error}</p>}
-
-          <div className="flex flex-wrap gap-3 pt-2">
-            <button
-              onClick={approve}
-              disabled={submitting !== null || (isTeacher && (!hasCertificate || !vetted))}
-              title={
-                isTeacher && (!hasCertificate || !vetted)
-                  ? "Save a vetting certificate and confirm it before publishing a Teacher profile."
-                  : undefined
-              }
-              className="bg-blk text-w text-xs tracking-[0.1em] uppercase py-2.5 px-6 hover:bg-accent transition-colors disabled:opacity-50"
-            >
-              {submitting === "approve" ? "Publishing..." : "Approve & publish"}
-            </button>
-            <button
-              onClick={decline}
-              disabled={submitting !== null}
-              className="border border-rule text-xs tracking-[0.1em] uppercase py-2.5 px-6 hover:border-accent hover:text-accent transition-colors disabled:opacity-50"
-            >
-              {submitting === "decline" ? "Declining..." : "Decline"}
-            </button>
-            <button
-              onClick={() => setExpanded(false)}
-              disabled={submitting !== null}
-              className="text-xs tracking-[0.1em] uppercase text-mid py-2.5 px-2 hover:text-accent transition-colors"
-            >
-              Cancel
-            </button>
           </div>
         </div>
       )}
-    </div>
+
+      {isEvent && (
+        <div className="border-t border-rule pt-8 space-y-6">
+          <p className="eyebrow">Event details</p>
+          <div>
+            <label className={labelClass}>Available as</label>
+            <CheckboxGroup
+              options={AVAILABLE_AS}
+              selected={form.availableAs}
+              onToggle={(v) => toggleMulti("availableAs", v)}
+              columns={3}
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Genre</label>
+            <CheckboxGroup
+              options={GENRES}
+              selected={form.genre}
+              onToggle={(v) => toggleMulti("genre", v)}
+              columns={3}
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Sound system available</label>
+            <select
+              className={inputClass}
+              value={form.soundSystem}
+              onChange={(e) => update("soundSystem", e.target.value)}
+            >
+              <option value="" disabled>
+                Select one
+              </option>
+              {SOUND_SYSTEM.map((s) => (
+                <option key={s}>{s}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      )}
+
+      <div className="border-t border-rule pt-8">
+        <label className={labelClass}>Willing to travel</label>
+        <select
+          className={inputClass}
+          value={form.travel}
+          onChange={(e) => update("travel", e.target.value)}
+        >
+          <option value="" disabled>
+            Select one
+          </option>
+          {TRAVEL_OPTIONS.map((t) => (
+            <option key={t}>{t}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="border-t border-rule pt-8">
+        <label className={labelClass}>Your indicative starting rate</label>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <input
+              type="number"
+              min="0"
+              disabled={form.rateByEnquiry}
+              className={`${inputClass} disabled:opacity-40 disabled:bg-off/60`}
+              placeholder="e.g. 350"
+              value={form.rateFrom}
+              onChange={(e) => update("rateFrom", e.target.value)}
+            />
+          </div>
+          <div>
+            <select
+              disabled={form.rateByEnquiry}
+              className={`${inputClass} disabled:opacity-40 disabled:bg-off/60`}
+              value={form.rateUnit}
+              onChange={(e) => update("rateUnit", e.target.value)}
+            >
+              <option value="per event">Per event</option>
+              <option value="per 60min lesson">Per 60min lesson</option>
+            </select>
+          </div>
+        </div>
+        <label className="flex items-center gap-2 text-sm cursor-pointer mt-3">
+          <input
+            type="checkbox"
+            checked={form.rateByEnquiry}
+            onChange={(e) => update("rateByEnquiry", e.target.checked)}
+            className="accent-accent"
+          />
+          I&rsquo;d rather not list a public number, show &ldquo;By enquiry&rdquo; instead
+        </label>
+        <p className="text-xs text-mid mt-2">
+          This is a starting point. After gathering more information from
+          potential clients, you will be able to confirm a final quote.
+        </p>
+      </div>
+
+      <div>
+        <label className={labelClass}>General availability (optional)</label>
+        <CheckboxGroup
+          options={AVAILABILITY_TAGS}
+          selected={form.availabilityTags}
+          onToggle={(v) => toggleMulti("availabilityTags", v)}
+        />
+        <p className="text-xs text-mid mt-2">
+          Shown as tags on your public profile, a rough guide only, not a
+          real-time calendar. Clients still individually request specific
+          dates, and you confirm each one.
+        </p>
+        <input
+          className={`${inputClass} mt-3`}
+          placeholder="Anything else about your availability (optional), e.g. not available in December"
+          value={form.availability}
+          onChange={(e) => update("availability", e.target.value)}
+        />
+      </div>
+
+      <div>
+        <label className={labelClass}>A little about you</label>
+        <textarea
+          rows={4}
+          className={inputClass}
+          value={form.bio}
+          onChange={(e) => update("bio", e.target.value)}
+        />
+      </div>
+
+      <div>
+        <label className={labelClass}>Previous work</label>
+        <input
+          className={inputClass}
+          placeholder="Links to videos, photos, recordings (YouTube, Instagram, SoundCloud...)"
+          value={form.previousWork}
+          onChange={(e) => update("previousWork", e.target.value)}
+        />
+        <p className={hintClass}>
+          Paste links to anything that shows off your playing, and/or upload
+          files directly below.
+        </p>
+        <label className={`${labelClass} mt-4`}>Photos</label>
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={(e) => {
+            const newFiles = Array.from(e.target.files ?? []);
+            // Add to what's already selected rather than replacing it —
+            // choosing files again (e.g. to add one more) would otherwise
+            // silently wipe out an earlier selection.
+            setPreviousWorkPhotos((cur) => [...cur, ...newFiles]);
+            e.target.value = "";
+          }}
+          className="text-sm"
+        />
+        <p className={hintClass}>At least one photo is required.</p>
+        {previousWorkPhotos.length > 0 && (
+          <ul className={`${hintClass} space-y-1`}>
+            {previousWorkPhotos.map((f, i) => (
+              <li key={`${f.name}-${i}`} className="flex items-center gap-2">
+                <span>{f.name}</span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setPreviousWorkPhotos((cur) => cur.filter((_, idx) => idx !== i))
+                  }
+                  className="text-accent hover:underline"
+                >
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        <label className={`${labelClass} mt-4`}>Videos</label>
+        <input
+          type="file"
+          accept="video/*"
+          multiple
+          onChange={(e) => {
+            const newFiles = Array.from(e.target.files ?? []);
+            setPreviousWorkVideos((cur) => [...cur, ...newFiles]);
+            e.target.value = "";
+          }}
+          className="text-sm"
+        />
+        {previousWorkVideos.length > 0 && (
+          <ul className={`${hintClass} space-y-1`}>
+            {previousWorkVideos.map((f, i) => (
+              <li key={`${f.name}-${i}`} className="flex items-center gap-2">
+                <span>{f.name}</span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setPreviousWorkVideos((cur) => cur.filter((_, idx) => idx !== i))
+                  }
+                  className="text-accent hover:underline"
+                >
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div>
+        <label className={labelClass}>Spotify or other music link (optional)</label>
+        <input
+          className={inputClass}
+          placeholder="https://open.spotify.com/..."
+          value={form.audioLink}
+          onChange={(e) => update("audioLink", e.target.value)}
+        />
+        <p className="text-xs text-mid mt-1">
+          A Spotify link shows as a playable embed on your profile. Any other
+          link (SoundCloud, Bandcamp, YouTube, etc.) shows as a plain
+          &quot;Listen&quot; link instead.
+        </p>
+      </div>
+
+      {error && <p className="text-xs text-accent">{error}</p>}
+      <button
+        type="submit"
+        disabled={submitting}
+        className="bg-blk text-w text-xs tracking-[0.1em] uppercase py-3 px-8 hover:bg-accent transition-colors disabled:opacity-50"
+      >
+        {submitting ? "Submitting..." : "Submit application"}
+      </button>
+      <p className="text-xs text-mid leading-relaxed">
+        Free to list, zero commission. Submit your details to get started.
+      </p>
+    </form>
   );
 }

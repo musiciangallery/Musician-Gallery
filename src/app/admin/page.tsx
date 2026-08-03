@@ -44,6 +44,12 @@ type Booking = {
   created_at: string;
   status: string;
   amount: number | null;
+  // Set only for recurring lesson bookings — used here to tell those apart
+  // from one-off event bookings, since only the latter has a delayed
+  // payout to show status for.
+  sessions: number | null;
+  stripe_transfer_id: string | null;
+  payout_transferred_at: string | null;
 };
 
 type BookingMessage = {
@@ -143,6 +149,18 @@ function statusLabel(status: string, amountCents: number | null) {
   }
 }
 
+// Recurring lesson bookings (sessions set) keep their existing instant
+// payout, unaffected by any of this — only one-off event bookings hold
+// funds until the day after event_date, via /api/cron/release-payouts.
+function payoutLabel(b: Booking) {
+  if (b.sessions) return "Instant";
+  if (b.status !== "paid" && b.status !== "completed") return "—";
+  if (b.stripe_transfer_id) {
+    return `Paid out${b.payout_transferred_at ? " " + new Date(b.payout_transferred_at).toLocaleDateString() : ""}`;
+  }
+  return "Pending (day after event)";
+}
+
 function directionLabel(direction: string) {
   switch (direction) {
     case "to_musician":
@@ -198,13 +216,14 @@ export default async function AdminPage() {
               <th className={th}>Phone</th>
               <th className={th}>Notes</th>
               <th className={th}>Status</th>
+              <th className={th}>Payout</th>
               <th className={th}>Messages</th>
             </tr>
           </thead>
           <tbody>
             {bookings.length === 0 ? (
               <tr>
-                <td className={td} colSpan={11}>
+                <td className={td} colSpan={12}>
                   No booking requests yet.
                 </td>
               </tr>
@@ -221,6 +240,7 @@ export default async function AdminPage() {
                   <td className={td}>{b.client_phone || "—"}</td>
                   <td className={td}>{b.details || "—"}</td>
                   <td className={td}>{statusLabel(b.status, b.amount)}</td>
+                  <td className={td}>{payoutLabel(b)}</td>
                   <td className={td}>{messageCountByBooking.get(b.id) ?? 0}</td>
                 </tr>
               ))

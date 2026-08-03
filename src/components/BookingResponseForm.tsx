@@ -9,6 +9,7 @@ export default function BookingResponseForm({
   canConfirm = true,
   frequency,
   initialSessions,
+  payUpfrontRequested = false,
 }: {
   bookingId: string;
   token: string;
@@ -19,11 +20,16 @@ export default function BookingResponseForm({
   frequency?: string;
   /** The client's requested session count, editable here before confirming. */
   initialSessions?: number | null;
+  /** The client's stated preference for paying the whole term upfront
+   * instead of per lesson — shown as context only. The musician still
+   * makes the actual call below, since they're the one setting terms. */
+  payUpfrontRequested?: boolean;
 }) {
   const router = useRouter();
   const isRecurring = frequency === "Weekly" || frequency === "Fortnightly";
   const [amount, setAmount] = useState("");
   const [sessions, setSessions] = useState(initialSessions ? String(initialSessions) : "");
+  const [payUpfront, setPayUpfront] = useState(payUpfrontRequested);
   const [submitting, setSubmitting] = useState<"confirm" | "decline" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,7 +57,7 @@ export default function BookingResponseForm({
         body: JSON.stringify({
           token,
           amount: value,
-          ...(isRecurring ? { sessions: sessionsValue } : {}),
+          ...(isRecurring ? { sessions: sessionsValue, payUpfront } : {}),
         }),
       });
       if (!res.ok) {
@@ -123,6 +129,36 @@ export default function BookingResponseForm({
                 placeholder="e.g. 8"
                 className="w-full border border-rule bg-w px-3 py-2 text-sm focus:outline-none focus:border-accent mb-4"
               />
+              <label className="text-[10px] tracking-[0.08em] uppercase text-mid block mb-1">
+                How this bills
+              </label>
+              <p className="text-xs text-mid mb-3">
+                {payUpfrontRequested
+                  ? "The client said they'd prefer to pay the whole term upfront. You can go with that or bill per lesson instead."
+                  : "Bill per lesson (charged automatically each cycle) or take one payment upfront for the whole term."}
+              </p>
+              <div className="flex flex-wrap gap-4 mb-4">
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input
+                    type="radio"
+                    name="payUpfront"
+                    checked={!payUpfront}
+                    onChange={() => setPayUpfront(false)}
+                    className="accent-accent"
+                  />
+                  Per lesson
+                </label>
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input
+                    type="radio"
+                    name="payUpfront"
+                    checked={payUpfront}
+                    onChange={() => setPayUpfront(true)}
+                    className="accent-accent"
+                  />
+                  Whole term upfront
+                </label>
+              </div>
             </>
           )}
         </>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { upload } from "@vercel/blob/client";
-import { ALL_INSTRUMENTS as INSTRUMENTS, ALL_REGIONS as REGIONS } from "@/lib/musicians";
+import { ALL_INSTRUMENTS as INSTRUMENTS, ALL_REGIONS as REGIONS, AVAILABILITY_TAGS } from "@/lib/musicians";
 
 const inputClass =
   "w-full border border-rule bg-w px-4 py-3 text-sm focus:outline-none focus:border-accent";
@@ -65,6 +65,7 @@ type FormState = {
   yearsExperience: string;
   type: string;
   travel: string;
+  availabilityTags: string[];
   availability: string;
   audioLink: string;
   rateFrom: string;
@@ -89,6 +90,7 @@ const initialForm: FormState = {
   yearsExperience: "",
   type: "Event Musician",
   travel: "",
+  availabilityTags: [],
   availability: "",
   audioLink: "",
   rateFrom: "",
@@ -157,7 +159,7 @@ export default function JoinForm({
   const update = <K extends keyof FormState>(field: K, value: FormState[K]) =>
     setForm((f) => ({ ...f, [field]: value }));
 
-  const toggleMulti = (field: "instruments" | "lessonLength" | "studentLevel" | "availableAs" | "genre", value: string) => {
+  const toggleMulti = (field: "instruments" | "lessonLength" | "studentLevel" | "availableAs" | "genre" | "availabilityTags", value: string) => {
     setForm((f) => {
       const current = f[field];
       const next = current.includes(value)
@@ -234,6 +236,7 @@ export default function JoinForm({
       body.set("yearsExperience", form.yearsExperience);
       body.set("travel", form.travel);
       body.set("availability", form.availability);
+      body.set("availabilityTags", JSON.stringify(form.availabilityTags));
       body.set("audioLink", form.audioLink);
       body.set("rateFrom", form.rateByEnquiry ? "" : form.rateFrom);
       body.set("rateUnit", form.rateByEnquiry ? "By enquiry" : form.rateUnit);
@@ -540,17 +543,22 @@ export default function JoinForm({
 
       <div>
         <label className={labelClass}>General availability (optional)</label>
+        <CheckboxGroup
+          options={AVAILABILITY_TAGS}
+          selected={form.availabilityTags}
+          onToggle={(v) => toggleMulti("availabilityTags", v)}
+        />
+        <p className="text-xs text-mid mt-2">
+          Shown as tags on your public profile, a rough guide only, not a
+          real-time calendar. Clients still individually request specific
+          dates, and you confirm each one.
+        </p>
         <input
-          className={inputClass}
-          placeholder="e.g. Weekday evenings, most weekends"
+          className={`${inputClass} mt-3`}
+          placeholder="Anything else about your availability (optional), e.g. not available in December"
           value={form.availability}
           onChange={(e) => update("availability", e.target.value)}
         />
-        <p className="text-xs text-mid mt-1">
-          A rough guide only, shown on your public profile, not a real-time
-          calendar. Clients still individually request specific dates, and
-          you confirm each one.
-        </p>
       </div>
 
       <div>

@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
       availability,
       availabilityTags,
       audioLink,
+      cancellationPolicy,
       photoUrl,
       galleryUrls,
       videoUrl,
@@ -69,6 +70,7 @@ export async function POST(req: NextRequest) {
         availability = ${typeof availability === "string" ? availability : ""},
         availability_tags = ${Array.isArray(availabilityTags) ? availabilityTags : []},
         audio_link = ${typeof audioLink === "string" ? audioLink : ""},
+        cancellation_policy = ${typeof cancellationPolicy === "string" ? cancellationPolicy : ""},
         photo = ${typeof photoUrl === "string" ? photoUrl : null},
         photos = ${Array.isArray(galleryUrls) ? galleryUrls : []},
         video = ${typeof videoUrl === "string" ? videoUrl : null}

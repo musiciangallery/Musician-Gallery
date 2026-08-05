@@ -9,7 +9,11 @@ const inputClass =
   "w-full border border-rule bg-w px-4 py-3 text-sm focus:outline-none focus:border-accent";
 const labelClass = "text-xs tracking-[0.08em] uppercase text-mid block mb-2";
 
-const FREQUENCY_OPTIONS = ["Weekly", "Fortnightly", "One-off"];
+// "Term" bills weekly under the hood, same as "Weekly" — it's offered as
+// its own option since a set-length term is the recommended, most common
+// way to book ongoing lessons (see the About page), rather than something
+// a client has to arrive at by picking "Weekly" and guessing a number.
+const FREQUENCY_OPTIONS = ["Weekly", "Fortnightly", "Term", "One-off"];
 
 export default function BookingForm({ musician }: { musician: Musician }) {
   const [step, setStep] = useState<Step>(1);

@@ -27,6 +27,7 @@ export type ApplicationForReview = {
   availability: string | null;
   availability_tags: string[] | null;
   audio_link: string | null;
+  cancellation_policy: string | null;
   lesson_format: string | null;
   lesson_length: string[] | null;
   student_level: string[] | null;
@@ -68,6 +69,7 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
   const [availability, setAvailability] = useState(a.availability || "");
   const [availabilityTags, setAvailabilityTags] = useState<string[]>(a.availability_tags || []);
   const [audioLink, setAudioLink] = useState(a.audio_link || "");
+  const [cancellationPolicy, setCancellationPolicy] = useState(a.cancellation_policy || "");
   const [vetted, setVetted] = useState(false);
   const [yearsExperience, setYearsExperience] = useState(a.years_experience || "");
   const [occasions, setOccasions] = useState<string[]>(
@@ -180,6 +182,7 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
       form.set("availability", availability);
       form.set("availabilityTags", JSON.stringify(availabilityTags));
       form.set("audioLink", audioLink);
+      form.set("cancellationPolicy", cancellationPolicy);
       form.set("photoUrl", photoUrl);
       form.set("galleryUrls", JSON.stringify(galleryUrls));
       if (videoUrl) form.set("videoUrl", videoUrl);
@@ -300,6 +303,14 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
           <a href={a.audio_link} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
             {a.audio_link}
           </a>
+        </p>
+      )}
+      {a.cancellation_policy && (
+        <p className="text-mid mb-3">
+          <span className="block text-[10px] uppercase tracking-[0.08em]">
+            Cancellation policy (applicant stated)
+          </span>
+          {a.cancellation_policy}
         </p>
       )}
       {a.previous_work_files && a.previous_work_files.length > 0 && (
@@ -439,6 +450,24 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
               value={audioLink}
               onChange={(e) => setAudioLink(e.target.value)}
             />
+          </div>
+
+          <div>
+            <label className={labelClass}>Cancellation policy (optional)</label>
+            <textarea
+              rows={2}
+              className={inputClass}
+              placeholder="e.g. 48 hours notice for a reschedule, missed lessons within the notice period are still charged"
+              value={cancellationPolicy}
+              onChange={(e) => setCancellationPolicy(e.target.value)}
+            />
+            {!cancellationPolicy.trim() && (
+              <p className="text-[11px] text-mid mt-2">
+                Nothing on file yet. Optional, but worth asking for before
+                publishing, since it&rsquo;s shown to clients on the profile
+                and again when they confirm a Booking.
+              </p>
+            )}
           </div>
 
           <div>

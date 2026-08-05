@@ -127,15 +127,27 @@ const SANS_STACK = "'DM Sans', Arial, Helvetica, sans-serif";
  * classes (see globals.css + the .1em tracking + uppercase treatment used
  * throughout the app's own CTAs). Padding is 1px tighter on the vertical
  * axis for the outline button to compensate for its border, so both sit at
- * the same visual height side by side. */
-function primaryButton(label: string, href: string) {
-  return `<a href="${href}" style="display:inline-block; background-color:#181510; color:#F8F7F5; font-family:${SANS_STACK}; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; padding:12px 32px;">${escapeHtml(
+ * the same visual height side by side.
+ *
+ * Pass `stackWidth` when several buttons need to line up as one column
+ * (e.g. three CTAs stacked in the welcome email) — this switches the button
+ * to a fixed-width block, centered, one per line, instead of sizing itself
+ * to the label. Without it, the button stays inline-block and sizes to fit
+ * its own label, for the single/side-by-side cases used elsewhere. */
+function primaryButton(label: string, href: string, stackWidth?: number) {
+  const sizing = stackWidth
+    ? `display:block; width:${stackWidth}px; margin:0 auto 12px auto; text-align:center; padding:12px 0;`
+    : `display:inline-block; padding:12px 32px;`;
+  return `<a href="${href}" style="${sizing} background-color:#181510; color:#F8F7F5; font-family:${SANS_STACK}; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none;">${escapeHtml(
     label
   )}</a>`;
 }
 
-function secondaryButton(label: string, href: string) {
-  return `<a href="${href}" style="display:inline-block; background-color:#F8F7F5; color:#181510; border:1px solid #181510; font-family:${SANS_STACK}; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; padding:11px 31px;">${escapeHtml(
+function secondaryButton(label: string, href: string, stackWidth?: number) {
+  const sizing = stackWidth
+    ? `display:block; width:${stackWidth}px; margin:0 auto 12px auto; text-align:center; padding:11px 0;`
+    : `display:inline-block; padding:11px 31px;`;
+  return `<a href="${href}" style="${sizing} background-color:#F8F7F5; color:#181510; border:1px solid #181510; font-family:${SANS_STACK}; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none;">${escapeHtml(
     label
   )}</a>`;
 }
@@ -372,13 +384,15 @@ export async function sendWelcomeEmail(w: WelcomeEmailInput) {
   const profileUrl = `${SITE_URL}/musicians/${w.slug}`;
   const toolkitUrl = `${SITE_URL}/toolkit`;
   const payoutsUrl = `${SITE_URL}/api/stripe/onboard/${w.slug}`;
-  const ctaHtml = `<span style="display:inline-block; margin-right:12px; margin-bottom:12px;">${primaryButton(
-    "Set up payouts",
-    payoutsUrl
-  )}</span><span style="display:inline-block; margin-right:12px; margin-bottom:12px;">${secondaryButton(
+  // Three CTAs, so they're stacked as one equal-width column (via
+  // stackWidth) rather than left inline-block — inline-block sizes each
+  // button to its own label, which is what made them look misaligned and
+  // mismatched in width when they wrapped on mobile.
+  const ctaHtml = `${primaryButton("Set up payouts", payoutsUrl, 220)}${secondaryButton(
     "View your profile",
-    profileUrl
-  )}</span><span style="display:inline-block; margin-bottom:12px;">${secondaryButton("View the toolkit", toolkitUrl)}</span>`;
+    profileUrl,
+    220
+  )}${secondaryButton("View the toolkit", toolkitUrl, 220)}`;
 
   try {
     await resend.emails.send({

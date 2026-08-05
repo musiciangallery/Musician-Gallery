@@ -93,6 +93,11 @@ const eventMusicianItems: ToolkitItem[] = [
   },
   {
     n: "V",
+    t: "Your event policies, decided ahead of time",
+    b: "Notice period, what happens if the event is postponed or the date changes, and any deposit terms. Having an answer ready avoids awkward conversations later, and reads as professional from day one.",
+  },
+  {
+    n: "VI",
     t: "Reviews",
     b: "Once you have played a few gigs booked through the Gallery, a genuine testimonial from a happy client makes a real difference to future bookings. It is fine to ask directly. Most people are glad to help once they have enjoyed themselves.",
   },

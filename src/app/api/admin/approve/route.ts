@@ -48,6 +48,7 @@ export async function POST(req: NextRequest) {
     const availability = form.get("availability");
     const availabilityTags = parseJsonArray(form.get("availabilityTags"));
     const audioLink = form.get("audioLink");
+    const cancellationPolicy = form.get("cancellationPolicy");
     const rateFromRaw = form.get("rateFrom");
     const rateUnit = form.get("rateUnit");
     const vetted = form.get("vetted") === "true";
@@ -125,7 +126,7 @@ export async function POST(req: NextRequest) {
       INSERT INTO musicians
         (id, slug, name, instrument, instruments, region, type, occasions,
          vetted, rate_from, rate_unit, bio, long_bio, years_experience, photo,
-         photos, video, email, application_id, availability, availability_tags, audio_link)
+         photos, video, email, application_id, availability, availability_tags, audio_link, cancellation_policy)
       VALUES
         (${id}, ${slug}, ${name}, ${instruments[0]}, ${instruments}, ${region},
          ${type}, ${occasions}, ${vetted}, ${rateFrom}, ${String(rateUnit ?? "")},
@@ -134,7 +135,8 @@ export async function POST(req: NextRequest) {
          ${typeof videoUrl === "string" ? videoUrl : null}, ${typeof email === "string" ? email : null}, ${applicationId},
          ${typeof availability === "string" ? availability : ""},
          ${availabilityTags},
-         ${typeof audioLink === "string" ? audioLink : ""})
+         ${typeof audioLink === "string" ? audioLink : ""},
+         ${typeof cancellationPolicy === "string" ? cancellationPolicy : ""})
     `;
 
     await sql`UPDATE musician_applications SET status = 'approved' WHERE id = ${applicationId}`;

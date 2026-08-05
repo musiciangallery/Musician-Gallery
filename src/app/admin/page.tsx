@@ -29,6 +29,7 @@ type LiveMusician = {
   availability: string | null;
   availability_tags: string[] | null;
   audio_link: string | null;
+  cancellation_policy: string | null;
   stripe_onboarded: boolean;
   created_at: string;
 };
@@ -94,6 +95,7 @@ type Application = {
   availability: string | null;
   availability_tags: string[] | null;
   audio_link: string | null;
+  cancellation_policy: string | null;
   lesson_format: string | null;
   lesson_length: string[] | null;
   student_level: string[] | null;
@@ -112,7 +114,7 @@ async function getData() {
     const sql = getSql();
     const bookings = (await sql`SELECT * FROM bookings ORDER BY created_at DESC`) as unknown as Booking[];
     const applications = (await sql`SELECT * FROM musician_applications ORDER BY created_at DESC`) as unknown as Application[];
-    const liveMusicians = (await sql`SELECT id, slug, name, instrument, region, type, occasions, vetted, rate_from, rate_unit, bio, long_bio, years_experience, photo, photos, video, featured, availability, availability_tags, audio_link, stripe_onboarded, created_at FROM musicians ORDER BY created_at DESC`) as unknown as LiveMusician[];
+    const liveMusicians = (await sql`SELECT id, slug, name, instrument, region, type, occasions, vetted, rate_from, rate_unit, bio, long_bio, years_experience, photo, photos, video, featured, availability, availability_tags, audio_link, cancellation_policy, stripe_onboarded, created_at FROM musicians ORDER BY created_at DESC`) as unknown as LiveMusician[];
     const reviews = (await sql`SELECT * FROM reviews ORDER BY created_at DESC`) as unknown as Review[];
     // Messages relayed through bookings' masked reply addresses — quietly
     // logged, reactive admin-only visibility only (not an actively

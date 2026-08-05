@@ -14,9 +14,10 @@ export default function BookingResponseForm({
   bookingId: string;
   token: string;
   canConfirm?: boolean;
-  /** The client's requested frequency ("Weekly", "Fortnightly", "One-off",
-   * or a specific date for non-lesson bookings) — only "Weekly" and
-   * "Fortnightly" turn this into a recurring subscription. */
+  /** The client's requested frequency ("Weekly", "Fortnightly", "Term",
+   * "One-off", or a specific date for non-lesson bookings) — "Weekly",
+   * "Fortnightly", and "Term" all turn this into a recurring subscription
+   * ("Term" bills weekly under the hood, same as "Weekly"). */
   frequency?: string;
   /** The client's requested session count, editable here before confirming. */
   initialSessions?: number | null;
@@ -26,7 +27,7 @@ export default function BookingResponseForm({
   payUpfrontRequested?: boolean;
 }) {
   const router = useRouter();
-  const isRecurring = frequency === "Weekly" || frequency === "Fortnightly";
+  const isRecurring = frequency === "Weekly" || frequency === "Fortnightly" || frequency === "Term";
   const [amount, setAmount] = useState("");
   const [sessions, setSessions] = useState(initialSessions ? String(initialSessions) : "");
   const [payUpfront, setPayUpfront] = useState(payUpfrontRequested);

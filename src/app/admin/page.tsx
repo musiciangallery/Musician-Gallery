@@ -2,6 +2,8 @@ import { getSql, ensureTables } from "@/lib/db";
 import ApplicationReviewCard from "@/components/ApplicationReviewCard";
 import MusicianEditCard from "@/components/MusicianEditCard";
 import { PendingReviewActions, ApprovedReviewActions } from "@/components/ReviewActionButtons";
+import RemoveApplicationButton from "@/components/RemoveApplicationButton";
+import RemoveBookingButton from "@/components/RemoveBookingButton";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin | Musician Gallery" };
@@ -218,12 +220,13 @@ export default async function AdminPage() {
               <th className={th}>Status</th>
               <th className={th}>Payout</th>
               <th className={th}>Messages</th>
+              <th className={th}></th>
             </tr>
           </thead>
           <tbody>
             {bookings.length === 0 ? (
               <tr>
-                <td className={td} colSpan={12}>
+                <td className={td} colSpan={13}>
                   No booking requests yet.
                 </td>
               </tr>
@@ -242,6 +245,9 @@ export default async function AdminPage() {
                   <td className={td}>{statusLabel(b.status, b.amount)}</td>
                   <td className={td}>{payoutLabel(b)}</td>
                   <td className={td}>{messageCountByBooking.get(b.id) ?? 0}</td>
+                  <td className={td}>
+                    <RemoveBookingButton id={b.id} status={b.status} />
+                  </td>
                 </tr>
               ))
             )}
@@ -430,9 +436,12 @@ export default async function AdminPage() {
               <div key={a.id} className="border border-rule p-5 text-sm">
                 <div className="flex flex-wrap items-baseline justify-between gap-2 mb-3">
                   <h3 className="font-serif text-xl">{a.name}</h3>
-                  <span className="text-[10px] tracking-[0.08em] uppercase text-mid">
-                    {new Date(a.created_at).toLocaleString()} · {a.status}
-                  </span>
+                  <div className="flex items-center gap-4">
+                    <span className="text-[10px] tracking-[0.08em] uppercase text-mid">
+                      {new Date(a.created_at).toLocaleString()} · {a.status}
+                    </span>
+                    <RemoveApplicationButton id={a.id} name={a.name} />
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2 text-mid mb-3">
                   <div>

@@ -33,6 +33,7 @@ export type LiveMusicianForEdit = {
   availability: string | null;
   availability_tags: string[] | null;
   audio_link: string | null;
+  cancellation_policy: string | null;
   stripe_onboarded: boolean;
 };
 
@@ -50,6 +51,8 @@ export default function MusicianEditCard({ m }: { m: LiveMusicianForEdit }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const isTeacher = m.type === "Teacher" || m.type === "Teacher & Events";
+
   const [slug, setSlug] = useState(m.slug);
   const [name, setName] = useState(m.name);
   const [region, setRegion] = useState(m.region);
@@ -61,6 +64,7 @@ export default function MusicianEditCard({ m }: { m: LiveMusicianForEdit }) {
   const [availability, setAvailability] = useState(m.availability || "");
   const [availabilityTags, setAvailabilityTags] = useState<string[]>(m.availability_tags || []);
   const [audioLink, setAudioLink] = useState(m.audio_link || "");
+  const [cancellationPolicy, setCancellationPolicy] = useState(m.cancellation_policy || "");
   const [vetted, setVetted] = useState(m.vetted);
   const [occasions, setOccasions] = useState<string[]>(m.occasions || []);
   const [newPhoto, setNewPhoto] = useState<File | null>(null);
@@ -129,6 +133,7 @@ export default function MusicianEditCard({ m }: { m: LiveMusicianForEdit }) {
           availability,
           availabilityTags,
           audioLink,
+          cancellationPolicy,
           photoUrl,
           galleryUrls,
           videoUrl,
@@ -276,6 +281,28 @@ export default function MusicianEditCard({ m }: { m: LiveMusicianForEdit }) {
                   value={audioLink}
                   onChange={(e) => setAudioLink(e.target.value)}
                 />
+              </div>
+
+              <div>
+                <label className={labelClass}>Cancellation policy (optional)</label>
+                <textarea
+                  rows={2}
+                  className={inputClass}
+                  placeholder={
+                    isTeacher
+                      ? "e.g. 48 hours notice for a reschedule, missed lessons within the notice period are still charged"
+                      : "e.g. 14 days notice for a full refund, deposit not refundable within 7 days of the event"
+                  }
+                  value={cancellationPolicy}
+                  onChange={(e) => setCancellationPolicy(e.target.value)}
+                />
+                {!cancellationPolicy.trim() && (
+                  <p className="text-[11px] text-mid mt-2">
+                    Nothing on file yet. Optional, but shown to clients on
+                    the profile and again when they confirm a Booking, once
+                    added.
+                  </p>
+                )}
               </div>
 
               <div>

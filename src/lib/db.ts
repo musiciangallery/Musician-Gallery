@@ -264,6 +264,12 @@ export async function ensureTables() {
     // a plain "Listen" link instead). Optional, stated by the applicant
     // and editable by an admin before publishing.
     sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS audio_link text`,
+    // Optional free text policy, stated by the applicant and editable by an
+    // admin before publishing. Shown on the public profile and again in the
+    // email a client gets when a Booking is confirmed, so the promise in
+    // the Terms (that a policy is shown before paying) is actually true
+    // whenever a musician has filled this in.
+    sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS cancellation_policy text`,
     // The applicant's self-set starting rate — a starting point for an
     // admin to review and adjust during approval, not published as-is.
     // rate_unit is either "per event" / "per 60min lesson", or "By
@@ -289,6 +295,7 @@ export async function ensureTables() {
     sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS availability text`,
     sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS availability_tags text[]`,
     sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS audio_link text`,
+    sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS cancellation_policy text`,
     // Stripe Connect Express account for automatic payouts.
     // stripe_onboarded only flips true once Stripe confirms (via webhook)
     // that charges and payouts are both enabled on the account — until

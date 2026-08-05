@@ -41,13 +41,15 @@ function escapeHtml(value: string) {
 
 /** Formats a booking's event date for display in emails. One-off bookings
  * store an actual date string ("2026-08-20"); recurring lesson bookings
- * store the literal "Weekly" or "Fortnightly" instead, which pass through
- * unchanged. Falls back to the raw value if it can't be parsed, matching
- * the fail-open pattern used elsewhere in the booking emails — better to
- * show something than crash on an unexpected format. Formats in UTC so the
- * date-only input can't shift a day depending on the server's timezone. */
+ * store the literal "Weekly", "Fortnightly", or "Term" instead, which pass
+ * through unchanged ("Term" bills weekly under the hood, but keeps its own
+ * label here since that's what the client actually chose). Falls back to
+ * the raw value if it can't be parsed, matching the fail-open pattern used
+ * elsewhere in the booking emails — better to show something than crash on
+ * an unexpected format. Formats in UTC so the date-only input can't shift a
+ * day depending on the server's timezone. */
 function formatEventDate(eventDate: string): string {
-  if (eventDate === "Weekly" || eventDate === "Fortnightly") return eventDate;
+  if (eventDate === "Weekly" || eventDate === "Fortnightly" || eventDate === "Term") return eventDate;
   const parsed = new Date(eventDate);
   if (Number.isNaN(parsed.getTime())) return eventDate;
   return parsed.toLocaleDateString("en-NZ", {

@@ -38,8 +38,9 @@ export function replyCodeFromMaskedAddress(address: string): string | null {
 
 type BookingWindowInput = {
   status: string;
-  /** One-off bookings: an actual date string. Recurring bookings: "Weekly"
-   * or "Fortnightly" instead — see completedAt for how those are handled. */
+  /** One-off bookings: an actual date string. Recurring bookings: "Weekly",
+   * "Fortnightly", or "Term" instead — see completedAt for how those are
+   * handled. */
   eventDate: string;
   /** Agreed number of lessons — non-null/non-zero only for recurring
    * bookings, matching the `sessions` column. */

@@ -174,6 +174,7 @@ function layout({
   heading,
   intro,
   rowsHtml,
+  noteHtml,
   ctaHtml,
   footerNote,
 }: {
@@ -181,6 +182,12 @@ function layout({
   heading: string;
   intro: string;
   rowsHtml?: string;
+  /** An optional short line shown between the intro and the CTA button, in
+   * the same muted grey as the intro but a touch smaller — used for
+   * something a client should see right before they act (e.g. a musician's
+   * cancellation policy right above the payment button), rather than
+   * buried inside the main intro paragraph. */
+  noteHtml?: string;
   ctaHtml?: string;
   footerNote: string;
 }) {
@@ -233,6 +240,7 @@ function layout({
                   heading
                 )}</h1>
                 <p style="margin:0 auto 28px auto; max-width:360px; font-family:${SANS_STACK}; font-size:14px; line-height:1.6; color:#8A8680;">${intro}</p>
+                ${noteHtml ? `<p style="margin:0 auto 20px auto; max-width:360px; font-family:${SANS_STACK}; font-size:12px; line-height:1.6; color:#8A8680;">${noteHtml}</p>` : ""}
                 ${ctaHtml ? `<p style="margin:0 0 8px 0;">${ctaHtml}</p>` : ""}
               </td>
             </tr>${rowsSection}
@@ -547,6 +555,11 @@ type BookingConfirmedEmailInput = {
    * still very much "live" at this stage (not yet paid), so conversation
    * should stay open. See lib/reply-mask.ts. */
   replyCode: string;
+  /** The musician's own stated cancellation policy, carried over from their
+   * profile. Optional — a musician may not have set one. Shown right above
+   * the payment button, since this is the point the Terms tell a client to
+   * review it before paying. */
+  cancellationPolicy?: string;
 };
 
 /** Sent to the client once the musician confirms a booking and enters their
@@ -605,17 +618,31 @@ export async function sendBookingConfirmedEmail(b: BookingConfirmedEmailInput) {
   const addressNote =
     " Replies only reach the other person when sent from the email address you gave us. A different inbox won't connect.";
 
+  // Optional — a musician may not have set one. Shown as its own line right
+  // above the payment link/button, since that's the point clients are asked
+  // to review it, before paying (see Terms 5.2).
+  const cancellationLine = b.cancellationPolicy
+    ? `${b.musicianName}'s cancellation policy: ${b.cancellationPolicy}`
+    : "";
+
   try {
     await resend.emails.send({
       from: FROM,
       to: b.clientEmail,
       replyTo,
       subject,
-      text: `Hi ${b.clientName},\n\n${bodyText}\n\nSet up payment securely here: ${b.checkoutUrl}\n\nMusician Gallery`,
+      text: `Hi ${b.clientName},\n\n${bodyText}\n\n${
+        cancellationLine ? `${cancellationLine}\n\n` : ""
+      }Set up payment securely here: ${b.checkoutUrl}\n\nMusician Gallery`,
       html: layout({
         eyebrow: isRecurring ? "Lessons confirmed" : "Booking confirmed",
         heading: `${b.musicianName} is confirmed`,
         intro: `Hi ${escapeHtml(b.clientName)}, ${escapeHtml(bodyText)}`,
+        noteHtml: b.cancellationPolicy
+          ? `<strong style="color:#181510;">${escapeHtml(
+              b.musicianName
+            )}&rsquo;s cancellation policy:</strong> ${escapeHtml(b.cancellationPolicy)}`
+          : undefined,
         ctaHtml: primaryButton(
           isUpfront
             ? `Pay $${(termTotal * 1.1).toFixed(2)} now`

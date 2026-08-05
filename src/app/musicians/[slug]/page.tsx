@@ -185,8 +185,10 @@ export default async function MusicianProfile({
           ) : m.rateUnit === "per event" ? (
             <>
               <p className="text-xs text-mid mb-1">Starting from</p>
-              <p className="font-serif text-3xl mb-1">${m.rateFrom.toFixed(2)}</p>
-              <p className="text-xs text-mid mb-1">per event</p>
+              <p className="font-serif text-3xl mb-1 whitespace-nowrap">
+                ${m.rateFrom.toFixed(2)}{" "}
+                <span className="text-xs font-sans text-mid">per event</span>
+              </p>
               <p className="text-[11px] text-mid mb-6">
                 This is a starting point, informational for you as a
                 potential client, not a fixed quote.
@@ -195,8 +197,10 @@ export default async function MusicianProfile({
           ) : (
             <>
               <p className="text-xs text-mid mb-1">Rate</p>
-              <p className="font-serif text-3xl mb-1">${m.rateFrom.toFixed(2)}</p>
-              <p className="text-xs text-mid mb-1">{m.rateUnit}</p>
+              <p className="font-serif text-3xl mb-1 whitespace-nowrap">
+                ${m.rateFrom.toFixed(2)}{" "}
+                <span className="text-xs font-sans text-mid">{m.rateUnit}</span>
+              </p>
               <p className="text-[11px] text-mid mb-6">
                 This is a starting point, informational for you as a
                 potential client, not a fixed quote.

@@ -22,6 +22,7 @@ type MusicianRow = {
   name: string;
   stripe_account_id: string | null;
   stripe_onboarded: boolean;
+  cancellation_policy: string | null;
 };
 
 /** Musician confirms a booking and quotes their rate. Creates a Stripe
@@ -70,7 +71,7 @@ export async function POST(
     }
 
     const musicianRows = (await sql`
-      SELECT name, stripe_account_id, stripe_onboarded FROM musicians WHERE slug = ${booking.musician_slug}
+      SELECT name, stripe_account_id, stripe_onboarded, cancellation_policy FROM musicians WHERE slug = ${booking.musician_slug}
     `) as unknown as MusicianRow[];
     const musician = musicianRows[0];
     if (!musician || !musician.stripe_account_id || !musician.stripe_onboarded) {
@@ -197,6 +198,7 @@ export async function POST(
         sessions: isRecurring ? sessions ?? undefined : undefined,
         payUpfront: isRecurring && payUpfront,
         replyCode: booking.reply_code,
+        cancellationPolicy: musician.cancellation_policy ?? undefined,
       });
     } catch (emailErr) {
       console.error("Booking confirmed email failed:", emailErr);

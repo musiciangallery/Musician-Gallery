@@ -238,15 +238,19 @@ export default function TermsPage() {
         <li>
           Once a Musician confirms your Booking and quotes their rate,
           you will receive a secure payment link. Payment is processed
-          through Stripe and paid to the Musician automatically &mdash;
-          there is no holding period.
+          through Stripe. For lesson Bookings, funds are paid to the
+          Musician automatically. For event Bookings, funds are held by
+          Musician Gallery and paid to the Musician the day after the
+          event, so that anything needing to be sorted out beforehand can
+          be handled cleanly.
         </li>
       </ul>
       <h3 className={h3}>5.2 Cancellations and Refunds</h3>
       <ul className={ul}>
         <li>
-          Cancellation policies are stated at the time of Booking and vary
-          by Musician. Please review these carefully before confirming.
+          Cancellation policies, where a Musician has provided one, are
+          shown on their profile and again in the email confirming your
+          Booking, before you pay. Please review these carefully.
         </li>
         <li>
           If a Musician cancels a confirmed Booking, you will receive a full
@@ -254,7 +258,8 @@ export default function TermsPage() {
         </li>
         <li>
           If you cancel a Booking, the refund amount will depend on the
-          notice given and the Musician&rsquo;s stated cancellation policy.
+          notice given and the Musician&rsquo;s stated cancellation policy,
+          where one has been provided.
         </li>
         <li>
           Musician Gallery Platform Fees are non-refundable except where the

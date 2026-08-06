@@ -73,6 +73,11 @@ export async function POST(req: NextRequest) {
     // while they wait on it.
     const vettingCertificateUrl = form.get("vettingCertificateUrl");
     const vettingCertificateNumber = form.get("vettingCertificateNumber");
+    // Required consent for Musician Gallery to make minor edits to the
+    // applicant's biography and profile photo before their profile goes
+    // live. Enforced here too, not just in JoinForm.tsx, in case that
+    // check is ever bypassed.
+    const contentEditConsent = form.get("contentEditConsent") === "true";
 
     if (
       typeof name !== "string" ||
@@ -90,6 +95,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!contentEditConsent) {
+      return NextResponse.json(
+        { error: "Please confirm permission for minor edits before submitting your application." },
+        { status: 400 }
+      );
+    }
+
     const rateFrom =
       typeof rateFromRaw === "string" && rateFromRaw.trim() ? parseInt(rateFromRaw, 10) : null;
 
@@ -101,7 +113,7 @@ export async function POST(req: NextRequest) {
         (id, name, email, instrument, instruments, region, type, bio, status,
          previous_work, previous_work_files, years_experience, travel, availability, availability_tags, audio_link, lesson_format, lesson_length,
          student_level, available_as, genre, sound_system, vetting_certificate_url, vetting_certificate_number,
-         rate_from, rate_unit)
+         rate_from, rate_unit, content_edit_consent, content_edit_consent_at)
       VALUES
         (${id}, ${name}, ${email}, ${instrumentList.join(", ")}, ${instrumentList},
          ${region}, ${typeof type === "string" ? type : "Event Musician"}, ${typeof bio === "string" ? bio : ""}, 'pending_review',
@@ -116,7 +128,8 @@ export async function POST(req: NextRequest) {
          ${typeof soundSystem === "string" ? soundSystem : ""},
          ${typeof vettingCertificateUrl === "string" ? vettingCertificateUrl : ""},
          ${typeof vettingCertificateNumber === "string" ? vettingCertificateNumber : ""},
-         ${rateFrom}, ${typeof rateUnit === "string" ? rateUnit : ""})
+         ${rateFrom}, ${typeof rateUnit === "string" ? rateUnit : ""},
+         ${contentEditConsent}, now())
     `;
 
     // Sent after the response is returned (via after()) rather than

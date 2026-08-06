@@ -60,8 +60,8 @@ const teacherItems: ToolkitItem[] = [
   },
   {
     n: "VI",
-    t: "Your studio policies, decided ahead of time",
-    b: "Cancellation notice, catch up lessons, how you handle no-shows, and term breaks. Having an answer ready avoids awkward conversations later, and reads as professional from day one.",
+    t: "Your cancellation policy, ready to go",
+    b: "Notice period, how you handle catch up lessons or no shows, and term breaks. Add it when you confirm each booking and your client will see it before they pay.",
   },
   {
     n: "VII",
@@ -93,8 +93,8 @@ const eventMusicianItems: ToolkitItem[] = [
   },
   {
     n: "V",
-    t: "Your event policies, decided ahead of time",
-    b: "Notice period, what happens if the event is postponed or the date changes, and any deposit terms. Having an answer ready avoids awkward conversations later, and reads as professional from day one.",
+    t: "Your cancellation policy, ready to go",
+    b: "Notice period, and what happens if the event is postponed or the date changes. Add it when you confirm each booking and your client will see it before they pay.",
   },
   {
     n: "VI",

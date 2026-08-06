@@ -271,11 +271,17 @@ export async function ensureTables() {
     sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS audio_link text`,
     // The applicant's self-set starting rate — a starting point for an
     // admin to review and adjust during approval, not published as-is.
-    // rate_unit is either "per event" / "per 60min lesson", or "By
-    // enquiry" when the applicant chose to keep their rate private rather
-    // than list a number (rate_from is left null in that case).
+    // rate_from/rate_unit is specifically the EVENT rate (rate_unit is
+    // "per event" or "By enquiry"), shown for Event Musician and Teacher &
+    // Events applicants. teaching_rate_from/teaching_rate_unit is the
+    // separate LESSON rate ("per 60min lesson" or "By enquiry"), shown for
+    // Teacher and Teacher & Events applicants. Kept as two independent
+    // pairs rather than one shared field, since a Teacher & Events
+    // applicant needs to state both, not pick just one.
     sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS rate_from integer`,
     sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS rate_unit text`,
+    sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS teaching_rate_from integer`,
+    sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS teaching_rate_unit text`,
     // Consent, given via a required checkbox on the Join form, for
     // Musician Gallery to make minor edits to a submitted biography and to
     // decline or request a replacement for a submitted photo, ahead of a
@@ -314,6 +320,12 @@ export async function ensureTables() {
     sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS availability text`,
     sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS availability_tags text[]`,
     sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS audio_link text`,
+    // Separate lesson rate, alongside the musicians table's original
+    // rate_from/rate_unit columns (which are now specifically the event
+    // rate) — see the comment on musician_applications.rate_from above for
+    // the full reasoning.
+    sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS teaching_rate_from integer`,
+    sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS teaching_rate_unit text`,
     // Carried over from the application at approval time — see the
     // comment on musician_applications.content_edit_consent above.
     sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS content_edit_consent boolean NOT NULL DEFAULT false`,

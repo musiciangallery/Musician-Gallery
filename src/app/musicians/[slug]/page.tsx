@@ -71,7 +71,7 @@ export default async function MusicianProfile({
       <div className="mt-8 flex flex-wrap items-start justify-between gap-4 border-b border-rule pb-8">
         <div>
           <span className="eyebrow">
-            {m.region} &middot; {m.instrument}
+            {m.region} &middot; {m.instrument} &middot; {m.yearsExperience} years experience
           </span>
           <h1 className="font-serif text-4xl md:text-5xl mt-3">{m.name}</h1>
           <p className="text-sm text-mid mt-2">{m.type}</p>
@@ -207,9 +207,6 @@ export default async function MusicianProfile({
               </p>
             </>
           )}
-          <p className="text-xs text-mid mb-6">
-            {m.yearsExperience} years experience
-          </p>
           {((m.availabilityTags && m.availabilityTags.length > 0) || m.availability) && (
             <div className="mb-6">
               <p className="text-[10px] tracking-[0.08em] uppercase text-mid mb-1">

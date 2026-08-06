@@ -27,7 +27,6 @@ type DbMusicianRow = {
   availability: string | null;
   availability_tags: string[] | null;
   audio_link: string | null;
-  cancellation_policy: string | null;
 };
 
 function fromDbRow(row: DbMusicianRow): Musician {
@@ -52,7 +51,6 @@ function fromDbRow(row: DbMusicianRow): Musician {
     availability: row.availability ?? undefined,
     availabilityTags: row.availability_tags ?? undefined,
     audioLink: row.audio_link ?? undefined,
-    cancellationPolicy: row.cancellation_policy ?? undefined,
     isLive: true,
   };
 }

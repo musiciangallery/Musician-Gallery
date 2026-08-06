@@ -15,7 +15,7 @@ const clientSteps = [
   {
     n: "II",
     t: "Send a booking request",
-    b: "Reach out directly through the platform. Ask questions, share details, and get to know your musician before anything is confirmed, all while your email addresses stay private.",
+    b: "Reach out directly through the platform. Ask questions, share details, and get to know your musician before anything is confirmed. Musician Gallery relays every message, so your email address stays private throughout.",
   },
   {
     n: "III",
@@ -25,7 +25,7 @@ const clientSteps = [
   {
     n: "IV",
     t: "Enjoy the music",
-    b: "The moment your payment goes through, your musician is paid too, instantly and in full. Whether it's a musician for an event or a teacher to expand your musical language, your booking supports them directly.",
+    b: "For lessons, your musician is paid the moment your payment goes through. For events, musicians are paid the day following your function. Whether it's a musician for an event or a teacher to expand your musical language, your booking supports them directly.",
   },
 ];
 
@@ -43,7 +43,7 @@ const musicianPillars = [
   {
     n: "III",
     t: "Backend, handled",
-    b: "Payment collection and payout are handled automatically once your client pays. No invoicing, no chasing clients for payment, and every transaction is logged in your own Stripe dashboard, ready for tax time. For lessons, agree on a set number of lessons upfront, then bill it automatically per lesson or take the whole term as one payment.",
+    b: "Lesson payments land automatically, in full. Event payments are held securely and paid out the day after the function. No invoicing, no chasing clients for payment, and every transaction is logged in your own Stripe dashboard, ready for tax time. For lessons, agree on a set number of lessons upfront, then bill it automatically per lesson or take the whole term as one payment.",
   },
   {
     n: "IV",
@@ -191,16 +191,15 @@ export default function AboutPage() {
           </p>
           <p className="text-sm text-mid leading-relaxed">
             On the musician&rsquo;s side, setup is simple: a one-time
-            Stripe account linked directly to your bank account. From
-            there, every payment lands automatically, in full, with
-            nothing withheld, deducted, or charged as commission.
+            Stripe account linked directly to your bank. Lesson payments
+            land automatically, in full. Event payments are held securely
+            and paid out the day after the function.
           </p>
           <p className="text-sm text-mid leading-relaxed">
-            For ongoing lessons, agree on a quantity upfront (a school
-            term is a sensible starting point), and then choose how
-            it&rsquo;s billed. Automatically each week or fortnight, or
-            as one upfront payment for the whole term. Once set up,
-            you&rsquo;re good to go.
+            For ongoing lessons, agree on a quantity upfront, and then
+            choose how it&rsquo;s billed. Automatically each week or
+            fortnight, or as one upfront payment for the whole term. Once
+            set up, you&rsquo;re good to go.
           </p>
         </div>
       </section>

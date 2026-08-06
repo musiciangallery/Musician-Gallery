@@ -230,14 +230,6 @@ export default async function MusicianProfile({
               {m.availability && <p className="text-xs text-mid">{m.availability}</p>}
             </div>
           )}
-          {m.cancellationPolicy && (
-            <div className="mb-6">
-              <p className="text-[10px] tracking-[0.08em] uppercase text-mid mb-1">
-                Cancellation policy
-              </p>
-              <p className="text-xs text-mid">{m.cancellationPolicy}</p>
-            </div>
-          )}
           <Link
             href={`/book/${m.slug}`}
             className="block text-center bg-blk text-w text-xs tracking-[0.1em] uppercase py-3 hover:bg-accent transition-colors"

@@ -125,12 +125,17 @@ export async function POST(req: NextRequest) {
     // application itself is later deleted (approved applications can be,
     // via /api/admin/remove-application).
     const consentRows = await sql`
-      SELECT content_edit_consent, content_edit_consent_at
+      SELECT content_edit_consent, content_edit_consent_at, age_confirmed, age_confirmed_at
       FROM musician_applications
       WHERE id = ${applicationId}
     `;
     const consent = consentRows[0] as
-      | { content_edit_consent: boolean | null; content_edit_consent_at: string | null }
+      | {
+          content_edit_consent: boolean | null;
+          content_edit_consent_at: string | null;
+          age_confirmed: boolean | null;
+          age_confirmed_at: string | null;
+        }
       | undefined;
 
     await sql`
@@ -138,7 +143,7 @@ export async function POST(req: NextRequest) {
         (id, slug, name, instrument, instruments, region, type, occasions,
          vetted, rate_from, rate_unit, bio, long_bio, years_experience, photo,
          photos, video, email, application_id, availability, availability_tags, audio_link,
-         content_edit_consent, content_edit_consent_at)
+         content_edit_consent, content_edit_consent_at, age_confirmed, age_confirmed_at)
       VALUES
         (${id}, ${slug}, ${name}, ${instruments[0]}, ${instruments}, ${region},
          ${type}, ${occasions}, ${vetted}, ${rateFrom}, ${String(rateUnit ?? "")},
@@ -148,7 +153,8 @@ export async function POST(req: NextRequest) {
          ${typeof availability === "string" ? availability : ""},
          ${availabilityTags},
          ${typeof audioLink === "string" ? audioLink : ""},
-         ${consent?.content_edit_consent ?? false}, ${consent?.content_edit_consent_at ?? null})
+         ${consent?.content_edit_consent ?? false}, ${consent?.content_edit_consent_at ?? null},
+         ${consent?.age_confirmed ?? false}, ${consent?.age_confirmed_at ?? null})
     `;
 
     await sql`UPDATE musician_applications SET status = 'approved' WHERE id = ${applicationId}`;

@@ -22,7 +22,6 @@ type MusicianRow = {
   name: string;
   stripe_account_id: string | null;
   stripe_onboarded: boolean;
-  cancellation_policy: string | null;
 };
 
 /** Musician confirms a booking and quotes their rate. Creates a Stripe
@@ -53,6 +52,10 @@ export async function POST(
     // BookingResponseForm.tsx, which shows the client's stated preference
     // as context only).
     const payUpfront = body.payUpfront === true;
+    // Optional, set by the musician on this screen for this booking only —
+    // there is no profile level version of this (see BookingResponseForm.tsx).
+    const cancellationPolicy =
+      typeof body.cancellationPolicy === "string" ? body.cancellationPolicy.trim() : "";
 
     if (!token || !amountDollars || amountDollars <= 0) {
       return NextResponse.json({ error: "Missing token or a valid amount." }, { status: 400 });
@@ -71,7 +74,7 @@ export async function POST(
     }
 
     const musicianRows = (await sql`
-      SELECT name, stripe_account_id, stripe_onboarded, cancellation_policy FROM musicians WHERE slug = ${booking.musician_slug}
+      SELECT name, stripe_account_id, stripe_onboarded FROM musicians WHERE slug = ${booking.musician_slug}
     `) as unknown as MusicianRow[];
     const musician = musicianRows[0];
     if (!musician || !musician.stripe_account_id || !musician.stripe_onboarded) {
@@ -182,7 +185,8 @@ export async function POST(
     await sql`
       UPDATE bookings
       SET status = 'confirmed', amount = ${amountCents}, stripe_checkout_session_id = ${session.id},
-          sessions = ${isRecurring ? sessions : null}, pay_upfront = ${isRecurring && payUpfront}, confirmed_at = now()
+          sessions = ${isRecurring ? sessions : null}, pay_upfront = ${isRecurring && payUpfront},
+          cancellation_policy = ${cancellationPolicy || null}, confirmed_at = now()
       WHERE id = ${booking.id}
     `;
 
@@ -198,7 +202,7 @@ export async function POST(
         sessions: isRecurring ? sessions ?? undefined : undefined,
         payUpfront: isRecurring && payUpfront,
         replyCode: booking.reply_code,
-        cancellationPolicy: musician.cancellation_policy ?? undefined,
+        cancellationPolicy: cancellationPolicy || undefined,
       });
     } catch (emailErr) {
       console.error("Booking confirmed email failed:", emailErr);

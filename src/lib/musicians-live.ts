@@ -16,6 +16,8 @@ type DbMusicianRow = {
   vetted: boolean;
   rate_from: number | null;
   rate_unit: string | null;
+  teaching_rate_from: number | null;
+  teaching_rate_unit: string | null;
   bio: string | null;
   long_bio: string | null;
   years_experience: string | null;
@@ -39,7 +41,9 @@ function fromDbRow(row: DbMusicianRow): Musician {
     occasions: (row.occasions ?? []) as Occasion[],
     vetted: row.vetted,
     rateFrom: row.rate_from ?? null,
-    rateUnit: (row.rate_unit as Musician["rateUnit"]) || "per event",
+    rateUnit: (row.rate_unit as Musician["rateUnit"]) || undefined,
+    teachingRateFrom: row.teaching_rate_from ?? null,
+    teachingRateUnit: (row.teaching_rate_unit as Musician["teachingRateUnit"]) || undefined,
     bio: row.bio ?? "",
     longBio: row.long_bio ?? row.bio ?? "",
     yearsExperience: row.years_experience ?? "",

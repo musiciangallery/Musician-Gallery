@@ -44,7 +44,6 @@ export async function POST(req: NextRequest) {
     const availability = form.get("availability");
     const availabilityTags = parseJsonArray(form.get("availabilityTags"));
     const audioLink = form.get("audioLink");
-    const cancellationPolicy = form.get("cancellationPolicy");
     const rateFromRaw = form.get("rateFrom");
     const rateUnit = form.get("rateUnit");
     const lessonFormat = form.get("lessonFormat");
@@ -100,7 +99,7 @@ export async function POST(req: NextRequest) {
     await sql`
       INSERT INTO musician_applications
         (id, name, email, instrument, instruments, region, type, bio, status,
-         previous_work, previous_work_files, years_experience, travel, availability, availability_tags, audio_link, cancellation_policy, lesson_format, lesson_length,
+         previous_work, previous_work_files, years_experience, travel, availability, availability_tags, audio_link, lesson_format, lesson_length,
          student_level, available_as, genre, sound_system, vetting_certificate_url, vetting_certificate_number,
          rate_from, rate_unit)
       VALUES
@@ -112,7 +111,6 @@ export async function POST(req: NextRequest) {
          ${typeof availability === "string" ? availability : ""},
          ${availabilityTags},
          ${typeof audioLink === "string" ? audioLink : ""},
-         ${typeof cancellationPolicy === "string" ? cancellationPolicy : ""},
          ${typeof lessonFormat === "string" ? lessonFormat : ""}, ${lessonLength},
          ${studentLevel}, ${availableAs}, ${genre},
          ${typeof soundSystem === "string" ? soundSystem : ""},

@@ -249,8 +249,8 @@ export default function TermsPage() {
       <ul className={ul}>
         <li>
           Cancellation policies, where a Musician has provided one, are
-          shown on their profile and again in the email confirming your
-          Booking, before you pay. Please review these carefully.
+          shown in the email confirming your Booking, before you pay.
+          Please review these carefully.
         </li>
         <li>
           If a Musician cancels a confirmed Booking, you will receive a full

@@ -143,6 +143,12 @@ export default function TermsPage() {
           Musician Gallery reserves the right to reject or remove profiles
           that do not meet our standards, including photo requirements.
         </li>
+        <li>
+          By submitting your application, you give Musician Gallery
+          permission to make minor edits to your biography, and to decline
+          or request a replacement for a submitted photo, to keep profiles
+          consistent before they go live.
+        </li>
         <li>Profiles do not go live until reviewed and approved by Musician Gallery.</li>
       </ul>
       <h3 className={h3}>4.2 Police Vetting &mdash; Teachers Only</h3>

@@ -78,6 +78,10 @@ export async function POST(req: NextRequest) {
     // live. Enforced here too, not just in JoinForm.tsx, in case that
     // check is ever bypassed.
     const contentEditConsent = form.get("contentEditConsent") === "true";
+    // Required confirmation that the applicant is at least 16 (see Terms
+    // 3.1 and Privacy Section 9). Enforced here too, not just in
+    // JoinForm.tsx, in case that check is ever bypassed.
+    const ageConfirmed = form.get("ageConfirmed") === "true";
 
     if (
       typeof name !== "string" ||
@@ -102,6 +106,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!ageConfirmed) {
+      return NextResponse.json(
+        { error: "Please confirm you are 16 years of age or older before submitting your application." },
+        { status: 400 }
+      );
+    }
+
     const rateFrom =
       typeof rateFromRaw === "string" && rateFromRaw.trim() ? parseInt(rateFromRaw, 10) : null;
 
@@ -113,7 +124,7 @@ export async function POST(req: NextRequest) {
         (id, name, email, instrument, instruments, region, type, bio, status,
          previous_work, previous_work_files, years_experience, travel, availability, availability_tags, audio_link, lesson_format, lesson_length,
          student_level, available_as, genre, sound_system, vetting_certificate_url, vetting_certificate_number,
-         rate_from, rate_unit, content_edit_consent, content_edit_consent_at)
+         rate_from, rate_unit, content_edit_consent, content_edit_consent_at, age_confirmed, age_confirmed_at)
       VALUES
         (${id}, ${name}, ${email}, ${instrumentList.join(", ")}, ${instrumentList},
          ${region}, ${typeof type === "string" ? type : "Event Musician"}, ${typeof bio === "string" ? bio : ""}, 'pending_review',
@@ -129,7 +140,7 @@ export async function POST(req: NextRequest) {
          ${typeof vettingCertificateUrl === "string" ? vettingCertificateUrl : ""},
          ${typeof vettingCertificateNumber === "string" ? vettingCertificateNumber : ""},
          ${rateFrom}, ${typeof rateUnit === "string" ? rateUnit : ""},
-         ${contentEditConsent}, now())
+         ${contentEditConsent}, now(), ${ageConfirmed}, now())
     `;
 
     // Sent after the response is returned (via after()) rather than

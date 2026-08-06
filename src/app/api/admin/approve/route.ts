@@ -121,11 +121,24 @@ export async function POST(req: NextRequest) {
 
     const id = randomUUID();
 
+    // Carried over from the application so the record survives even if the
+    // application itself is later deleted (approved applications can be,
+    // via /api/admin/remove-application).
+    const consentRows = await sql`
+      SELECT content_edit_consent, content_edit_consent_at
+      FROM musician_applications
+      WHERE id = ${applicationId}
+    `;
+    const consent = consentRows[0] as
+      | { content_edit_consent: boolean | null; content_edit_consent_at: string | null }
+      | undefined;
+
     await sql`
       INSERT INTO musicians
         (id, slug, name, instrument, instruments, region, type, occasions,
          vetted, rate_from, rate_unit, bio, long_bio, years_experience, photo,
-         photos, video, email, application_id, availability, availability_tags, audio_link)
+         photos, video, email, application_id, availability, availability_tags, audio_link,
+         content_edit_consent, content_edit_consent_at)
       VALUES
         (${id}, ${slug}, ${name}, ${instruments[0]}, ${instruments}, ${region},
          ${type}, ${occasions}, ${vetted}, ${rateFrom}, ${String(rateUnit ?? "")},
@@ -134,7 +147,8 @@ export async function POST(req: NextRequest) {
          ${typeof videoUrl === "string" ? videoUrl : null}, ${typeof email === "string" ? email : null}, ${applicationId},
          ${typeof availability === "string" ? availability : ""},
          ${availabilityTags},
-         ${typeof audioLink === "string" ? audioLink : ""})
+         ${typeof audioLink === "string" ? audioLink : ""},
+         ${consent?.content_edit_consent ?? false}, ${consent?.content_edit_consent_at ?? null})
     `;
 
     await sql`UPDATE musician_applications SET status = 'approved' WHERE id = ${applicationId}`;

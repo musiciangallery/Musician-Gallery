@@ -31,6 +31,7 @@ export default function BookingResponseForm({
   const [amount, setAmount] = useState("");
   const [sessions, setSessions] = useState(initialSessions ? String(initialSessions) : "");
   const [payUpfront, setPayUpfront] = useState(payUpfrontRequested);
+  const [cancellationPolicy, setCancellationPolicy] = useState("");
   const [submitting, setSubmitting] = useState<"confirm" | "decline" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -59,6 +60,7 @@ export default function BookingResponseForm({
           token,
           amount: value,
           ...(isRecurring ? { sessions: sessionsValue, payUpfront } : {}),
+          cancellationPolicy,
         }),
       });
       if (!res.ok) {
@@ -162,6 +164,22 @@ export default function BookingResponseForm({
               </div>
             </>
           )}
+
+          <label className="text-[10px] tracking-[0.08em] uppercase text-mid block mb-1">
+            Cancellation policy for this booking (optional)
+          </label>
+          <p className="text-xs text-mid mb-3">
+            Before confirming, it&rsquo;s worth letting your client know
+            your cancellation policy if you have one. Add it below and
+            it&rsquo;ll be included in the email they get once you confirm.
+          </p>
+          <textarea
+            rows={2}
+            value={cancellationPolicy}
+            onChange={(e) => setCancellationPolicy(e.target.value)}
+            placeholder="e.g. how much notice you'd like, and anything else worth mentioning"
+            className="w-full border border-rule bg-w px-3 py-2 text-sm focus:outline-none focus:border-accent mb-4"
+          />
         </>
       )}
       {error && <p className="text-xs text-accent mb-4">{error}</p>}

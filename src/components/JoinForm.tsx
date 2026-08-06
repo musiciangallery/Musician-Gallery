@@ -68,7 +68,6 @@ type FormState = {
   availabilityTags: string[];
   availability: string;
   audioLink: string;
-  cancellationPolicy: string;
   rateFrom: string;
   rateUnit: string;
   rateByEnquiry: boolean;
@@ -94,7 +93,6 @@ const initialForm: FormState = {
   availabilityTags: [],
   availability: "",
   audioLink: "",
-  cancellationPolicy: "",
   rateFrom: "",
   rateUnit: "per event",
   rateByEnquiry: false,
@@ -240,7 +238,6 @@ export default function JoinForm({
       body.set("availability", form.availability);
       body.set("availabilityTags", JSON.stringify(form.availabilityTags));
       body.set("audioLink", form.audioLink);
-      body.set("cancellationPolicy", form.cancellationPolicy);
       body.set("rateFrom", form.rateByEnquiry ? "" : form.rateFrom);
       body.set("rateUnit", form.rateByEnquiry ? "By enquiry" : form.rateUnit);
       body.set("lessonFormat", form.lessonFormat);
@@ -562,27 +559,6 @@ export default function JoinForm({
           value={form.availability}
           onChange={(e) => update("availability", e.target.value)}
         />
-      </div>
-
-      <div>
-        <label className={labelClass}>Cancellation policy (optional)</label>
-        <textarea
-          rows={2}
-          className={inputClass}
-          placeholder={
-            isTeacher
-              ? "e.g. 48 hours notice for a reschedule, missed lessons within the notice period are still charged"
-              : "e.g. 14 days notice for a full refund, deposit not refundable within 7 days of the event"
-          }
-          value={form.cancellationPolicy}
-          onChange={(e) => update("cancellationPolicy", e.target.value)}
-        />
-        <p className="text-xs text-mid mt-2">
-          {isTeacher
-            ? "Worth deciding ahead of time: notice period, catch up lessons, no shows, and term breaks."
-            : "Worth deciding ahead of time: notice period, what happens if the event is postponed, and any deposit terms."}{" "}
-          Shown on your profile and again to clients when they confirm a Booking.
-        </p>
       </div>
 
       <div>

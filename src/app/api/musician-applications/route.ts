@@ -44,8 +44,14 @@ export async function POST(req: NextRequest) {
     const availability = form.get("availability");
     const availabilityTags = parseJsonArray(form.get("availabilityTags"));
     const audioLink = form.get("audioLink");
-    const rateFromRaw = form.get("rateFrom");
-    const rateUnit = form.get("rateUnit");
+    // Event rate and lesson rate are independent fields (not one shared
+    // rate), since a Teacher & Events applicant needs to state both rather
+    // than being forced to pick just one. See lib/db.ts for the schema
+    // reasoning.
+    const eventRateFromRaw = form.get("eventRateFrom");
+    const eventRateUnit = form.get("eventRateUnit");
+    const lessonRateFromRaw = form.get("lessonRateFrom");
+    const lessonRateUnit = form.get("lessonRateUnit");
     const lessonFormat = form.get("lessonFormat");
     const soundSystem = form.get("soundSystem");
     const instrumentList = parseJsonArray(form.get("instruments"));
@@ -113,8 +119,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const rateFrom =
-      typeof rateFromRaw === "string" && rateFromRaw.trim() ? parseInt(rateFromRaw, 10) : null;
+    const eventRateFrom =
+      typeof eventRateFromRaw === "string" && eventRateFromRaw.trim()
+        ? parseInt(eventRateFromRaw, 10)
+        : null;
+    const lessonRateFrom =
+      typeof lessonRateFromRaw === "string" && lessonRateFromRaw.trim()
+        ? parseInt(lessonRateFromRaw, 10)
+        : null;
 
     await ensureTables();
     const sql = getSql();
@@ -124,7 +136,8 @@ export async function POST(req: NextRequest) {
         (id, name, email, instrument, instruments, region, type, bio, status,
          previous_work, previous_work_files, years_experience, travel, availability, availability_tags, audio_link, lesson_format, lesson_length,
          student_level, available_as, genre, sound_system, vetting_certificate_url, vetting_certificate_number,
-         rate_from, rate_unit, content_edit_consent, content_edit_consent_at, age_confirmed, age_confirmed_at)
+         rate_from, rate_unit, teaching_rate_from, teaching_rate_unit,
+         content_edit_consent, content_edit_consent_at, age_confirmed, age_confirmed_at)
       VALUES
         (${id}, ${name}, ${email}, ${instrumentList.join(", ")}, ${instrumentList},
          ${region}, ${typeof type === "string" ? type : "Event Musician"}, ${typeof bio === "string" ? bio : ""}, 'pending_review',
@@ -139,7 +152,8 @@ export async function POST(req: NextRequest) {
          ${typeof soundSystem === "string" ? soundSystem : ""},
          ${typeof vettingCertificateUrl === "string" ? vettingCertificateUrl : ""},
          ${typeof vettingCertificateNumber === "string" ? vettingCertificateNumber : ""},
-         ${rateFrom}, ${typeof rateUnit === "string" ? rateUnit : ""},
+         ${eventRateFrom}, ${typeof eventRateUnit === "string" ? eventRateUnit : ""},
+         ${lessonRateFrom}, ${typeof lessonRateUnit === "string" ? lessonRateUnit : ""},
          ${contentEditConsent}, now(), ${ageConfirmed}, now())
     `;
 

@@ -37,6 +37,8 @@ export type ApplicationForReview = {
   vetting_certificate_number: string | null;
   rate_from: number | null;
   rate_unit: string | null;
+  teaching_rate_from: number | null;
+  teaching_rate_unit: string | null;
 };
 
 const ALL_OCCASIONS = ["Wedding", "Corporate Events", "Private Functions", "Lessons"];
@@ -61,10 +63,12 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
   const [slug, setSlug] = useState(slugify(a.name));
   const [bio, setBio] = useState(a.bio || "");
   const [longBio, setLongBio] = useState(a.bio || "");
-  const [rateFrom, setRateFrom] = useState(a.rate_from != null ? String(a.rate_from) : "");
-  const [rateUnit, setRateUnit] = useState(
-    a.rate_unit || (isTeacher ? "per 60min lesson" : "per event")
+  const [eventRateFrom, setEventRateFrom] = useState(a.rate_from != null ? String(a.rate_from) : "");
+  const [eventRateByEnquiry, setEventRateByEnquiry] = useState(a.rate_unit === "By enquiry");
+  const [lessonRateFrom, setLessonRateFrom] = useState(
+    a.teaching_rate_from != null ? String(a.teaching_rate_from) : ""
   );
+  const [lessonRateByEnquiry, setLessonRateByEnquiry] = useState(a.teaching_rate_unit === "By enquiry");
   const [availability, setAvailability] = useState(a.availability || "");
   const [availabilityTags, setAvailabilityTags] = useState<string[]>(a.availability_tags || []);
   const [audioLink, setAudioLink] = useState(a.audio_link || "");
@@ -172,8 +176,10 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
       form.set("type", a.type);
       form.set("occasions", JSON.stringify(occasions));
       form.set("vetted", String(vetted));
-      form.set("rateFrom", rateUnit === "By enquiry" ? "" : rateFrom);
-      form.set("rateUnit", rateUnit);
+      form.set("rateFrom", eventRateByEnquiry ? "" : eventRateFrom);
+      form.set("rateUnit", eventRateByEnquiry ? "By enquiry" : "per event");
+      form.set("teachingRateFrom", lessonRateByEnquiry ? "" : lessonRateFrom);
+      form.set("teachingRateUnit", lessonRateByEnquiry ? "By enquiry" : "per 60min lesson");
       form.set("bio", bio);
       form.set("longBio", longBio);
       form.set("yearsExperience", yearsExperience);
@@ -371,36 +377,69 @@ export default function ApplicationReviewCard({ a }: { a: ApplicationForReview }
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className={labelClass}>Rate from ($)</label>
-              <input
-                type="number"
-                disabled={rateUnit === "By enquiry"}
-                className={`${inputClass} disabled:opacity-40 disabled:bg-off/60`}
-                value={rateFrom}
-                onChange={(e) => setRateFrom(e.target.value)}
-              />
+          {isTeacher && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>Lesson rate from ($ per 60min lesson)</label>
+                <input
+                  type="number"
+                  disabled={lessonRateByEnquiry}
+                  className={`${inputClass} disabled:opacity-40 disabled:bg-off/60`}
+                  value={lessonRateFrom}
+                  onChange={(e) => setLessonRateFrom(e.target.value)}
+                />
+              </div>
+              <div className="flex items-end pb-2">
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={lessonRateByEnquiry}
+                    onChange={(e) => setLessonRateByEnquiry(e.target.checked)}
+                    className="accent-accent"
+                  />
+                  By enquiry (no public number)
+                </label>
+              </div>
             </div>
-            <div>
-              <label className={labelClass}>Rate unit</label>
-              <select
-                className={inputClass}
-                value={rateUnit}
-                onChange={(e) => setRateUnit(e.target.value)}
-              >
-                <option value="per event">Per event</option>
-                <option value="per 60min lesson">Per 60min lesson</option>
-                <option value="By enquiry">By enquiry (no public number)</option>
-              </select>
-            </div>
-          </div>
-          {a.rate_from != null || a.rate_unit === "By enquiry" ? (
+          )}
+          {isTeacher && (a.teaching_rate_from != null || a.teaching_rate_unit === "By enquiry") ? (
             <p className="text-[11px] text-mid -mt-2">
-              Applicant requested:{" "}
-              {a.rate_unit === "By enquiry"
+              Applicant requested (lesson):{" "}
+              {a.teaching_rate_unit === "By enquiry"
                 ? "by enquiry"
-                : `$${a.rate_from} ${a.rate_unit ?? ""}`}
+                : `$${a.teaching_rate_from} ${a.teaching_rate_unit ?? ""}`}
+            </p>
+          ) : null}
+
+          {isEvent && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>Event rate from ($ per event)</label>
+                <input
+                  type="number"
+                  disabled={eventRateByEnquiry}
+                  className={`${inputClass} disabled:opacity-40 disabled:bg-off/60`}
+                  value={eventRateFrom}
+                  onChange={(e) => setEventRateFrom(e.target.value)}
+                />
+              </div>
+              <div className="flex items-end pb-2">
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={eventRateByEnquiry}
+                    onChange={(e) => setEventRateByEnquiry(e.target.checked)}
+                    className="accent-accent"
+                  />
+                  By enquiry (no public number)
+                </label>
+              </div>
+            </div>
+          )}
+          {isEvent && (a.rate_from != null || a.rate_unit === "By enquiry") ? (
+            <p className="text-[11px] text-mid -mt-2">
+              Applicant requested (event):{" "}
+              {a.rate_unit === "By enquiry" ? "by enquiry" : `$${a.rate_from} ${a.rate_unit ?? ""}`}
             </p>
           ) : null}
 

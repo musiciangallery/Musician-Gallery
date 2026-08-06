@@ -285,6 +285,17 @@ export async function ensureTables() {
     // application row is later deleted through admin cleanup.
     sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS content_edit_consent boolean NOT NULL DEFAULT false`,
     sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS content_edit_consent_at timestamptz`,
+    // Confirmation, given via a required checkbox on the Join form, that
+    // the applicant is at least 16 years old (see Terms 3.1 and Privacy
+    // Section 9). Musician-side only — clients aren't required to confirm
+    // this since the Terms' eligibility clause is enforced at the point of
+    // joining as a musician, not at the point of making a booking.
+    // age_confirmed_at records when it was given. Also carried over onto
+    // the musicians row at approval time (see approve/route.ts) so the
+    // record survives even if this application row is later deleted
+    // through admin cleanup.
+    sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS age_confirmed boolean NOT NULL DEFAULT false`,
+    sql`ALTER TABLE musician_applications ADD COLUMN IF NOT EXISTS age_confirmed_at timestamptz`,
 
     // Additional gallery photos and an optional profile video, added after
     // the initial launch. ADD COLUMN IF NOT EXISTS keeps this safe to run
@@ -307,6 +318,10 @@ export async function ensureTables() {
     // comment on musician_applications.content_edit_consent above.
     sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS content_edit_consent boolean NOT NULL DEFAULT false`,
     sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS content_edit_consent_at timestamptz`,
+    // Carried over from the application at approval time — see the
+    // comment on musician_applications.age_confirmed above.
+    sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS age_confirmed boolean NOT NULL DEFAULT false`,
+    sql`ALTER TABLE musicians ADD COLUMN IF NOT EXISTS age_confirmed_at timestamptz`,
     // Stripe Connect Express account for automatic payouts.
     // stripe_onboarded only flips true once Stripe confirms (via webhook)
     // that charges and payouts are both enabled on the account — until

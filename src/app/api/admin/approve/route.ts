@@ -50,6 +50,8 @@ export async function POST(req: NextRequest) {
     const audioLink = form.get("audioLink");
     const rateFromRaw = form.get("rateFrom");
     const rateUnit = form.get("rateUnit");
+    const teachingRateFromRaw = form.get("teachingRateFrom");
+    const teachingRateUnit = form.get("teachingRateUnit");
     const vetted = form.get("vetted") === "true";
     const instruments = parseJsonArray(form.get("instruments"));
     const occasions = parseJsonArray(form.get("occasions"));
@@ -80,6 +82,7 @@ export async function POST(req: NextRequest) {
     }
 
     const rateFrom = rateFromRaw ? parseInt(String(rateFromRaw), 10) : null;
+    const teachingRateFrom = teachingRateFromRaw ? parseInt(String(teachingRateFromRaw), 10) : null;
 
     await ensureTables();
     const sql = getSql();
@@ -141,12 +144,14 @@ export async function POST(req: NextRequest) {
     await sql`
       INSERT INTO musicians
         (id, slug, name, instrument, instruments, region, type, occasions,
-         vetted, rate_from, rate_unit, bio, long_bio, years_experience, photo,
+         vetted, rate_from, rate_unit, teaching_rate_from, teaching_rate_unit,
+         bio, long_bio, years_experience, photo,
          photos, video, email, application_id, availability, availability_tags, audio_link,
          content_edit_consent, content_edit_consent_at, age_confirmed, age_confirmed_at)
       VALUES
         (${id}, ${slug}, ${name}, ${instruments[0]}, ${instruments}, ${region},
          ${type}, ${occasions}, ${vetted}, ${rateFrom}, ${String(rateUnit ?? "")},
+         ${teachingRateFrom}, ${String(teachingRateUnit ?? "")},
          ${String(bio ?? "")}, ${String(longBio ?? "")}, ${String(yearsExperience ?? "")},
          ${typeof photoUrl === "string" ? photoUrl : null}, ${galleryUrls},
          ${typeof videoUrl === "string" ? videoUrl : null}, ${typeof email === "string" ? email : null}, ${applicationId},

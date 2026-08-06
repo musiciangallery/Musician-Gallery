@@ -156,6 +156,10 @@ export default function JoinForm({
   // reliable fix and matches how iOS's own Photos picker behaves.
   const [previousWorkPhotos, setPreviousWorkPhotos] = useState<File[]>([]);
   const [previousWorkVideos, setPreviousWorkVideos] = useState<File[]>([]);
+  // PDFs/documents (e.g. a printed press kit, a scanned reference letter) —
+  // a separate input from Photos rather than widening Photos' accept
+  // attribute, for the same iOS Safari multi-select reason as above.
+  const [previousWorkDocs, setPreviousWorkDocs] = useState<File[]>([]);
   const [vettingCertificateFile, setVettingCertificateFile] = useState<File | null>(null);
   const [contentEditConsent, setContentEditConsent] = useState(false);
   const [ageConfirmed, setAgeConfirmed] = useState(false);
@@ -212,7 +216,7 @@ export default function JoinForm({
       // upload in parallel rather than one at a time — a few photos or a
       // video uploaded sequentially could add up to a long wait before the
       // applicant sees the confirmation screen.
-      const previousWorkFiles = [...previousWorkPhotos, ...previousWorkVideos];
+      const previousWorkFiles = [...previousWorkPhotos, ...previousWorkVideos, ...previousWorkDocs];
       const uploadPromises: Promise<string>[] = previousWorkFiles.map(async (file) => {
         const blob = await upload(`${Date.now()}-${sanitizeFilename(file.name)}`, file, {
           access: "public",
@@ -669,6 +673,36 @@ export default function JoinForm({
                   type="button"
                   onClick={() =>
                     setPreviousWorkVideos((cur) => cur.filter((_, idx) => idx !== i))
+                  }
+                  className="text-accent hover:underline"
+                >
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        <label className={`${labelClass} mt-4`}>Documents (optional, e.g. a press kit or PDF)</label>
+        <input
+          type="file"
+          accept="application/pdf"
+          multiple
+          onChange={(e) => {
+            const newFiles = Array.from(e.target.files ?? []);
+            setPreviousWorkDocs((cur) => [...cur, ...newFiles]);
+            e.target.value = "";
+          }}
+          className="text-sm"
+        />
+        {previousWorkDocs.length > 0 && (
+          <ul className={`${hintClass} space-y-1`}>
+            {previousWorkDocs.map((f, i) => (
+              <li key={`${f.name}-${i}`} className="flex items-center gap-2">
+                <span>{f.name}</span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setPreviousWorkDocs((cur) => cur.filter((_, idx) => idx !== i))
                   }
                   className="text-accent hover:underline"
                 >

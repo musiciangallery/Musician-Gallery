@@ -43,7 +43,10 @@ export default function Nav() {
         <Link
           href="/"
           className="font-serif text-lg tracking-[0.24em] uppercase text-blk"
-          onClick={() => setMenuOpen(false)}
+          onClick={() => {
+            handleNavClick("/");
+            setMenuOpen(false);
+          }}
         >
           Musician Gallery
         </Link>

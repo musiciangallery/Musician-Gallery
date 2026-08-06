@@ -555,10 +555,12 @@ type BookingConfirmedEmailInput = {
    * still very much "live" at this stage (not yet paid), so conversation
    * should stay open. See lib/reply-mask.ts. */
   replyCode: string;
-  /** The musician's own stated cancellation policy, carried over from their
-   * profile. Optional — a musician may not have set one. Shown right above
-   * the payment button, since this is the point the Terms tell a client to
-   * review it before paying. */
+  /** The musician's own stated cancellation policy for this booking,
+   * entered on the confirm screen (see BookingResponseForm.tsx) — there is
+   * no profile level version of this, it's set fresh per booking. Optional,
+   * a musician may not have set one. Shown right above the payment button,
+   * since this is the point the Terms tell a client to review it before
+   * paying. */
   cancellationPolicy?: string;
 };
 

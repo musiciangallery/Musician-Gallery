@@ -259,18 +259,12 @@ export default function TermsPage() {
           Please review these carefully.
         </li>
         <li>
-          If a Musician cancels a confirmed Booking, you will receive a full
-          refund of all amounts paid including the Platform Fee.
+          Refunds are governed by the Musician&rsquo;s stated cancellation
+          policy. Musician Gallery is a connecting platform only and is not
+          liable for a Musician&rsquo;s decision to cancel a confirmed
+          Booking.
         </li>
-        <li>
-          If you cancel a Booking, the refund amount will depend on the
-          notice given and the Musician&rsquo;s stated cancellation policy,
-          where one has been provided.
-        </li>
-        <li>
-          Musician Gallery Platform Fees are non-refundable except where the
-          Musician has cancelled the Booking.
-        </li>
+        <li>Musician Gallery Platform Fees are non-refundable.</li>
       </ul>
       <h3 className={h3}>5.3 Police Vetting &mdash; Important Notice</h3>
       <div className={callout}>
@@ -332,16 +326,18 @@ export default function TermsPage() {
         </tbody>
       </table>
       <p className={p}>
-        Platform Fees are inclusive of GST where applicable. Musician
-        Gallery reserves the right to update the fee structure with
-        reasonable notice to Users.
+        Musician Gallery is not currently registered for GST. Platform Fees
+        do not include GST. A Musician&rsquo;s stated rate is either NIL GST
+        or GST inclusive, depending on the Musician&rsquo;s own GST
+        registration status. Musician Gallery reserves the right to update
+        the fee structure with reasonable notice to Users.
       </p>
 
       <h2 className={h2}>7. Disputes</h2>
       <h3 className={h3}>7.1 Raising a Dispute</h3>
       <p className={p}>
-        If you have a concern about a Booking, you must raise it through the
-        Platform within the following timeframes:
+        If you have a concern about a Booking, you must raise it with us at
+        contact@musiciangallery.co.nz within the following timeframes:
       </p>
       <ul className={ul}>
         <li>Lesson Bookings: within 24 hours of the lesson occurring (or failing to occur)</li>
@@ -349,9 +345,8 @@ export default function TermsPage() {
       </ul>
       <p className={p}>
         Disputes raised outside these timeframes may not be eligible for
-        review. To raise a dispute, contact us at
-        contact@musiciangallery.co.nz with your Booking reference and a
-        description of the issue.
+        review. Please include your Booking reference and a description of
+        the issue.
       </p>
       <h3 className={h3}>7.2 Resolution Process</h3>
       <ul className={ul}>
@@ -438,8 +433,8 @@ export default function TermsPage() {
       <p className={p}>
         Musician Gallery may update these Terms from time to time. When we
         do, we will update the effective date at the top of this document.
-        Where changes are material, we will notify Users by email at least
-        14 days before the changes take effect.
+        Where changes are material, we will make reasonable efforts to
+        notify Users directly, but do not guarantee individual notice.
       </p>
       <p className={p}>
         Continued use of the Platform after updated Terms take effect

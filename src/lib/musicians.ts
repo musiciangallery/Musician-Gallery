@@ -8,10 +8,17 @@ export type Musician = {
   type: "Event Musician" | "Teacher" | "Teacher & Events";
   occasions: Occasion[];
   vetted: boolean;
-  /** Null when the musician has chosen to keep their rate private — see
-   * rateUnit below. */
-  rateFrom: number | null;
-  rateUnit: "per event" | "per 60min lesson" | "By enquiry";
+  /** Event rate — shown for Event Musician and Teacher & Events profiles.
+   * Undefined/null when not applicable or when the musician has chosen to
+   * keep it private (rateUnit "By enquiry" in that case). */
+  rateFrom?: number | null;
+  rateUnit?: "per event" | "By enquiry";
+  /** Lesson rate — shown for Teacher and Teacher & Events profiles.
+   * Independent of rateFrom/rateUnit above, since a Teacher & Events
+   * musician needs to state both an event rate and a lesson rate rather
+   * than picking just one. */
+  teachingRateFrom?: number | null;
+  teachingRateUnit?: "per 60min lesson" | "By enquiry";
   bio: string;
   longBio: string;
   /** A number of years (the original mock profiles) or a range like
@@ -83,8 +90,10 @@ export const musicians: Musician[] = [
     type: "Teacher & Events",
     occasions: ["Wedding", "Lessons", "Private Functions"],
     vetted: false,
-    rateFrom: 60,
-    rateUnit: "per 60min lesson",
+    rateFrom: 400,
+    rateUnit: "per event",
+    teachingRateFrom: 60,
+    teachingRateUnit: "per 60min lesson",
     bio: "Piano teacher and event pianist, available for lessons from beginner to advanced.",
     longBio:
       "James teaches piano from his Wellington studio to students of all ages and levels, and performs as an event pianist on weekends. He brings a patient, structured teaching style suited to beginners through to advanced players preparing for exams.",
@@ -99,8 +108,8 @@ export const musicians: Musician[] = [
     type: "Teacher",
     occasions: ["Lessons"],
     vetted: false,
-    rateFrom: 55,
-    rateUnit: "per 60min lesson",
+    teachingRateFrom: 55,
+    teachingRateUnit: "per 60min lesson",
     bio: "Acoustic and fingerstyle guitar teacher welcoming students of all ages. Lessons in-home or online.",
     longBio:
       "Aroha specialises in acoustic and fingerstyle guitar, teaching students from age 7 through to adult beginners. Lessons are available in-home across Christchurch or online, with a focus on building strong fundamentals and a love of playing.",
@@ -147,8 +156,10 @@ export const musicians: Musician[] = [
     type: "Teacher & Events",
     occasions: ["Lessons", "Wedding", "Corporate Events"],
     vetted: false,
-    rateFrom: 50,
-    rateUnit: "per 60min lesson",
+    rateFrom: 380,
+    rateUnit: "per event",
+    teachingRateFrom: 50,
+    teachingRateUnit: "per 60min lesson",
     bio: "Vocal coach and event vocalist, teaching contemporary and musical theatre technique.",
     longBio:
       "Tama teaches contemporary and musical theatre vocal technique to students preparing for exams, auditions, or simply learning to sing with confidence, and performs as an event vocalist on weekends across Canterbury.",
@@ -179,8 +190,8 @@ export const musicians: Musician[] = [
     type: "Teacher",
     occasions: ["Lessons"],
     vetted: false,
-    rateFrom: 55,
-    rateUnit: "per 60min lesson",
+    teachingRateFrom: 55,
+    teachingRateUnit: "per 60min lesson",
     bio: "Drum teacher for beginners through to intermediate players, in a relaxed, encouraging studio.",
     longBio:
       "Daniel teaches drums to students from age 8 through to adult beginners in his Wellington studio, with a focus on rhythm fundamentals, reading, and building the confidence to eventually play in a band setting.",
@@ -195,8 +206,10 @@ export const musicians: Musician[] = [
     type: "Teacher & Events",
     occasions: ["Lessons", "Wedding"],
     vetted: false,
-    rateFrom: 45,
-    rateUnit: "per 60min lesson",
+    rateFrom: 350,
+    rateUnit: "per event",
+    teachingRateFrom: 45,
+    teachingRateUnit: "per 60min lesson",
     bio: "Flute teacher and ceremony musician, welcoming students of all ages across Dunedin.",
     longBio:
       "Priya teaches flute to students of all ages across Dunedin and performs at wedding ceremonies on weekends, with a repertoire spanning classical, folk, and contemporary arrangements.",

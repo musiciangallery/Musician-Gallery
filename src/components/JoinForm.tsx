@@ -68,9 +68,10 @@ type FormState = {
   availabilityTags: string[];
   availability: string;
   audioLink: string;
-  rateFrom: string;
-  rateUnit: string;
-  rateByEnquiry: boolean;
+  eventRateFrom: string;
+  eventRateByEnquiry: boolean;
+  lessonRateFrom: string;
+  lessonRateByEnquiry: boolean;
   lessonFormat: string;
   lessonLength: string[];
   studentLevel: string[];
@@ -93,9 +94,10 @@ const initialForm: FormState = {
   availabilityTags: [],
   availability: "",
   audioLink: "",
-  rateFrom: "",
-  rateUnit: "per event",
-  rateByEnquiry: false,
+  eventRateFrom: "",
+  eventRateByEnquiry: false,
+  lessonRateFrom: "",
+  lessonRateByEnquiry: false,
   lessonFormat: "",
   lessonLength: [],
   studentLevel: [],
@@ -248,8 +250,10 @@ export default function JoinForm({
       body.set("availability", form.availability);
       body.set("availabilityTags", JSON.stringify(form.availabilityTags));
       body.set("audioLink", form.audioLink);
-      body.set("rateFrom", form.rateByEnquiry ? "" : form.rateFrom);
-      body.set("rateUnit", form.rateByEnquiry ? "By enquiry" : form.rateUnit);
+      body.set("eventRateFrom", form.eventRateByEnquiry ? "" : form.eventRateFrom);
+      body.set("eventRateUnit", form.eventRateByEnquiry ? "By enquiry" : "per event");
+      body.set("lessonRateFrom", form.lessonRateByEnquiry ? "" : form.lessonRateFrom);
+      body.set("lessonRateUnit", form.lessonRateByEnquiry ? "By enquiry" : "per 60min lesson");
       body.set("lessonFormat", form.lessonFormat);
       body.set("soundSystem", form.soundSystem);
       body.set("instruments", JSON.stringify(form.instruments));
@@ -512,46 +516,61 @@ export default function JoinForm({
         </select>
       </div>
 
-      <div className="border-t border-rule pt-8">
-        <label className={labelClass}>Your indicative starting rate</label>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <input
-              type="number"
-              min="0"
-              disabled={form.rateByEnquiry}
-              className={`${inputClass} disabled:opacity-40 disabled:bg-off/60`}
-              placeholder="e.g. 350"
-              value={form.rateFrom}
-              onChange={(e) => update("rateFrom", e.target.value)}
-            />
-          </div>
-          <div>
-            <select
-              disabled={form.rateByEnquiry}
-              className={`${inputClass} disabled:opacity-40 disabled:bg-off/60`}
-              value={form.rateUnit}
-              onChange={(e) => update("rateUnit", e.target.value)}
-            >
-              <option value="per event">Per event</option>
-              <option value="per 60min lesson">Per 60min lesson</option>
-            </select>
-          </div>
-        </div>
-        <label className="flex items-center gap-2 text-sm cursor-pointer mt-3">
+      {isTeacher && (
+        <div className="border-t border-rule pt-8">
+          <label className={labelClass}>Your indicative lesson rate ($ per 60min lesson)</label>
           <input
-            type="checkbox"
-            checked={form.rateByEnquiry}
-            onChange={(e) => update("rateByEnquiry", e.target.checked)}
-            className="accent-accent"
+            type="number"
+            min="0"
+            disabled={form.lessonRateByEnquiry}
+            className={`${inputClass} disabled:opacity-40 disabled:bg-off/60`}
+            placeholder="e.g. 80"
+            value={form.lessonRateFrom}
+            onChange={(e) => update("lessonRateFrom", e.target.value)}
           />
-          I&rsquo;d rather not list a public number, show &ldquo;By enquiry&rdquo; instead
-        </label>
-        <p className="text-xs text-mid mt-2">
-          This is a starting point. After gathering more information from
-          potential clients, you will be able to confirm a final quote.
-        </p>
-      </div>
+          <label className="flex items-center gap-2 text-sm cursor-pointer mt-3">
+            <input
+              type="checkbox"
+              checked={form.lessonRateByEnquiry}
+              onChange={(e) => update("lessonRateByEnquiry", e.target.checked)}
+              className="accent-accent"
+            />
+            I&rsquo;d rather not list a public number, show &ldquo;By enquiry&rdquo; instead
+          </label>
+          <p className="text-xs text-mid mt-2">
+            This is a starting point. After gathering more information from
+            potential students, you will be able to confirm a final quote.
+          </p>
+        </div>
+      )}
+
+      {isEvent && (
+        <div className="border-t border-rule pt-8">
+          <label className={labelClass}>Your indicative event rate ($ per event)</label>
+          <input
+            type="number"
+            min="0"
+            disabled={form.eventRateByEnquiry}
+            className={`${inputClass} disabled:opacity-40 disabled:bg-off/60`}
+            placeholder="e.g. 350"
+            value={form.eventRateFrom}
+            onChange={(e) => update("eventRateFrom", e.target.value)}
+          />
+          <label className="flex items-center gap-2 text-sm cursor-pointer mt-3">
+            <input
+              type="checkbox"
+              checked={form.eventRateByEnquiry}
+              onChange={(e) => update("eventRateByEnquiry", e.target.checked)}
+              className="accent-accent"
+            />
+            I&rsquo;d rather not list a public number, show &ldquo;By enquiry&rdquo; instead
+          </label>
+          <p className="text-xs text-mid mt-2">
+            This is a starting point. After gathering more information from
+            potential clients, you will be able to confirm a final quote.
+          </p>
+        </div>
+      )}
 
       <div>
         <label className={labelClass}>General availability (optional)</label>
@@ -676,27 +695,29 @@ export default function JoinForm({
         </p>
       </div>
 
-      <label className="flex items-start gap-2 text-xs text-mid leading-relaxed cursor-pointer">
-        <input
-          type="checkbox"
-          checked={contentEditConsent}
-          onChange={(e) => setContentEditConsent(e.target.checked)}
-          className="accent-accent mt-0.5"
-        />
-        I give Musician Gallery permission to make minor edits to my
-        biography and profile photo for consistency before my profile goes
-        live.
-      </label>
+      <div className="space-y-3">
+        <label className="flex items-start gap-2 text-xs text-mid leading-relaxed cursor-pointer">
+          <input
+            type="checkbox"
+            checked={contentEditConsent}
+            onChange={(e) => setContentEditConsent(e.target.checked)}
+            className="accent-accent mt-0.5"
+          />
+          I give Musician Gallery permission to make minor edits to my
+          biography and profile photo for consistency before my profile
+          goes live.
+        </label>
 
-      <label className="flex items-start gap-2 text-xs text-mid leading-relaxed cursor-pointer">
-        <input
-          type="checkbox"
-          checked={ageConfirmed}
-          onChange={(e) => setAgeConfirmed(e.target.checked)}
-          className="accent-accent mt-0.5"
-        />
-        I confirm I am 16 years of age or older.
-      </label>
+        <label className="flex items-start gap-2 text-xs text-mid leading-relaxed cursor-pointer">
+          <input
+            type="checkbox"
+            checked={ageConfirmed}
+            onChange={(e) => setAgeConfirmed(e.target.checked)}
+            className="accent-accent mt-0.5"
+          />
+          I confirm I am 16 years of age or older.
+        </label>
+      </div>
 
       {error && <p className="text-xs text-accent">{error}</p>}
       <button

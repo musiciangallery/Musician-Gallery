@@ -48,10 +48,6 @@ export type Musician = {
    * a player on the profile) or any other music link (shown as a plain
    * "Listen" link instead). */
   audioLink?: string;
-  /** Optional free text policy, stated by the musician and editable by an
-   * admin. Shown on the profile page and again in the email a client gets
-   * when a Booking is confirmed, right above the payment button. */
-  cancellationPolicy?: string;
 };
 
 // NOTE (19 July 2026): The five mock "Teacher" profiles below (james-tuhoe,

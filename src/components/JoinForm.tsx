@@ -155,6 +155,7 @@ export default function JoinForm({
   const [previousWorkPhotos, setPreviousWorkPhotos] = useState<File[]>([]);
   const [previousWorkVideos, setPreviousWorkVideos] = useState<File[]>([]);
   const [vettingCertificateFile, setVettingCertificateFile] = useState<File | null>(null);
+  const [contentEditConsent, setContentEditConsent] = useState(false);
 
   const update = <K extends keyof FormState>(field: K, value: FormState[K]) =>
     setForm((f) => ({ ...f, [field]: value }));
@@ -186,6 +187,10 @@ export default function JoinForm({
     e.preventDefault();
     if (previousWorkPhotos.length === 0) {
       setError("Please upload at least one photo before submitting your application.");
+      return;
+    }
+    if (!contentEditConsent) {
+      setError("Please confirm permission for minor edits before submitting your application.");
       return;
     }
     setSubmitting(true);
@@ -251,6 +256,7 @@ export default function JoinForm({
       body.set("photoCount", String(previousWorkPhotos.length));
       body.set("vettingCertificateNumber", form.vettingCertificateNumber);
       if (vettingCertificateUrl) body.set("vettingCertificateUrl", vettingCertificateUrl);
+      body.set("contentEditConsent", String(contentEditConsent));
 
       const res = await fetch("/api/musician-applications", {
         method: "POST",
@@ -663,6 +669,18 @@ export default function JoinForm({
           &quot;Listen&quot; link instead.
         </p>
       </div>
+
+      <label className="flex items-start gap-2 text-xs text-mid leading-relaxed cursor-pointer">
+        <input
+          type="checkbox"
+          checked={contentEditConsent}
+          onChange={(e) => setContentEditConsent(e.target.checked)}
+          className="accent-accent mt-0.5"
+        />
+        I give Musician Gallery permission to make minor edits to my
+        biography and profile photo for consistency before my profile goes
+        live.
+      </label>
 
       {error && <p className="text-xs text-accent">{error}</p>}
       <button

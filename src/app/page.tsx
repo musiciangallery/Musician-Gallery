@@ -38,7 +38,7 @@ export default async function Home() {
           </h1>
           <p className="max-w-lg text-sm text-mid mb-8">
             A considered introduction between talented musicians and the
-            people looking for them.
+            people searching for them.
           </p>
           <div className="flex flex-wrap gap-6">
             <Link

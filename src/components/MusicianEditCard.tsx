@@ -23,6 +23,8 @@ export type LiveMusicianForEdit = {
   vetted: boolean;
   rate_from: number | null;
   rate_unit: string | null;
+  teaching_rate_from: number | null;
+  teaching_rate_unit: string | null;
   bio: string | null;
   long_bio: string | null;
   years_experience: string | null;
@@ -55,8 +57,12 @@ export default function MusicianEditCard({ m }: { m: LiveMusicianForEdit }) {
   const [region, setRegion] = useState(m.region);
   const [bio, setBio] = useState(m.bio || "");
   const [longBio, setLongBio] = useState(m.long_bio || "");
-  const [rateFrom, setRateFrom] = useState(m.rate_from != null ? String(m.rate_from) : "");
-  const [rateUnit, setRateUnit] = useState(m.rate_unit || "per event");
+  const [eventRateFrom, setEventRateFrom] = useState(m.rate_from != null ? String(m.rate_from) : "");
+  const [eventRateByEnquiry, setEventRateByEnquiry] = useState(m.rate_unit === "By enquiry");
+  const [lessonRateFrom, setLessonRateFrom] = useState(
+    m.teaching_rate_from != null ? String(m.teaching_rate_from) : ""
+  );
+  const [lessonRateByEnquiry, setLessonRateByEnquiry] = useState(m.teaching_rate_unit === "By enquiry");
   const [yearsExperience, setYearsExperience] = useState(m.years_experience || "");
   const [availability, setAvailability] = useState(m.availability || "");
   const [availabilityTags, setAvailabilityTags] = useState<string[]>(m.availability_tags || []);
@@ -66,6 +72,9 @@ export default function MusicianEditCard({ m }: { m: LiveMusicianForEdit }) {
   const [newPhoto, setNewPhoto] = useState<File | null>(null);
   const [newGalleryPhotos, setNewGalleryPhotos] = useState<File[]>([]);
   const [newVideo, setNewVideo] = useState<File | null>(null);
+
+  const isTeacher = m.type === "Teacher" || m.type === "Teacher & Events";
+  const isEvent = m.type === "Event Musician" || m.type === "Teacher & Events";
 
   const toggleOccasion = (o: string) =>
     setOccasions((cur) => (cur.includes(o) ? cur.filter((x) => x !== o) : [...cur, o]));
@@ -121,8 +130,10 @@ export default function MusicianEditCard({ m }: { m: LiveMusicianForEdit }) {
           region,
           occasions,
           vetted,
-          rateFrom: rateUnit === "By enquiry" || !rateFrom ? null : parseInt(rateFrom, 10),
-          rateUnit,
+          rateFrom: eventRateByEnquiry || !eventRateFrom ? null : parseInt(eventRateFrom, 10),
+          rateUnit: eventRateByEnquiry ? "By enquiry" : "per event",
+          teachingRateFrom: lessonRateByEnquiry || !lessonRateFrom ? null : parseInt(lessonRateFrom, 10),
+          teachingRateUnit: lessonRateByEnquiry ? "By enquiry" : "per 60min lesson",
           bio,
           longBio,
           yearsExperience,
@@ -220,26 +231,49 @@ export default function MusicianEditCard({ m }: { m: LiveMusicianForEdit }) {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {isTeacher && (
                 <div>
-                  <label className={labelClass}>Rate from ($)</label>
+                  <label className={labelClass}>Lesson rate from ($ per 60min lesson)</label>
                   <input
                     type="number"
-                    disabled={rateUnit === "By enquiry"}
+                    disabled={lessonRateByEnquiry}
                     className={`${inputClass} disabled:opacity-40 disabled:bg-off/60`}
-                    value={rateFrom}
-                    onChange={(e) => setRateFrom(e.target.value)}
+                    value={lessonRateFrom}
+                    onChange={(e) => setLessonRateFrom(e.target.value)}
                   />
+                  <label className="flex items-center gap-2 text-sm cursor-pointer mt-2">
+                    <input
+                      type="checkbox"
+                      checked={lessonRateByEnquiry}
+                      onChange={(e) => setLessonRateByEnquiry(e.target.checked)}
+                      className="accent-accent"
+                    />
+                    By enquiry (no public number)
+                  </label>
                 </div>
+              )}
+
+              {isEvent && (
                 <div>
-                  <label className={labelClass}>Rate unit</label>
-                  <select className={inputClass} value={rateUnit} onChange={(e) => setRateUnit(e.target.value)}>
-                    <option value="per event">Per event</option>
-                    <option value="per 60min lesson">Per 60min lesson</option>
-                    <option value="By enquiry">By enquiry (no public number)</option>
-                  </select>
+                  <label className={labelClass}>Event rate from ($ per event)</label>
+                  <input
+                    type="number"
+                    disabled={eventRateByEnquiry}
+                    className={`${inputClass} disabled:opacity-40 disabled:bg-off/60`}
+                    value={eventRateFrom}
+                    onChange={(e) => setEventRateFrom(e.target.value)}
+                  />
+                  <label className="flex items-center gap-2 text-sm cursor-pointer mt-2">
+                    <input
+                      type="checkbox"
+                      checked={eventRateByEnquiry}
+                      onChange={(e) => setEventRateByEnquiry(e.target.checked)}
+                      className="accent-accent"
+                    />
+                    By enquiry (no public number)
+                  </label>
                 </div>
-              </div>
+              )}
 
               <div>
                 <label className={labelClass}>Availability tags (shown on public profile)</label>

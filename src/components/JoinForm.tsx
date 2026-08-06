@@ -156,6 +156,7 @@ export default function JoinForm({
   const [previousWorkVideos, setPreviousWorkVideos] = useState<File[]>([]);
   const [vettingCertificateFile, setVettingCertificateFile] = useState<File | null>(null);
   const [contentEditConsent, setContentEditConsent] = useState(false);
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
 
   const update = <K extends keyof FormState>(field: K, value: FormState[K]) =>
     setForm((f) => ({ ...f, [field]: value }));
@@ -191,6 +192,10 @@ export default function JoinForm({
     }
     if (!contentEditConsent) {
       setError("Please confirm permission for minor edits before submitting your application.");
+      return;
+    }
+    if (!ageConfirmed) {
+      setError("Please confirm you are 16 years of age or older before submitting your application.");
       return;
     }
     setSubmitting(true);
@@ -257,6 +262,7 @@ export default function JoinForm({
       body.set("vettingCertificateNumber", form.vettingCertificateNumber);
       if (vettingCertificateUrl) body.set("vettingCertificateUrl", vettingCertificateUrl);
       body.set("contentEditConsent", String(contentEditConsent));
+      body.set("ageConfirmed", String(ageConfirmed));
 
       const res = await fetch("/api/musician-applications", {
         method: "POST",
@@ -680,6 +686,16 @@ export default function JoinForm({
         I give Musician Gallery permission to make minor edits to my
         biography and profile photo for consistency before my profile goes
         live.
+      </label>
+
+      <label className="flex items-start gap-2 text-xs text-mid leading-relaxed cursor-pointer">
+        <input
+          type="checkbox"
+          checked={ageConfirmed}
+          onChange={(e) => setAgeConfirmed(e.target.checked)}
+          className="accent-accent mt-0.5"
+        />
+        I confirm I am 16 years of age or older.
       </label>
 
       {error && <p className="text-xs text-accent">{error}</p>}

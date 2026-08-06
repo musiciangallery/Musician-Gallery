@@ -177,36 +177,56 @@ export default async function MusicianProfile({
         </div>
 
         <div className="border border-rule bg-off/40 p-6 h-fit">
-          {m.rateUnit === "By enquiry" || m.rateFrom == null ? (
-            <>
-              <p className="text-xs text-mid mb-1">Rate</p>
-              <p className="font-serif text-2xl mb-6">By enquiry</p>
-            </>
-          ) : m.rateUnit === "per event" ? (
-            <>
-              <p className="text-xs text-mid mb-1">Starting from</p>
-              <p className="font-serif text-3xl mb-1 whitespace-nowrap">
-                ${m.rateFrom.toFixed(2)}{" "}
-                <span className="text-xs font-sans text-mid">per event</span>
-              </p>
-              <p className="text-[11px] text-mid mb-6">
-                This is a starting point, informational for you as a
-                potential client, not a fixed quote.
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="text-xs text-mid mb-1">Rate</p>
-              <p className="font-serif text-3xl mb-1 whitespace-nowrap">
-                ${m.rateFrom.toFixed(2)}{" "}
-                <span className="text-xs font-sans text-mid">{m.rateUnit}</span>
-              </p>
-              <p className="text-[11px] text-mid mb-6">
-                This is a starting point, informational for you as a
-                potential client, not a fixed quote.
-              </p>
-            </>
-          )}
+          {(() => {
+            const isEventType = m.type === "Event Musician" || m.type === "Teacher & Events";
+            const isTeacherType = m.type === "Teacher" || m.type === "Teacher & Events";
+            const hasEventRate = isEventType;
+            const hasLessonRate = isTeacherType;
+            return (
+              <>
+                {hasEventRate && (
+                  <div className={hasLessonRate ? "border-b border-rule pb-4 mb-4" : ""}>
+                    {m.rateUnit === "By enquiry" || m.rateFrom == null ? (
+                      <>
+                        <p className="text-xs text-mid mb-1">Event rate</p>
+                        <p className="font-serif text-2xl">By enquiry</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-xs text-mid mb-1">Starting from</p>
+                        <p className="font-serif text-3xl whitespace-nowrap">
+                          ${m.rateFrom.toFixed(2)}{" "}
+                          <span className="text-xs font-sans text-mid">per event</span>
+                        </p>
+                      </>
+                    )}
+                  </div>
+                )}
+                {hasLessonRate && (
+                  <div>
+                    {m.teachingRateUnit === "By enquiry" || m.teachingRateFrom == null ? (
+                      <>
+                        <p className="text-xs text-mid mb-1">Lesson rate</p>
+                        <p className="font-serif text-2xl">By enquiry</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-xs text-mid mb-1">Starting from</p>
+                        <p className="font-serif text-3xl whitespace-nowrap">
+                          ${m.teachingRateFrom.toFixed(2)}{" "}
+                          <span className="text-xs font-sans text-mid">per 60min lesson</span>
+                        </p>
+                      </>
+                    )}
+                  </div>
+                )}
+                <p className="text-[11px] text-mid mb-6 mt-2">
+                  This is a starting point, informational for you as a
+                  potential client, not a fixed quote.
+                </p>
+              </>
+            );
+          })()}
           {((m.availabilityTags && m.availabilityTags.length > 0) || m.availability) && (
             <div className="mb-6">
               <p className="text-[10px] tracking-[0.08em] uppercase text-mid mb-1">

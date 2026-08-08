@@ -192,8 +192,8 @@ export default function JoinForm({
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (previousWorkPhotos.length === 0) {
-      setError("Please upload at least one photo before submitting your application.");
+    if (previousWorkPhotos.length === 0 && previousWorkDocs.length === 0) {
+      setError("Please upload at least one photo or PDF before submitting your application.");
       return;
     }
     if (!contentEditConsent) {
@@ -267,6 +267,7 @@ export default function JoinForm({
       body.set("genre", JSON.stringify(form.genre));
       body.set("previousWorkFileUrls", JSON.stringify(previousWorkFileUrls));
       body.set("photoCount", String(previousWorkPhotos.length));
+      body.set("docCount", String(previousWorkDocs.length));
       body.set("vettingCertificateNumber", form.vettingCertificateNumber);
       if (vettingCertificateUrl) body.set("vettingCertificateUrl", vettingCertificateUrl);
       body.set("contentEditConsent", String(contentEditConsent));
@@ -627,7 +628,7 @@ export default function JoinForm({
           }}
           className="text-sm"
         />
-        <p className={hintClass}>At least one photo is required.</p>
+        <p className={hintClass}>At least one photo or PDF is required.</p>
         {previousWorkPhotos.length > 0 && (
           <ul className={`${hintClass} space-y-1`}>
             {previousWorkPhotos.map((f, i) => (
@@ -676,7 +677,7 @@ export default function JoinForm({
             ))}
           </ul>
         )}
-        <label className={`${labelClass} mt-4`}>Documents (optional)</label>
+        <label className={`${labelClass} mt-4`}>PDFs</label>
         <input
           type="file"
           accept="application/pdf"

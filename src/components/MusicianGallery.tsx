@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import type { Musician } from "@/lib/musicians";
 
@@ -24,6 +24,21 @@ export default function MusicianGallery({ m }: { m: Musician }) {
   );
   const [videoOpen, setVideoOpen] = useState(false);
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // The browser's autoplay-with-sound policy only allows unmuted playback
+  // when it's tied directly to a user gesture. Relying on the <video>
+  // element's own autoPlay attribute is one step removed from the click
+  // that opens it (React has to mount the element first), which some
+  // browsers don't count as "direct" enough and quietly fall back to
+  // playing muted. Calling .play() ourselves, right as the element mounts
+  // after that same click, keeps the gesture close enough that sound
+  // reliably comes through.
+  useEffect(() => {
+    if (videoOpen) {
+      videoRef.current?.play().catch(() => {});
+    }
+  }, [videoOpen]);
 
   if (allPhotos.length === 0 && !m.video) {
     return (
@@ -144,9 +159,9 @@ export default function MusicianGallery({ m }: { m: Musician }) {
                 &times;
               </button>
               <video
+                ref={videoRef}
                 controls
-                autoPlay
-                className="max-w-full max-h-full photo-mono"
+                className="max-w-full max-h-full"
                 src={m.video}
                 onClick={(e) => e.stopPropagation()}
               />

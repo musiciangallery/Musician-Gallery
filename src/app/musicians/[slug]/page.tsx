@@ -36,7 +36,13 @@ function getSpotifyEmbed(url: string): { embedUrl: string; height: number } | nu
       // supported way to move away from that; Spotify doesn't expose a
       // custom accent color.
       embedUrl: `https://open.spotify.com/embed/${type}/${id}?theme=1`,
-      height: type === "track" ? 152 : type === "episode" || type === "show" ? 232 : 352,
+      // Spotify's compact track card (art, title, Preview badge, play
+      // button — what's actually shown) only fills about 80px of the iframe
+      // box; requesting the full 152px it's officially documented at leaves
+      // a large blank strip inside the iframe itself, below the visible
+      // card, which reads as an oversized gap before "Available for" since
+      // it's transparent and shows our own page background through it.
+      height: type === "track" ? 80 : type === "episode" || type === "show" ? 232 : 352,
     };
   } catch {
     return null;
@@ -137,6 +143,7 @@ export default async function MusicianProfile({
                           src={spotify.embedUrl}
                           width="100%"
                           height={spotify.height}
+                          className="block"
                           style={{ borderRadius: 0, border: "none" }}
                           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                           loading="lazy"
@@ -156,7 +163,7 @@ export default async function MusicianProfile({
                   );
                 })()}
 
-                <h2 className={`font-serif text-2xl mb-3 ${m.audioLink ? "mt-4" : "mt-10"}`}>
+                <h2 className={`font-serif text-2xl mb-3 ${m.audioLink ? "mt-8" : "mt-10"}`}>
                   Available for
                 </h2>
                 <ul className="flex flex-wrap gap-2">

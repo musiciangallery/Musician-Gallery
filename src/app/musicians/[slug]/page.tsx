@@ -122,7 +122,7 @@ export default async function MusicianProfile({
             reviewCount={reviews.length}
             about={
               <>
-                <p className="text-sm text-mid leading-relaxed">{m.longBio}</p>
+                <p className="text-sm">{m.longBio}</p>
 
                 {m.vetted && m.type !== "Event Musician" && (
                   <p className="text-xs text-mid mt-4 max-w-md">
@@ -216,7 +216,7 @@ export default async function MusicianProfile({
               (hasEventRate && m.rateUnit !== "By enquiry" && m.rateFrom != null) ||
               (hasLessonRate && m.teachingRateUnit !== "By enquiry" && m.teachingRateFrom != null);
             return (
-              <>
+              <div className="mb-6">
                 {hasEventRate && (
                   <div className={hasLessonRate ? "border-b border-rule pb-4 mb-4" : ""}>
                     {m.rateUnit === "By enquiry" || m.rateFrom == null ? (
@@ -254,12 +254,12 @@ export default async function MusicianProfile({
                   </div>
                 )}
                 {hasNumericRate && (
-                  <p className="text-[11px] text-mid mb-3 mt-2">
+                  <p className="text-[11px] text-mid mt-2">
                     This is a starting point, informational for you as a
                     potential client, not a fixed quote.
                   </p>
                 )}
-              </>
+              </div>
             );
           })()}
           {((m.availabilityTags && m.availabilityTags.length > 0) || m.availability) && (

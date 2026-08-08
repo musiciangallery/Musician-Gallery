@@ -29,12 +29,29 @@ function getSpotifyEmbed(url: string): { embedUrl: string; height: number } | nu
     const validTypes = ["track", "album", "playlist", "artist", "episode", "show"];
     if (!type || !id || !validTypes.includes(type)) return null;
     return {
-      embedUrl: `https://open.spotify.com/embed/${type}/${id}`,
+      // theme=1 requests Spotify's light embed variant — the default
+      // (theme=0, no parameter) renders on a bold background pulled from
+      // the track's own album art, which reads as jarring against the
+      // site's muted cream palette. The light theme is the one officially
+      // supported way to move away from that; Spotify doesn't expose a
+      // custom accent color.
+      embedUrl: `https://open.spotify.com/embed/${type}/${id}?theme=1`,
       height: type === "track" ? 152 : type === "episode" || type === "show" ? 232 : 352,
     };
   } catch {
     return null;
   }
+}
+
+// The Join form's "Years of experience" field stores a range that already
+// includes the word "year(s)" (e.g. "5-10 years"), while the old mock
+// profiles store a bare number (e.g. 10). Blindly appending "years
+// experience" after the raw value doubles up on real profiles ("5-10 years
+// years experience") — this only appends it when the stored value doesn't
+// already say "year" itself.
+function formatYearsExperience(ye: number | string): string {
+  const str = String(ye);
+  return /year/i.test(str) ? `${str} experience` : `${str} years experience`;
 }
 
 export function generateStaticParams() {
@@ -71,7 +88,7 @@ export default async function MusicianProfile({
       <div className="mt-8 flex flex-wrap items-start justify-between gap-4 border-b border-rule pb-8">
         <div>
           <span className="eyebrow">
-            {m.region} &middot; {m.instrument} &middot; {m.yearsExperience} years experience
+            {m.region} &middot; {m.instrument} &middot; {formatYearsExperience(m.yearsExperience)}
           </span>
           <h1 className="font-serif text-4xl md:text-5xl mt-3">{m.name}</h1>
           <p className="text-sm text-mid mt-2">{m.type}</p>
@@ -89,14 +106,6 @@ export default async function MusicianProfile({
         </div>
       </div>
 
-      {m.vetted && m.type !== "Event Musician" && (
-        <p className="text-xs text-mid mt-3 max-w-md">
-          {firstName} has independently completed a New Zealand Police
-          Vetting Check through CVCheck &mdash; at their own cost and by
-          their own choice, before this profile ever went live.
-        </p>
-      )}
-
       <div className="mt-10 max-w-xs">
         <MusicianGallery m={m} />
       </div>
@@ -108,6 +117,15 @@ export default async function MusicianProfile({
             about={
               <>
                 <p className="text-sm leading-relaxed">{m.longBio}</p>
+
+                {m.vetted && m.type !== "Event Musician" && (
+                  <p className="text-xs text-mid mt-4 max-w-md">
+                    {firstName} has independently completed a New Zealand
+                    Police Vetting Check through CVCheck. This is required
+                    for all Musician Gallery teachers to complete before
+                    their profile goes live.
+                  </p>
+                )}
 
                 {m.audioLink && (() => {
                   const spotify = getSpotifyEmbed(m.audioLink!);
@@ -138,7 +156,9 @@ export default async function MusicianProfile({
                   );
                 })()}
 
-                <h2 className="font-serif text-2xl mt-10 mb-3">Available for</h2>
+                <h2 className={`font-serif text-2xl mb-3 ${m.audioLink ? "mt-4" : "mt-10"}`}>
+                  Available for
+                </h2>
                 <ul className="flex flex-wrap gap-2">
                   {m.occasions.map((o) => (
                     <li

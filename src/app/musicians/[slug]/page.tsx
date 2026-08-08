@@ -116,7 +116,7 @@ export default async function MusicianProfile({
         <MusicianGallery m={m} />
       </div>
 
-      <div className="grid md:grid-cols-3 gap-10 mt-10">
+      <div className="grid md:grid-cols-3 gap-16 md:gap-10 mt-10">
         <div className="md:col-span-2">
           <ProfileTabs
             reviewCount={reviews.length}
@@ -136,7 +136,7 @@ export default async function MusicianProfile({
                 {m.audioLink && (() => {
                   const spotify = getSpotifyEmbed(m.audioLink!);
                   return (
-                    <div className="mt-8">
+                    <div className="mt-12 md:mt-8">
                       <h2 className="font-serif text-2xl mb-3">Listen</h2>
                       {spotify ? (
                         <iframe
@@ -163,7 +163,7 @@ export default async function MusicianProfile({
                   );
                 })()}
 
-                <h2 className={`font-serif text-2xl mb-3 ${m.audioLink ? "mt-8" : "mt-10"}`}>
+                <h2 className={`font-serif text-2xl mb-3 ${m.audioLink ? "mt-12 md:mt-8" : "mt-10"}`}>
                   Available for
                 </h2>
                 <ul className="flex flex-wrap gap-2">
@@ -209,6 +209,12 @@ export default async function MusicianProfile({
             const isTeacherType = m.type === "Teacher" || m.type === "Teacher & Events";
             const hasEventRate = isEventType;
             const hasLessonRate = isTeacherType;
+            // The disclaimer only makes sense next to an actual number —
+            // if every rate shown is "By enquiry" there's no starting
+            // point to caveat.
+            const hasNumericRate =
+              (hasEventRate && m.rateUnit !== "By enquiry" && m.rateFrom != null) ||
+              (hasLessonRate && m.teachingRateUnit !== "By enquiry" && m.teachingRateFrom != null);
             return (
               <>
                 {hasEventRate && (
@@ -247,10 +253,12 @@ export default async function MusicianProfile({
                     )}
                   </div>
                 )}
-                <p className="text-[11px] text-mid mb-3 mt-2">
-                  This is a starting point, informational for you as a
-                  potential client, not a fixed quote.
-                </p>
+                {hasNumericRate && (
+                  <p className="text-[11px] text-mid mb-3 mt-2">
+                    This is a starting point, informational for you as a
+                    potential client, not a fixed quote.
+                  </p>
+                )}
               </>
             );
           })()}

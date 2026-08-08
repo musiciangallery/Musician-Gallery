@@ -106,7 +106,7 @@ export default async function MusicianProfile({
         </div>
       </div>
 
-      <div className="mt-10 max-w-xs">
+      <div className="mt-10 max-w-xs md:max-w-md">
         <MusicianGallery m={m} />
       </div>
 
@@ -240,7 +240,7 @@ export default async function MusicianProfile({
                     )}
                   </div>
                 )}
-                <p className="text-[11px] text-mid mb-6 mt-2">
+                <p className="text-[11px] text-mid mb-3 mt-2">
                   This is a starting point, informational for you as a
                   potential client, not a fixed quote.
                 </p>

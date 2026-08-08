@@ -122,7 +122,7 @@ export default async function MusicianProfile({
             reviewCount={reviews.length}
             about={
               <>
-                <p className="text-sm leading-relaxed">{m.longBio}</p>
+                <p className="text-sm text-mid leading-relaxed">{m.longBio}</p>
 
                 {m.vetted && m.type !== "Event Musician" && (
                   <p className="text-xs text-mid mt-4 max-w-md">

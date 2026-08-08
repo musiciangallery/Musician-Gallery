@@ -68,12 +68,14 @@ export async function POST(req: NextRequest) {
     // ~4.5MB request body limit serverless functions enforce.
     const fileUrls = parseJsonArray(form.get("previousWorkFileUrls"));
     // Sent separately from previousWorkFileUrls (which also includes any
-    // uploaded videos) so this route can confirm at least one photo came
-    // through, without needing to guess which URLs are photos vs videos.
-    // Enforced here too, not just in JoinForm.tsx, in case that check is
-    // ever bypassed.
+    // uploaded videos and PDFs) so this route can confirm at least one
+    // photo or PDF came through, without needing to guess which URLs are
+    // which file type. Enforced here too, not just in JoinForm.tsx, in
+    // case that check is ever bypassed.
     const photoCountRaw = form.get("photoCount");
     const photoCount = typeof photoCountRaw === "string" ? parseInt(photoCountRaw, 10) : 0;
+    const docCountRaw = form.get("docCount");
+    const docCount = typeof docCountRaw === "string" ? parseInt(docCountRaw, 10) : 0;
     // Teacher applicants only, both optional — the CVCheck Police Vetting
     // Check can take weeks, so applicants aren't blocked from applying
     // while they wait on it.
@@ -98,9 +100,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
     }
 
-    if (!photoCount || photoCount < 1) {
+    if ((!photoCount || photoCount < 1) && (!docCount || docCount < 1)) {
       return NextResponse.json(
-        { error: "Please upload at least one photo before submitting your application." },
+        { error: "Please upload at least one photo or PDF before submitting your application." },
         { status: 400 }
       );
     }

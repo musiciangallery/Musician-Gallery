@@ -12,11 +12,17 @@ import type { Musician } from "@/lib/musicians";
 // tops of instruments/heads on portrait shots.
 const HERO_ASPECT = "aspect-[4/5]";
 
+// Each photo card takes up this much of the carousel's width — the
+// remainder is what peeks in from the next photo on the right (or the
+// previous one on the left), a deliberate "there's more here" cue rather
+// than a full swap to the next photo.
+const CARD_WIDTH = 75;
+
 export default function MusicianGallery({ m }: { m: Musician }) {
   const allPhotos = [m.photo, ...(m.photos ?? [])].filter(
     (p): p is string => Boolean(p)
   );
-  const [videoPlaying, setVideoPlaying] = useState(false);
+  const [videoOpen, setVideoOpen] = useState(false);
   const scrollerRef = useRef<HTMLDivElement>(null);
 
   if (allPhotos.length === 0 && !m.video) {
@@ -32,14 +38,15 @@ export default function MusicianGallery({ m }: { m: Musician }) {
     );
   }
 
-  // Advances the carousel by exactly one photo-card-width (the card's own
-  // 84% width plus the gap between cards) — used by the invisible "next"
-  // button layered over the peeking sliver on the right, so a click/tap
-  // works the same as a swipe.
-  function showNext() {
+  // Advances/steps back the carousel by exactly one photo-card-width (the
+  // card's own CARD_WIDTH% plus the gap between cards) — shared by the
+  // invisible "next"/"previous" buttons layered over the peeking slivers
+  // on each edge, so a click/tap works the same as a swipe in either
+  // direction.
+  function scrollByCard(direction: 1 | -1) {
     const el = scrollerRef.current;
     if (!el) return;
-    el.scrollBy({ left: el.clientWidth * 0.84 + 12, behavior: "smooth" });
+    el.scrollBy({ left: direction * (el.clientWidth * (CARD_WIDTH / 100) + 12), behavior: "smooth" });
   }
 
   return (
@@ -53,16 +60,16 @@ export default function MusicianGallery({ m }: { m: Musician }) {
                 alt={m.name}
                 fill
                 className="object-cover photo-mono"
-                sizes="(max-width: 768px) 100vw, 400px"
+                sizes="(max-width: 768px) 100vw, 480px"
               />
             </div>
           ) : (
             <>
-              {/* Each card is 84% of the container's width, so the next
-                  photo's left sliver naturally peeks in on the right —
-                  no separate thumbnail row needed. Native horizontal
-                  scroll with snap handles swiping; the invisible button
-                  below handles tap/click. */}
+              {/* Each card is CARD_WIDTH% of the container's width, so the
+                  next (and previous) photo's edge naturally peeks in — no
+                  separate thumbnail row needed. Native horizontal scroll
+                  with snap handles swiping; the invisible buttons below
+                  handle tap/click in either direction. */}
               <div
                 ref={scrollerRef}
                 className="flex gap-3 overflow-x-auto snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -70,54 +77,83 @@ export default function MusicianGallery({ m }: { m: Musician }) {
                 {allPhotos.map((p, i) => (
                   <div
                     key={p}
-                    className={`relative w-[84%] shrink-0 ${HERO_ASPECT} snap-start overflow-hidden bg-off`}
+                    className={`relative shrink-0 ${HERO_ASPECT} snap-start overflow-hidden bg-off`}
+                    style={{ width: `${CARD_WIDTH}%` }}
                   >
                     <Image
                       src={p}
                       alt={`${m.name}, photo ${i + 1}`}
                       fill
                       className="object-cover photo-mono"
-                      sizes="(max-width: 768px) 84vw, 340px"
+                      sizes="(max-width: 768px) 75vw, 360px"
                     />
                   </div>
                 ))}
               </div>
-              <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-r from-transparent to-blk/25" />
+              <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-l from-transparent to-blk/25" />
+              <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-r from-transparent to-blk/25" />
               <button
                 type="button"
-                onClick={showNext}
+                onClick={() => scrollByCard(-1)}
+                aria-label="Show previous photo"
+                className="absolute inset-y-0 left-0 w-16"
+              />
+              <button
+                type="button"
+                onClick={() => scrollByCard(1)}
                 aria-label="Show next photo"
-                className="absolute inset-y-0 right-0 w-10"
+                className="absolute inset-y-0 right-0 w-16"
               />
             </>
           )}
         </div>
       )}
 
-      {m.video &&
-        (allPhotos.length > 0 && !videoPlaying ? (
-          // A small, separate thumbnail rather than a full-width player —
-          // sits below the photo carousel but is never one of its swipeable
-          // slides, so scrubbing/playing the video never fights with the
-          // swipe gesture used to browse photos.
+      {m.video && (
+        <>
+          {/* A small, separate thumbnail rather than a full-width inline
+              player — sits below the photo carousel but is never one of
+              its swipeable slides, so it never fights with the swipe
+              gesture used to browse photos. Opens a fullscreen overlay to
+              play, rather than expanding in place, so playback controls
+              never compete with the rest of the page. */}
           <button
             type="button"
-            onClick={() => setVideoPlaying(true)}
+            onClick={() => setVideoOpen(true)}
             aria-label="Play video"
-            className="relative w-24 h-24 mt-3 overflow-hidden bg-off border border-rule flex items-center justify-center"
+            className={`relative w-24 h-24 overflow-hidden bg-off border border-rule flex items-center justify-center ${
+              allPhotos.length > 0 ? "mt-3" : ""
+            }`}
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-mid">
               <path d="M4 2.5v11l10-5.5-10-5.5z" fill="currentColor" />
             </svg>
           </button>
-        ) : (
-          <video
-            controls
-            autoPlay={videoPlaying}
-            className={`w-full photo-mono ${allPhotos.length > 0 ? "mt-3" : ""}`}
-            src={m.video}
-          />
-        ))}
+
+          {videoOpen && (
+            <div
+              className="fixed inset-0 z-50 bg-blk/90 flex items-center justify-center p-6"
+              onClick={() => setVideoOpen(false)}
+            >
+              <button
+                type="button"
+                onClick={() => setVideoOpen(false)}
+                aria-label="Close video"
+                className="absolute top-6 right-6 text-w text-3xl leading-none"
+              >
+                &times;
+              </button>
+              <video
+                controls
+                autoPlay
+                className="max-w-full max-h-full photo-mono"
+                src={m.video}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

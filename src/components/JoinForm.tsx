@@ -17,7 +17,7 @@ const YEARS_EXPERIENCE = [
   "10+ years",
 ];
 
-const LESSON_FORMATS = ["In-person only", "Online Only", "In-person and online"];
+const LESSON_FORMATS = ["In-person only", "Online only", "In-person & online"];
 
 const LESSON_LENGTHS = ["30 minutes", "45 minutes", "60 minutes", "75 minutes", "90 minutes"];
 
@@ -351,7 +351,7 @@ export default function JoinForm({
           >
             <option>Event Musician</option>
             <option>Teacher</option>
-            <option>Teacher &amp; Events</option>
+            <option value="Teacher &amp; Events">Teacher &amp; Event Musician</option>
           </select>
         </div>
       </div>
@@ -532,7 +532,7 @@ export default function JoinForm({
             value={form.lessonRateFrom}
             onChange={(e) => update("lessonRateFrom", e.target.value)}
           />
-          <label className="flex items-center gap-2 text-sm cursor-pointer mt-3">
+          <label className="flex items-center gap-2 text-xs text-mid cursor-pointer mt-3">
             <input
               type="checkbox"
               checked={form.lessonRateByEnquiry}
@@ -560,7 +560,7 @@ export default function JoinForm({
             value={form.eventRateFrom}
             onChange={(e) => update("eventRateFrom", e.target.value)}
           />
-          <label className="flex items-center gap-2 text-sm cursor-pointer mt-3">
+          <label className="flex items-center gap-2 text-xs text-mid cursor-pointer mt-3">
             <input
               type="checkbox"
               checked={form.eventRateByEnquiry}
@@ -588,12 +588,6 @@ export default function JoinForm({
           real-time calendar. Clients still individually request specific
           dates, and you confirm each one.
         </p>
-        <input
-          className={`${inputClass} mt-3`}
-          placeholder="Anything else about your availability (optional), e.g. not available in December"
-          value={form.availability}
-          onChange={(e) => update("availability", e.target.value)}
-        />
       </div>
 
       <div>
@@ -682,7 +676,7 @@ export default function JoinForm({
             ))}
           </ul>
         )}
-        <label className={`${labelClass} mt-4`}>Documents (optional, e.g. a press kit or PDF)</label>
+        <label className={`${labelClass} mt-4`}>Documents (optional)</label>
         <input
           type="file"
           accept="application/pdf"
